@@ -58,7 +58,6 @@ app = typer.Typer(
     name="nothinghide",
     help="Check public exposure risk of your email and password using lawful sources.",
     add_completion=False,
-    no_args_is_help=True,
 )
 
 
@@ -83,8 +82,9 @@ def version_callback(value: bool):
         raise typer.Exit()
 
 
-@app.callback()
+@app.callback(invoke_without_command=True)
 def main(
+    ctx: typer.Context,
     version: bool = typer.Option(
         None,
         "--version",
@@ -99,7 +99,10 @@ def main(
     Check if your email or password has been exposed in public data breaches.
     Uses only lawful, publicly available data sources.
     """
-    pass
+    if ctx.invoked_subcommand is None:
+        render_welcome(console, show_tagline=True)
+        console.print(f"[{GRAY_DIM}]Use --help to see available commands.[/{GRAY_DIM}]")
+        console.print()
 
 
 @app.command()

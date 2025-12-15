@@ -21,9 +21,9 @@ args = "NothingHide CLI"
 name = "NothingHide CLI"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "nothinghide --help"
-
 [workflows.workflow.metadata]
 outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "nothinghide"
