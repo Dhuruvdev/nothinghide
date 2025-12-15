@@ -26,4 +26,4 @@ outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "nothinghide"
+args = "cd nothinghide && python -m app.main"
