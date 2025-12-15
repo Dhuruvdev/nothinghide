@@ -21,35 +21,32 @@ AMBER_WARNING = "#F9A825"
 RED_ERROR = "#FF5252"
 GRAY_DIM = "#6B7280"
 WHITE = "#FFFFFF"
+MAGENTA_ACCENT = "#FF69B4"
 
-BANNER_FULL = """
-[cyan]███╗   ██╗ ██████╗ ████████╗██╗  ██╗██╗███╗   ██╗ ██████╗ [/cyan][bright_white]██╗  ██╗██╗██████╗ ███████╗[/bright_white]
-[cyan]████╗  ██║██╔═══██╗╚══██╔══╝██║  ██║██║████╗  ██║██╔════╝ [/cyan][bright_white]██║  ██║██║██╔══██╗██╔════╝[/bright_white]
-[cyan]██╔██╗ ██║██║   ██║   ██║   ███████║██║██╔██╗ ██║██║  ███╗[/cyan][bright_white]███████║██║██║  ██║█████╗  [/bright_white]
-[cyan]██║╚██╗██║██║   ██║   ██║   ██╔══██║██║██║╚██╗██║██║   ██║[/cyan][bright_white]██╔══██║██║██║  ██║██╔══╝  [/bright_white]
-[cyan]██║ ╚████║╚██████╔╝   ██║   ██║  ██║██║██║ ╚████║╚██████╔╝[/cyan][bright_white]██║  ██║██║██████╔╝███████╗[/bright_white]
-[cyan]╚═╝  ╚═══╝ ╚═════╝    ╚═╝   ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝ [/cyan][bright_white]╚═╝  ╚═╝╚═╝╚═════╝ ╚══════╝[/bright_white]
-"""
+WELCOME_TEXT = "[white]Welcome to[/white]"
 
-BANNER_MEDIUM = """
-[cyan]╔╗╔╔═╗╔╦╗╦ ╦╦╔╗╔╔═╗[/cyan][bright_white]╦ ╦╦╔╦╗╔═╗[/bright_white]
-[cyan]║║║║ ║ ║ ╠═╣║║║║║ ╦[/cyan][bright_white]╠═╣║ ║║║╣ [/bright_white]
-[cyan]╝╚╝╚═╝ ╩ ╩ ╩╩╝╚╝╚═╝[/cyan][bright_white]╩ ╩╩═╩╝╚═╝[/bright_white]
-"""
+BANNER_FULL = """[cyan]███╗   ██╗ ██████╗ ████████╗██╗  ██╗██╗███╗   ██╗ ██████╗ ██╗  ██╗██╗██████╗ ███████╗[/cyan]
+[cyan]████╗  ██║██╔═══██╗╚══██╔══╝██║  ██║██║████╗  ██║██╔════╝ ██║  ██║██║██╔══██╗██╔════╝[/cyan]
+[cyan]██╔██╗ ██║██║   ██║   ██║   ███████║██║██╔██╗ ██║██║  ███╗███████║██║██║  ██║█████╗  [/cyan]
+[cyan]██║╚██╗██║██║   ██║   ██║   ██╔══██║██║██║╚██╗██║██║   ██║██╔══██║██║██║  ██║██╔══╝  [/cyan]
+[cyan]██║ ╚████║╚██████╔╝   ██║   ██║  ██║██║██║ ╚████║╚██████╔╝██║  ██║██║██████╔╝███████╗[/cyan]
+[cyan]╚═╝  ╚═══╝ ╚═════╝    ╚═╝   ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═╝╚═╝╚═════╝ ╚══════╝[/cyan]"""
 
-BANNER_COMPACT = "[cyan]NOTHING[/cyan][bright_white]HIDE[/bright_white]"
+BANNER_MEDIUM = """[cyan]╔╗╔╔═╗╔╦╗╦ ╦╦╔╗╔╔═╗╦ ╦╦╔╦╗╔═╗[/cyan]
+[cyan]║║║║ ║ ║ ╠═╣║║║║║ ╦╠═╣║ ║║║╣ [/cyan]
+[cyan]╝╚╝╚═╝ ╩ ╩ ╩╩╝╚╝╚═╝╩ ╩╩═╩╝╚═╝[/cyan]"""
 
-SHIELD_ART = """
-[cyan]    ╔═══════╗    [/cyan]
-[cyan]   ╔╝ ░░░░░ ╚╗   [/cyan]
-[cyan]   ║ ░░███░░ ║   [/cyan]
-[cyan]   ║ ░█████░ ║   [/cyan]
-[cyan]   ║ ░░███░░ ║   [/cyan]
-[cyan]   ╚╗ ░░░░░ ╔╝   [/cyan]
-[cyan]    ╚═══════╝    [/cyan]
-"""
+BANNER_COMPACT = "[cyan]NOTHINGHIDE[/cyan]"
 
-SHIELD_COMPACT = "[cyan]◆[/cyan]"
+MASCOT_ART = """[cyan]    ██████████    [/cyan]
+[cyan]  ██[/cyan][green]░░░░░░░░[/green][cyan]██  [/cyan]
+[cyan]██[/cyan][green]░░[/green][bright_magenta]████[/bright_magenta][green]░░░░[/green][cyan]██[/cyan]
+[cyan]██[/cyan][green]░░[/green][bright_magenta]████[/bright_magenta][green]░░░░[/green][cyan]██[/cyan]
+[cyan]██[/cyan][green]░░░░░░░░░░[/green][cyan]██[/cyan]
+[cyan]  ██[/cyan][green]░░[/green][white]██[/white][green]░░[/green][cyan]██  [/cyan]
+[cyan]    ██████████    [/cyan]"""
+
+MASCOT_COMPACT = "[cyan]◆[/cyan]"
 
 
 def get_terminal_size(console: Console) -> tuple[int, int]:
@@ -65,7 +62,7 @@ def get_terminal_size(console: Console) -> tuple[int, int]:
 
 
 def render_banner(console: Console) -> None:
-    """Render the NothingHide ASCII art banner.
+    """Render the NothingHide ASCII art banner with mascot.
     
     Adapts to terminal width for responsive display.
     
@@ -76,11 +73,25 @@ def render_banner(console: Console) -> None:
     
     console.print()
     
-    if width >= 90:
-        console.print(BANNER_FULL, justify="center")
-    elif width >= 40:
+    if width >= 100:
+        console.print(WELCOME_TEXT, justify="center")
+        console.print()
+        banner_lines = BANNER_FULL.strip().split('\n')
+        mascot_lines = MASCOT_ART.strip().split('\n')
+        
+        max_mascot_lines = len(mascot_lines)
+        max_banner_lines = len(banner_lines)
+        
+        for i in range(max(max_banner_lines, max_mascot_lines)):
+            banner_line = banner_lines[i] if i < max_banner_lines else " " * 80
+            mascot_line = mascot_lines[i] if i < max_mascot_lines else " " * 18
+            console.print(f"  {banner_line}  {mascot_line}")
+    elif width >= 50:
+        console.print(WELCOME_TEXT, justify="center")
+        console.print()
         console.print(BANNER_MEDIUM, justify="center")
     else:
+        console.print(WELCOME_TEXT, justify="center")
         console.print(BANNER_COMPACT, justify="center")
     
     console.print()
@@ -103,9 +114,16 @@ def render_welcome(console: Console, show_tagline: bool = True) -> None:
     console.print(Align.center(version_text))
     
     if show_tagline and width >= 50:
+        console.print()
         tagline = Text()
-        tagline.append("Secure Exposure Intelligence", style=f"italic {GRAY_DIM}")
+        tagline.append("NothingHide can check email breaches and password exposure right from your terminal.", style=WHITE)
         console.print(Align.center(tagline))
+        
+        help_text = Text()
+        help_text.append("Select an option to get started or enter ", style=WHITE)
+        help_text.append("?", style=f"bold {CYAN_PRIMARY}")
+        help_text.append(" for help. Uses only lawful public sources.", style=WHITE)
+        console.print(Align.center(help_text))
     
     console.print()
 
@@ -139,6 +157,67 @@ def render_status(console: Console, status: str, status_type: str = "info") -> N
     text.append(f"  {symbol} ", style=color)
     text.append(status, style="white")
     console.print(text)
+
+
+def render_menu(console: Console) -> None:
+    """Render the main menu with numbered options.
+    
+    Args:
+        console: Rich console instance.
+    """
+    console.print()
+    
+    menu_items = [
+        ("1", "Email Check", "Check if your email appears in data breaches"),
+        ("2", "Password Check", "Check if your password has been exposed"),
+        ("3", "Full Scan", "Complete identity scan (email + password)"),
+        ("4", "Help", "Show detailed help information"),
+        ("5", "Exit", "Exit NothingHide"),
+    ]
+    
+    for num, title, desc in menu_items:
+        line = Text()
+        line.append(f"  [{CYAN_PRIMARY}]{num}[/{CYAN_PRIMARY}]  ", style=CYAN_PRIMARY)
+        line.append(f"{title}", style=f"bold {WHITE}")
+        line.append(f"  - {desc}", style=GRAY_DIM)
+        console.print(line)
+    
+    console.print()
+
+
+def render_input_prompt(console: Console) -> str:
+    """Render the input prompt and get user choice.
+    
+    Args:
+        console: Rich console instance.
+        
+    Returns:
+        User's choice as string.
+    """
+    prompt_text = Text()
+    prompt_text.append("> ", style=f"bold {CYAN_PRIMARY}")
+    console.print(prompt_text, end="")
+    
+    try:
+        return input().strip()
+    except (EOFError, KeyboardInterrupt):
+        return "5"
+
+
+def render_keyboard_shortcuts(console: Console) -> None:
+    """Render keyboard shortcuts footer.
+    
+    Args:
+        console: Rich console instance.
+    """
+    console.print()
+    shortcuts = Text()
+    shortcuts.append("Ctrl+c", style=f"bold {WHITE}")
+    shortcuts.append(" Exit", style=GRAY_DIM)
+    shortcuts.append("  ·  ", style=GRAY_DIM)
+    shortcuts.append("?", style=f"bold {WHITE}")
+    shortcuts.append(" Help", style=GRAY_DIM)
+    console.print(shortcuts)
 
 
 def render_section_header(console: Console, title: str) -> None:

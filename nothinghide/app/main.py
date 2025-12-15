@@ -37,6 +37,8 @@ from .utils import (
     create_scan_table,
     validate_email_address,
     logger,
+    calculate_risk_level,
+    get_recommendations,
 )
 from .branding import (
     render_banner,
@@ -47,6 +49,9 @@ from .branding import (
     render_result_box,
     render_footer,
     render_privacy_notice,
+    render_menu,
+    render_input_prompt,
+    render_keyboard_shortcuts,
     CYAN_PRIMARY,
     GREEN_SUCCESS,
     AMBER_WARNING,
@@ -72,7 +77,6 @@ def handle_internal_error(e: Exception) -> None:
     """
     logger.exception("Internal error occurred")
     error_console.print(f"[{RED_ERROR}]Error:[/{RED_ERROR}] An unexpected internal error occurred.")
-    raise typer.Exit(code=EXIT_INTERNAL_ERROR)
 
 
 def version_callback(value: bool):
@@ -80,6 +84,316 @@ def version_callback(value: bool):
     if value:
         render_welcome(console, show_tagline=True)
         raise typer.Exit()
+
+
+def do_email_check() -> None:
+    """Perform email breach check."""
+    render_command_header(console, "Email Breach Check", "Public breach database scan")
+    
+    console.print(f"[{CYAN_PRIMARY}]Enter email address to check:[/{CYAN_PRIMARY}]")
+    prompt_text = Text()
+    prompt_text.append("> ", style=f"bold {CYAN_PRIMARY}")
+    console.print(prompt_text, end="")
+    
+    try:
+        email_address = input().strip()
+    except (EOFError, KeyboardInterrupt):
+        console.print(f"\n[{AMBER_WARNING}]Operation cancelled.[/{AMBER_WARNING}]")
+        return
+    
+    if not email_address:
+        error_console.print(f"[{RED_ERROR}]Error:[/{RED_ERROR}] No email address provided.")
+        return
+    
+    is_valid, validation_result = validate_email_address(email_address)
+    if not is_valid:
+        error_console.print(f"[{RED_ERROR}]Error:[/{RED_ERROR}] Invalid email format: {validation_result}")
+        return
+    
+    render_status(console, f"Target: {validation_result}", "info")
+    console.print()
+    
+    with console.status(f"[{CYAN_PRIMARY}]Querying breach databases...[/{CYAN_PRIMARY}]", spinner="dots"):
+        result = check_email(email_address)
+    
+    if result.get("error"):
+        if result.get("validation_error"):
+            error_console.print(f"[{RED_ERROR}]Error:[/{RED_ERROR}] {result.get('message')}")
+        else:
+            error_console.print(f"[{RED_ERROR}]Error:[/{RED_ERROR}] {result.get('message')}")
+        return
+    
+    console.print()
+    
+    if result.get("breached"):
+        breach_count = result.get('breach_count', 0)
+        
+        result_text = Text()
+        result_text.append("STATUS: ", style="bold")
+        result_text.append("EXPOSED", style=f"bold {RED_ERROR}")
+        console.print(Align.center(result_text))
+        
+        count_text = Text()
+        count_text.append(f"Found in {breach_count} public breach(es)", style=AMBER_WARNING)
+        console.print(Align.center(count_text))
+        console.print()
+        
+        if result.get("breaches"):
+            table = create_breach_table(result["breaches"])
+            console.print(table)
+        
+        console.print()
+        render_status(console, "Review account security for affected services", "warning")
+        render_status(console, "Enable two-factor authentication where available", "warning")
+        render_status(console, "Consider changing passwords on breached accounts", "warning")
+    else:
+        result_text = Text()
+        result_text.append("STATUS: ", style="bold")
+        result_text.append("CLEAR", style=f"bold {GREEN_SUCCESS}")
+        console.print(Align.center(result_text))
+        
+        console.print()
+        render_status(console, "No public breach found for this email", "success")
+        console.print()
+        console.print(f"[{GRAY_DIM}]Note: This only checks known public breaches. Continue practicing good security hygiene.[/{GRAY_DIM}]")
+    
+    render_footer(console, result.get('source', 'Unknown'))
+
+
+def do_password_check() -> None:
+    """Perform password exposure check."""
+    render_command_header(console, "Password Check", "Secure k-anonymity scan")
+    
+    render_privacy_notice(console)
+    console.print()
+    
+    render_status(console, "Using k-anonymity protocol", "info")
+    render_status(console, "Password never transmitted or stored", "info")
+    console.print()
+    
+    result = check_password_interactive()
+    
+    if result.get("error"):
+        if result.get("cancelled"):
+            console.print(f"\n[{AMBER_WARNING}]Check cancelled.[/{AMBER_WARNING}]")
+        elif result.get("validation_error"):
+            error_console.print(f"[{RED_ERROR}]Error:[/{RED_ERROR}] {result.get('message')}")
+        else:
+            error_console.print(f"[{RED_ERROR}]Error:[/{RED_ERROR}] {result.get('message')}")
+        return
+    
+    console.print()
+    
+    if result.get("exposed"):
+        count = result.get("count", 0)
+        
+        result_text = Text()
+        result_text.append("STATUS: ", style="bold")
+        result_text.append("EXPOSED", style=f"bold {RED_ERROR}")
+        console.print(Align.center(result_text))
+        
+        count_text = Text()
+        count_text.append(f"Seen {count:,} time(s) in breach databases", style=RED_ERROR)
+        console.print(Align.center(count_text))
+        console.print()
+        
+        render_status(console, "Do not use this password for any account", "error")
+        render_status(console, "Change this password immediately if in use", "warning")
+        render_status(console, "Use a unique, strong password for each account", "warning")
+    else:
+        result_text = Text()
+        result_text.append("STATUS: ", style="bold")
+        result_text.append("NOT FOUND", style=f"bold {GREEN_SUCCESS}")
+        console.print(Align.center(result_text))
+        
+        console.print()
+        render_status(console, "Password not found in known breach databases", "success")
+        console.print()
+        console.print(f"[{GRAY_DIM}]Note: This does not guarantee the password is secure or strong.[/{GRAY_DIM}]")
+    
+    render_footer(console, result.get('source', 'Have I Been Pwned'))
+
+
+def do_full_scan() -> None:
+    """Perform complete identity scan."""
+    render_command_header(console, "Identity Scan", "Complete exposure analysis")
+    
+    console.print(f"[{CYAN_PRIMARY}]Enter email address for scan:[/{CYAN_PRIMARY}]")
+    prompt_text = Text()
+    prompt_text.append("> ", style=f"bold {CYAN_PRIMARY}")
+    console.print(prompt_text, end="")
+    
+    try:
+        email_address = input().strip()
+    except (EOFError, KeyboardInterrupt):
+        console.print(f"\n[{AMBER_WARNING}]Scan cancelled.[/{AMBER_WARNING}]")
+        return
+    
+    if not email_address:
+        error_console.print(f"[{RED_ERROR}]Error:[/{RED_ERROR}] No email address provided.")
+        return
+    
+    is_valid, validation_result = validate_email_address(email_address)
+    if not is_valid:
+        error_console.print(f"[{RED_ERROR}]Error:[/{RED_ERROR}] Invalid email format: {validation_result}")
+        return
+    
+    render_status(console, f"Target: {validation_result}", "info")
+    render_privacy_notice(console)
+    console.print()
+    
+    console.print(f"[bold {CYAN_PRIMARY}]STEP 1/2[/bold {CYAN_PRIMARY}] [bold]Email Breach Check[/bold]")
+    console.print()
+    
+    with console.status(f"[{CYAN_PRIMARY}]Querying breach databases...[/{CYAN_PRIMARY}]", spinner="dots"):
+        email_result = check_email(email_address)
+    
+    if email_result.get("error") and not email_result.get("validation_error"):
+        render_status(console, "Email check unavailable - API error", "warning")
+        email_result = {
+            "breached": False,
+            "breach_count": 0,
+            "breaches": [],
+        }
+    elif email_result.get("breached"):
+        render_status(console, f"Found {email_result.get('breach_count', 0)} breach(es)", "warning")
+    else:
+        render_status(console, "No breaches found", "success")
+    
+    console.print()
+    console.print(f"[bold {CYAN_PRIMARY}]STEP 2/2[/bold {CYAN_PRIMARY}] [bold]Password Exposure Check[/bold]")
+    console.print()
+    
+    password_result = check_password_interactive()
+    
+    if password_result.get("error"):
+        if password_result.get("cancelled"):
+            console.print(f"\n[{AMBER_WARNING}]Scan cancelled.[/{AMBER_WARNING}]")
+            return
+        render_status(console, "Password check unavailable", "warning")
+        password_result = {
+            "exposed": False,
+            "count": 0,
+        }
+    elif password_result.get("exposed"):
+        render_status(console, f"Password exposed ({password_result.get('count', 0):,} times)", "error")
+    else:
+        render_status(console, "Password not found in breaches", "success")
+    
+    email_breached = email_result.get("breached", False)
+    password_exposed = password_result.get("exposed", False)
+    breach_count = email_result.get("breach_count", 0)
+    
+    risk_level = calculate_risk_level(email_breached, password_exposed, breach_count)
+    recommendations = get_recommendations(risk_level, email_breached, password_exposed)
+    
+    console.print()
+    render_section_header(console, "SCAN RESULTS")
+    
+    table = create_scan_table(email_result, password_result, risk_level)
+    console.print(table)
+    
+    console.print()
+    console.print(f"[bold {CYAN_PRIMARY}]Recommendations:[/bold {CYAN_PRIMARY}]")
+    console.print()
+    for i, rec in enumerate(recommendations, 1):
+        console.print(f"  [{CYAN_PRIMARY}]{i}.[/{CYAN_PRIMARY}] {rec}")
+    
+    if email_result.get("breaches"):
+        console.print()
+        render_section_header(console, "BREACH DETAILS")
+        breach_table = create_breach_table(email_result["breaches"])
+        console.print(breach_table)
+    
+    render_footer(console, "HackCheck/XposedOrNot (email), Have I Been Pwned (password)")
+
+
+def show_help() -> None:
+    """Display detailed help information."""
+    render_banner(console)
+    
+    console.print(f"[bold {CYAN_PRIMARY}]NOTHINGHIDE HELP[/bold {CYAN_PRIMARY}]", justify="center")
+    console.print()
+    
+    help_sections = [
+        ("Email Check", "Queries public breach databases to see if your email appears in known data breaches. Provides details about when and where breaches occurred."),
+        ("Password Check", "Uses k-anonymity to check if your password has been exposed. Your password is NEVER transmitted - only a partial hash is sent for comparison."),
+        ("Full Scan", "Performs both email and password checks together, providing a complete risk assessment with personalized recommendations."),
+    ]
+    
+    for title, desc in help_sections:
+        console.print(f"[bold {CYAN_PRIMARY}]{title}[/bold {CYAN_PRIMARY}]")
+        console.print(f"  [{GRAY_DIM}]{desc}[/{GRAY_DIM}]")
+        console.print()
+    
+    console.print(f"[bold {CYAN_PRIMARY}]Data Sources[/bold {CYAN_PRIMARY}]")
+    console.print(f"  [{GRAY_DIM}]• Email: HackCheck, XposedOrNot[/{GRAY_DIM}]")
+    console.print(f"  [{GRAY_DIM}]• Password: Have I Been Pwned (k-anonymity)[/{GRAY_DIM}]")
+    console.print()
+    
+    render_keyboard_shortcuts(console)
+
+
+def interactive_menu() -> None:
+    """Run the interactive menu interface."""
+    while True:
+        try:
+            render_welcome(console, show_tagline=True)
+            
+            render_status(console, "Ready for security checks", "success")
+            render_status(console, "All checks use lawful public sources", "info")
+            
+            render_menu(console)
+            render_keyboard_shortcuts(console)
+            console.print()
+            
+            choice = render_input_prompt(console)
+            
+            if choice == "1":
+                do_email_check()
+                console.print(f"\n[{GRAY_DIM}]Press Enter to continue...[/{GRAY_DIM}]")
+                try:
+                    input()
+                except (EOFError, KeyboardInterrupt):
+                    pass
+            elif choice == "2":
+                do_password_check()
+                console.print(f"\n[{GRAY_DIM}]Press Enter to continue...[/{GRAY_DIM}]")
+                try:
+                    input()
+                except (EOFError, KeyboardInterrupt):
+                    pass
+            elif choice == "3":
+                do_full_scan()
+                console.print(f"\n[{GRAY_DIM}]Press Enter to continue...[/{GRAY_DIM}]")
+                try:
+                    input()
+                except (EOFError, KeyboardInterrupt):
+                    pass
+            elif choice == "4" or choice == "?":
+                show_help()
+                console.print(f"\n[{GRAY_DIM}]Press Enter to continue...[/{GRAY_DIM}]")
+                try:
+                    input()
+                except (EOFError, KeyboardInterrupt):
+                    pass
+            elif choice == "5" or choice.lower() == "exit" or choice.lower() == "quit":
+                console.print(f"\n[{CYAN_PRIMARY}]Goodbye! Stay secure.[/{CYAN_PRIMARY}]")
+                break
+            else:
+                console.print(f"\n[{AMBER_WARNING}]Invalid option. Please choose 1-5 or ? for help.[/{AMBER_WARNING}]")
+                console.print(f"[{GRAY_DIM}]Press Enter to continue...[/{GRAY_DIM}]")
+                try:
+                    input()
+                except (EOFError, KeyboardInterrupt):
+                    pass
+                    
+        except KeyboardInterrupt:
+            console.print(f"\n\n[{CYAN_PRIMARY}]Goodbye! Stay secure.[/{CYAN_PRIMARY}]")
+            break
+        except Exception as e:
+            handle_internal_error(e)
+            break
 
 
 @app.callback(invoke_without_command=True)
@@ -100,9 +414,7 @@ def main(
     Uses only lawful, publicly available data sources.
     """
     if ctx.invoked_subcommand is None:
-        render_welcome(console, show_tagline=True)
-        console.print(f"[{GRAY_DIM}]Use --help to see available commands.[/{GRAY_DIM}]")
-        console.print()
+        interactive_menu()
 
 
 @app.command()
@@ -186,6 +498,7 @@ def email(
         raise typer.Exit(code=EXIT_INPUT_ERROR)
     except Exception as e:
         handle_internal_error(e)
+        raise typer.Exit(code=EXIT_INTERNAL_ERROR)
 
 
 @app.command()
@@ -261,6 +574,7 @@ def password():
         raise typer.Exit(code=EXIT_INPUT_ERROR)
     except Exception as e:
         handle_internal_error(e)
+        raise typer.Exit(code=EXIT_INTERNAL_ERROR)
 
 
 @app.command()
@@ -330,8 +644,6 @@ def scan(
         else:
             render_status(console, "Password not found in breaches", "success")
         
-        from .utils import calculate_risk_level, get_recommendations
-        
         email_breached = email_result.get("breached", False)
         password_exposed = password_result.get("exposed", False)
         breach_count = email_result.get("breach_count", 0)
@@ -367,6 +679,7 @@ def scan(
         raise typer.Exit(code=EXIT_INPUT_ERROR)
     except Exception as e:
         handle_internal_error(e)
+        raise typer.Exit(code=EXIT_INTERNAL_ERROR)
 
 
 if __name__ == "__main__":
