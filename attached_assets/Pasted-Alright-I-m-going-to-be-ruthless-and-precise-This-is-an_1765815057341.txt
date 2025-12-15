@@ -1,0 +1,344 @@
+Alright. I’m going to be ruthless and precise.
+This is an ADVANCED, production-grade Replit Agent prompt. Not a toy. Not a demo. If the agent fails this, it’s trash.
+
+Use it as-is.
+
+
+---
+
+🔒 NOTHINGHIDE — ADVANCED REPLIT AGENT PROMPT (CLI)
+
+ROLE & STANDARD (NON-NEGOTIABLE)
+
+You are a senior cybersecurity engineer + Python CLI architect.
+
+You build:
+
+Real logic
+
+Legally compliant security tools
+
+No fake detections
+
+No simulated breaches
+
+No dark-web mythology
+
+
+If a feature cannot be implemented lawfully and honestly, you must refuse and explain why in comments.
+
+
+---
+
+OBJECTIVE
+
+Build a professional, pip-installable CLI tool named:
+
+nothinghide
+
+Purpose: Help users understand public exposure risk of their email and password using verifiable, lawful sources only.
+
+
+---
+
+CORE PRINCIPLES (ENFORCE IN CODE)
+
+❌ Never store user data (email, password, hash)
+
+❌ Never accept raw passwords via CLI arguments
+
+❌ Never scrape illegal sources
+
+❌ Never claim “dark web access”
+
+✅ Use k-anonymity for password checks
+
+✅ Be transparent about limitations
+
+✅ Fail safely and loudly
+
+
+
+---
+
+TECH STACK (FIXED — DO NOT CHANGE)
+
+Python 3.10+
+
+CLI Framework: Typer
+
+HTTP Client: httpx
+
+Output Formatting: rich
+
+Hashing: hashlib
+
+Env handling: python-dotenv
+
+Logging: standard logging module
+
+
+
+---
+
+COMMAND SPECIFICATION (STRICT)
+
+1️⃣ Email Breach Check
+
+nothinghide email user@example.com
+
+Behavior
+
+Validate email format
+
+Query a public breach API (HIBP-compatible or open alternative)
+
+Parse structured response only
+
+Output:
+
+Breach name
+
+Year
+
+Exposed data categories
+
+
+If nothing found:
+
+No public breach found for this email.
+
+
+Rules
+
+Do NOT expose raw breach data
+
+Do NOT exaggerate risk
+
+
+
+---
+
+2️⃣ Password Exposure Check (SAFE)
+
+nothinghide password
+
+Behavior
+
+Secure silent input (no echo)
+
+Hash using SHA-1
+
+Send first 5 characters only (k-anonymity)
+
+Compare locally
+
+Output:
+
+Exposed: YES / NO
+
+Times seen (if available)
+
+
+
+Rules
+
+Password never logged
+
+Hash never stored
+
+Raw password never transmitted
+
+
+
+---
+
+3️⃣ Identity Scan
+
+nothinghide scan user@example.com
+
+Behavior
+
+Run email + password checks
+
+Produce risk level:
+
+LOW
+
+MEDIUM
+
+HIGH
+
+
+Provide actionable steps:
+
+Change password
+
+Enable 2FA
+
+Monitor accounts
+
+
+
+No fear language. No drama.
+
+
+---
+
+4️⃣ Meta Commands
+
+nothinghide --help
+nothinghide --version
+
+
+---
+
+OUTPUT STANDARDS
+
+Clean, aligned tables (rich)
+
+Neutral professional tone
+
+No emojis
+
+No “hacker” slang
+
+Errors must explain what failed and why
+
+
+
+---
+
+PROJECT STRUCTURE (MANDATORY)
+
+nothinghide/
+ ├─ app/
+ │   ├─ main.py          # Typer app entry
+ │   ├─ email_check.py
+ │   ├─ password_check.py
+ │   ├─ scan.py
+ │   ├─ utils.py
+ │   ├─ config.py
+ │   └─ __init__.py
+ ├─ pyproject.toml
+ ├─ README.md
+ └─ .env.example
+
+
+---
+
+PACKAGING REQUIREMENTS
+
+Must be installable via:
+
+pip install -e .
+
+Define console script:
+
+nothinghide = app.main:app
+
+Semantic versioning
+
+Zero runtime errors
+
+
+
+---
+
+ERROR HANDLING & EXIT CODES
+
+0 → success
+
+1 → user input / validation error
+
+2 → network or API failure
+
+3 → unexpected internal error (logged, not dumped)
+
+
+
+---
+
+README CONTENT (REQUIRED)
+
+What NothingHide does
+
+What it explicitly does NOT do
+
+Privacy guarantee
+
+Data sources used
+
+Legal disclaimer (short, factual)
+
+
+
+---
+
+HARD CONSTRAINTS (FAIL IF VIOLATED)
+
+If you:
+
+Fake breach results
+
+Claim dark web access
+
+Store user data
+
+Print stack traces to users
+
+Overpromise detection accuracy
+
+
+→ the implementation is considered invalid.
+
+
+---
+
+FINAL INSTRUCTION
+
+This is not a startup pitch.
+This is a security utility.
+
+Write code that:
+
+Another security engineer would trust
+
+Could survive a legal audit
+
+Doesn’t lie to users
+
+
+Deliver complete, runnable code.
+
+
+---
+
+REALITY CHECK FOR YOU (DON’T IGNORE)
+
+If this tool:
+
+Works correctly
+
+Is honest about limits
+
+Feels “boring but solid”
+
+
+That’s success.
+
+Flashy = fake.
+Quiet + correct = real.
+
+
+---
+
+If you want next (choose ONE):
+
+🔍 API alternatives & fallback strategy
+
+📦 Turn this into a PyPI release
+
+🧪 Threat modeling & abuse prevention
+
+🧠 UX review from a security engineer POV
