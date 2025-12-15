@@ -4,9 +4,12 @@ version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.11"
 dependencies = [
+    "colorama>=0.4.6",
     "email-validator>=2.3.0",
+    "halo>=0.0.31",
     "httpx>=0.28.1",
     "python-dotenv>=1.2.1",
     "rich>=14.2.0",
     "typer[all]>=0.20.0",
+    "yaspin>=3.4.0",
 ]

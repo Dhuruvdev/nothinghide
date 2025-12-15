@@ -27,35 +27,66 @@ pip install -e .
 nothinghide --version
 ```
 
+## Quick Start
+
+The easiest way to start NothingHide is using the startup script:
+
+```bash
+cd nothinghide
+./start.sh
+```
+
+### Startup Script Options
+
+| Option | Description |
+|--------|-------------|
+| `--help, -h` | Show help message |
+| `--quick, -q` | Quick start (skip detailed checks) |
+| `--check` | Run checks only, don't start CLI |
+| `--install` | Install/update dependencies |
+| `--clean` | Clean up cache files |
+| `--skip-network` | Skip network connectivity check |
+
+Examples:
+```bash
+./start.sh                  # Full startup with all checks
+./start.sh --quick          # Quick startup (faster)
+./start.sh --check          # Just verify everything is set up
+./start.sh --install        # Update all dependencies
+```
+
 ## Usage
 
-### Check Email for Breaches
+### Interactive Menu
+
+When you start NothingHide, you'll see a numbered menu:
+
+```
+  [1]  Email Check      - Check if your email appears in data breaches
+  [2]  Password Check   - Check if your password has been exposed
+  [3]  Full Scan        - Complete identity scan (email + password)
+  [4]  Help             - Show detailed help information
+  [5]  Exit             - Exit NothingHide
+```
+
+Simply enter a number (1-5) to select an option.
+
+### Command Line Mode
+
+You can also use direct commands:
 
 ```bash
+# Check email for breaches
 nothinghide email user@example.com
-```
 
-### Check Password Exposure
-
-```bash
+# Check password exposure
 nothinghide password
-# You will be prompted to enter your password (hidden input)
-```
 
-### Run Complete Identity Scan
-
-```bash
+# Run complete identity scan
 nothinghide scan user@example.com
-# This runs both email and password checks
-```
 
-### Get Help
-
-```bash
+# Get help
 nothinghide --help
-nothinghide email --help
-nothinghide password --help
-nothinghide scan --help
 ```
 
 ## Privacy Guarantee
