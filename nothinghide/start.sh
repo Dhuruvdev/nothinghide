@@ -22,23 +22,6 @@ NC='\033[0m'
 SPINNER_CHARS="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
 SPINNER_DELAY=0.1
 
-show_spinner() {
-    local pid=$1
-    local message=$2
-    local i=0
-    local len=${#SPINNER_CHARS}
-    
-    while kill -0 $pid 2>/dev/null; do
-        local char="${SPINNER_CHARS:$((i % len)):1}"
-        printf "\r  ${CYAN}%s${NC} %s" "$char" "$message"
-        sleep $SPINNER_DELAY
-        ((i++))
-    done
-    
-    wait $pid
-    return $?
-}
-
 show_success() {
     printf "\r  ${GREEN}✓${NC} %s\n" "$1"
 }
@@ -94,76 +77,25 @@ check_virtual_env() {
     fi
 }
 
-check_dependencies() {
-    local missing_deps=()
-    local all_deps=("typer" "rich" "httpx" "email_validator" "halo" "yaspin" "colorama")
-    
-    for dep in "${all_deps[@]}"; do
-        if ! $PYTHON_CMD -c "import $dep" 2>/dev/null; then
-            missing_deps+=("$dep")
-        fi
-    done
-    
-    if [ ${#missing_deps[@]} -eq 0 ]; then
-        show_success "All dependencies installed"
+check_package_installed() {
+    if $PYTHON_CMD -c "import nothinghide" 2>/dev/null; then
+        show_success "NothingHide package installed"
         return 0
     else
-        show_warning "Missing dependencies: ${missing_deps[*]}"
+        show_warning "NothingHide package not installed"
         return 1
     fi
 }
 
-install_dependencies() {
-    echo -e "  ${CYAN}●${NC} Installing dependencies..."
+install_package() {
+    echo -e "  ${CYAN}●${NC} Installing NothingHide package..."
     
-    if [ -f "$PROJECT_ROOT/pyproject.toml" ]; then
-        cd "$PROJECT_ROOT"
-        if command -v uv &> /dev/null; then
-            uv sync --quiet 2>/dev/null || pip install -e . --quiet
-        else
-            pip install -e . --quiet 2>/dev/null || pip install -r requirements.txt --quiet 2>/dev/null
-        fi
-    fi
-    
-    show_success "Dependencies installed"
-}
-
-verify_app_structure() {
-    local required_files=(
-        "app/__init__.py"
-        "app/main.py"
-        "app/branding.py"
-        "app/config.py"
-        "app/utils.py"
-        "app/email_check.py"
-        "app/password_check.py"
-    )
-    
-    local missing_files=()
-    
-    for file in "${required_files[@]}"; do
-        if [ ! -f "$PROJECT_ROOT/$file" ]; then
-            missing_files+=("$file")
-        fi
-    done
-    
-    if [ ${#missing_files[@]} -eq 0 ]; then
-        show_success "Application structure verified"
-        return 0
+    cd "$PROJECT_ROOT"
+    if pip install -e . --quiet 2>/dev/null; then
+        show_success "NothingHide installed successfully"
     else
-        show_error "Missing files: ${missing_files[*]}"
-        return 1
-    fi
-}
-
-load_environment() {
-    if [ -f "$PROJECT_ROOT/.env" ]; then
-        set -a
-        source "$PROJECT_ROOT/.env"
-        set +a
-        show_success "Environment loaded from .env"
-    else
-        show_info "No .env file found (using defaults)"
+        show_error "Failed to install NothingHide"
+        exit 1
     fi
 }
 
@@ -192,7 +124,7 @@ start_cli() {
     sleep 0.5
     
     cd "$PROJECT_ROOT"
-    exec $PYTHON_CMD -m app.main "$@"
+    exec $PYTHON_CMD -m nothinghide.cli "$@"
 }
 
 show_help() {
@@ -205,16 +137,23 @@ show_help() {
     echo "  --help, -h       Show this help message"
     echo "  --quick, -q      Quick start (skip detailed checks)"
     echo "  --check          Run checks only, don't start CLI"
-    echo "  --install        Install/update dependencies"
+    echo "  --install        Install/update package"
     echo "  --clean          Clean up cache files"
     echo "  --skip-network   Skip network connectivity check"
+    echo ""
+    echo "Library Usage:"
+    echo "  pip install nothinghide"
+    echo ""
+    echo "  from nothinghide import check_email, check_password"
+    echo "  result = check_email('user@example.com')"
+    echo "  result = check_password('mypassword123')"
     echo ""
 }
 
 main() {
     local QUICK_START=false
     local CHECK_ONLY=false
-    local INSTALL_DEPS=false
+    local INSTALL_PKG=false
     local CLEAN_CACHE=false
     local SKIP_NETWORK=false
     local CLI_ARGS=()
@@ -234,7 +173,7 @@ main() {
                 shift
                 ;;
             --install)
-                INSTALL_DEPS=true
+                INSTALL_PKG=true
                 shift
                 ;;
             --clean)
@@ -265,23 +204,19 @@ main() {
         echo -e "  ${GRAY}Running quick startup...${NC}"
         echo ""
         check_python
+        if ! check_package_installed; then
+            install_package
+        fi
         cd "$PROJECT_ROOT"
-        exec $PYTHON_CMD -m app.main "${CLI_ARGS[@]}"
+        exec $PYTHON_CMD -m nothinghide.cli "${CLI_ARGS[@]}"
     fi
     
     check_python
     check_virtual_env
     
-    if ! check_dependencies || [ "$INSTALL_DEPS" = true ]; then
-        install_dependencies
+    if ! check_package_installed || [ "$INSTALL_PKG" = true ]; then
+        install_package
     fi
-    
-    if ! verify_app_structure; then
-        echo -e "\n  ${RED}Application files are missing. Cannot start.${NC}"
-        exit 1
-    fi
-    
-    load_environment
     
     if [ "$SKIP_NETWORK" = false ]; then
         check_network

@@ -1,107 +1,192 @@
 # NothingHide
 
-A professional security tool for checking public exposure of email addresses and passwords using lawful, publicly available sources only.
+**Security Exposure Intelligence** - A professional Python library and CLI for checking email and password exposure in public data breaches using lawful, publicly available sources.
 
-## What NothingHide Does
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-- **Email Breach Check**: Queries public breach databases to see if your email appears in known data breaches
-- **Password Exposure Check**: Uses k-anonymity to safely check if a password has been compromised
-- **Identity Scan**: Combines both checks and provides a risk assessment with actionable recommendations
+## Features
 
-## What NothingHide Does NOT Do
-
-- Does NOT access dark web or illegal sources
-- Does NOT store your email, password, or any personal data
-- Does NOT transmit your actual password over the network
-- Does NOT make claims beyond what public data sources provide
-- Does NOT exaggerate or use fear-based language
+- **Email Breach Check**: Query public breach databases (HackCheck, XposedOrNot)
+- **Password Exposure Check**: Uses k-anonymity protocol (Have I Been Pwned)
+- **Full Identity Scan**: Combined email + password check with risk assessment
+- **Async Support**: Built-in async API for concurrent checks
+- **Privacy-First**: Passwords are NEVER transmitted - only SHA-1 hash prefixes
 
 ## Installation
 
 ```bash
-# Install from source
+pip install nothinghide
+```
+
+Or install from source:
+
+```bash
+git clone https://github.com/nothinghide/nothinghide.git
 cd nothinghide
 pip install -e .
-
-# Verify installation
-nothinghide --version
 ```
 
 ## Quick Start
 
-The easiest way to start NothingHide is using the startup script:
+### As a Library
+
+```python
+from nothinghide import check_email, check_password, BreachScanner
+
+# Check email for breaches
+result = check_email("user@example.com")
+if result.breached:
+    print(f"Found in {result.breach_count} breaches!")
+    for breach in result.breaches:
+        print(f"  - {breach['name']} ({breach['year']})")
+
+# Check password exposure (password is NEVER transmitted)
+result = check_password("mypassword123")
+if result.exposed:
+    print(f"Password seen {result.count:,} times in breaches!")
+    print(f"Strength: {result.strength}")
+
+# Full identity scan
+scanner = BreachScanner()
+report = scanner.full_scan("user@example.com", "mypassword123")
+print(f"Risk Level: {report.risk_level}")
+for rec in report.recommendations:
+    print(f"  - {rec}")
+```
+
+### Async API
+
+```python
+import asyncio
+from nothinghide import async_check_email, async_check_password
+
+async def main():
+    # Check multiple emails concurrently
+    email_result = await async_check_email("user@example.com")
+    password_result = await async_check_password("password123")
+    
+    print(f"Email breached: {email_result.breached}")
+    print(f"Password exposed: {password_result.exposed}")
+
+asyncio.run(main())
+```
+
+### Command Line Interface
+
+```bash
+# Interactive menu
+nothinghide
+
+# Direct commands
+nothinghide email user@example.com
+nothinghide password
+nothinghide scan user@example.com
+```
+
+### Startup Script
 
 ```bash
 cd nothinghide
-./start.sh
+./start.sh              # Full startup with checks
+./start.sh --quick      # Quick start
+./start.sh --check      # Verify setup only
+./start.sh --install    # Install/update package
 ```
 
-### Startup Script Options
+## API Reference
 
-| Option | Description |
-|--------|-------------|
-| `--help, -h` | Show help message |
-| `--quick, -q` | Quick start (skip detailed checks) |
-| `--check` | Run checks only, don't start CLI |
-| `--install` | Install/update dependencies |
-| `--clean` | Clean up cache files |
-| `--skip-network` | Skip network connectivity check |
+### Core Functions
 
-Examples:
-```bash
-./start.sh                  # Full startup with all checks
-./start.sh --quick          # Quick startup (faster)
-./start.sh --check          # Just verify everything is set up
-./start.sh --install        # Update all dependencies
+| Function | Description |
+|----------|-------------|
+| `check_email(email)` | Check email for breaches |
+| `check_password(password)` | Check password exposure |
+| `async_check_email(email)` | Async email check |
+| `async_check_password(password)` | Async password check |
+
+### Classes
+
+| Class | Description |
+|-------|-------------|
+| `BreachScanner` | Full identity scanner with risk assessment |
+| `EmailChecker` | Advanced email checker with multiple sources |
+| `PasswordChecker` | Password checker with strength analysis |
+| `BreachResult` | Email check result dataclass |
+| `PasswordResult` | Password check result dataclass |
+| `ScanReport` | Full scan report with recommendations |
+
+### Result Objects
+
+**BreachResult:**
+```python
+result.email        # Email checked
+result.breached     # True if found in breaches
+result.breach_count # Number of breaches
+result.breaches     # List of breach details
+result.source       # API source used
 ```
 
-## Usage
-
-### Interactive Menu
-
-When you start NothingHide, you'll see a numbered menu:
-
-```
-  [1]  Email Check      - Check if your email appears in data breaches
-  [2]  Password Check   - Check if your password has been exposed
-  [3]  Full Scan        - Complete identity scan (email + password)
-  [4]  Help             - Show detailed help information
-  [5]  Exit             - Exit NothingHide
+**PasswordResult:**
+```python
+result.exposed      # True if password found
+result.count        # Times seen in breaches
+result.strength     # WEAK/FAIR/GOOD/STRONG/COMPROMISED
+result.feedback     # List of improvement suggestions
 ```
 
-Simply enter a number (1-5) to select an option.
+## Security Guarantees
 
-### Command Line Mode
+### Password Privacy (k-Anonymity)
 
-You can also use direct commands:
+1. Password is hashed locally using SHA-1
+2. Only first 5 characters of hash are sent to API
+3. API returns all matching suffixes (hundreds of results)
+4. Comparison happens locally - full hash never transmitted
+5. No one (including the API) can determine your password
 
-```bash
-# Check email for breaches
-nothinghide email user@example.com
+### Data Handling
 
-# Check password exposure
-nothinghide password
-
-# Run complete identity scan
-nothinghide scan user@example.com
-
-# Get help
-nothinghide --help
-```
-
-## Privacy Guarantee
-
-1. **No Data Storage**: Your email and password are never stored anywhere
-2. **K-Anonymity for Passwords**: Only the first 5 characters of your password's SHA-1 hash are sent to the API. The full comparison happens locally on your machine
-3. **No Logging**: User inputs are never logged or written to disk
-4. **Open Source**: You can verify exactly what the code does
+- **No Storage**: User data is never stored or logged
+- **No Transmission**: Passwords never leave your machine
+- **Public Sources**: Only lawful, publicly available databases
+- **Open Source**: Verify exactly what the code does
 
 ## Data Sources
 
-- **Email Breaches**: HackCheck API (primary), XposedOrNot API (fallback)
-- **Password Exposure**: Have I Been Pwned Pwned Passwords API (free, uses k-anonymity)
+| Type | Source | Method |
+|------|--------|--------|
+| Email | HackCheck | REST API (primary) |
+| Email | XposedOrNot | REST API (fallback) |
+| Password | Have I Been Pwned | k-anonymity API |
 
-## Exit Codes
+## Error Handling
+
+```python
+from nothinghide import check_email, ValidationError, NetworkError
+
+try:
+    result = check_email("invalid-email")
+except ValidationError as e:
+    print(f"Invalid input: {e.message}")
+except NetworkError as e:
+    print(f"Network error: {e.message}")
+```
+
+## Configuration
+
+```python
+from nothinghide import EmailChecker, PasswordChecker
+
+# Custom timeout
+email_checker = EmailChecker(timeout=30.0)
+password_checker = PasswordChecker(timeout=30.0, enable_padding=True)
+
+# With optional API key
+email_checker = EmailChecker(xposedornot_api_key="your-key")
+```
+
+## Exit Codes (CLI)
 
 | Code | Meaning |
 |------|---------|
@@ -110,17 +195,41 @@ nothinghide --help
 | 2 | Network or API failure |
 | 3 | Unexpected internal error |
 
+## Development
+
+```bash
+# Install with dev dependencies
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Type checking
+mypy src/nothinghide
+
+# Linting
+ruff check src/
+```
+
 ## Legal Disclaimer
 
 NothingHide queries only publicly available breach databases. Results reflect data that is already public. This tool:
 
 - Is intended for personal security awareness only
 - Should not be used to check credentials you do not own
-- Makes no guarantees about the completeness or accuracy of breach data
+- Makes no guarantees about the completeness of breach data
 - Is not a substitute for professional security auditing
 
 Use responsibly and in accordance with applicable laws.
 
 ## License
 
-MIT License - See LICENSE file for details.
+MIT License - See [LICENSE](LICENSE) file for details.
+
+## Contributing
+
+Contributions welcome! Please read our contributing guidelines first.
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for release history.

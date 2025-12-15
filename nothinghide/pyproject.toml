@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "nothinghide"
 version = "1.0.0"
-description = "A security tool to check public exposure of email and password using lawful sources"
+description = "Security Exposure Intelligence - Check email and password breaches using lawful public sources"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
@@ -18,6 +18,10 @@ keywords = [
     "breach-check",
     "password-security",
     "hibp",
+    "have-i-been-pwned",
+    "k-anonymity",
+    "data-breach",
+    "email-security",
     "cli",
 ]
 classifiers = [
@@ -25,6 +29,7 @@ classifiers = [
     "Environment :: Console",
     "Intended Audience :: Developers",
     "Intended Audience :: System Administrators",
+    "Intended Audience :: Information Technology",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
@@ -32,6 +37,8 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Security",
+    "Topic :: Security :: Cryptography",
+    "Topic :: Internet :: WWW/HTTP",
     "Topic :: Utilities",
     "Typing :: Typed",
 ]
@@ -41,19 +48,65 @@ dependencies = [
     "rich>=13.0.0",
     "python-dotenv>=1.0.0",
     "email-validator>=2.0.0",
+    "halo>=0.0.31",
+    "yaspin>=3.0.0",
+    "colorama>=0.4.6",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.0.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+]
+docs = [
+    "sphinx>=7.0.0",
+    "sphinx-rtd-theme>=1.0.0",
+]
+all = [
+    "nothinghide[dev,docs]",
 ]
 
 [project.scripts]
-nothinghide = "app.main:app"
+nothinghide = "nothinghide.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/nothinghide/nothinghide"
 Documentation = "https://github.com/nothinghide/nothinghide#readme"
-Repository = "https://github.com/nothinghide/nothinghide"
+Repository = "https://github.com/nothinghide/nothinghide.git"
+Issues = "https://github.com/nothinghide/nothinghide/issues"
+Changelog = "https://github.com/nothinghide/nothinghide/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["app*"]
+where = ["src"]
+include = ["nothinghide*"]
 
 [tool.setuptools.package-data]
-"*" = ["py.typed"]
+nothinghide = ["py.typed"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "C4"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+python_files = "test_*.py"
+addopts = "-v --tb=short"
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312"]
