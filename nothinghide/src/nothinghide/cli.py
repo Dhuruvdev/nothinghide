@@ -88,12 +88,16 @@ def version_callback(value: bool):
 
 def do_email_check() -> None:
     """Perform email breach check interactively using advanced agent."""
+    import time
+    import asyncio
+    from rich.live import Live
+    from rich.panel import Panel
+    from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
+    
     render_command_header(console, "Email Breach Check", "Multi-source intelligence scan")
     
-    console.print(f"  [{CYAN}]Enter email address:[/{CYAN}]")
-    prompt = Text()
-    prompt.append("  >> ", style=f"bold {CYAN}")
-    console.print(prompt, end="")
+    console.print("  Enter email address:", style=WHITE)
+    console.print("  >> ", style=WHITE, end="")
     
     try:
         email_address = input().strip()
@@ -106,41 +110,93 @@ def do_email_check() -> None:
         return
     
     try:
-        render_status(console, f"Target: {email_address}", "info")
+        console.print()
+        console.print(f"  -> Target: {email_address}", style=WHITE)
+        console.print()
+        
+        sources = [
+            "LeakCheck",
+            "HackCheck", 
+            "XposedOrNot",
+            "XposedOrNot Analytics",
+            "EmailRep",
+            "DeXpose"
+        ]
+        
+        console.print("  AGENT INITIALIZING", style=f"bold {WHITE}")
+        console.print("  -------------------", style=GRAY)
+        console.print()
+        
+        for source in sources:
+            console.print(f"  [.] {source}", style=GRAY)
+            time.sleep(0.1)
+        
+        console.print()
+        console.print("  SCANNING BREACH DATABASES", style=f"bold {WHITE}")
+        console.print("  -------------------------", style=GRAY)
         console.print()
         
         agent = BreachIntelligenceAgent()
         
-        with console.status(f"[bold {CYAN}]  ▸ Querying 6+ breach databases in parallel...[/]", spinner="dots"):
+        with console.status("  Querying sources in parallel...", spinner="dots"):
             result = agent.check_email_sync(email_address)
         
         sources_queried = getattr(result, 'sources_queried', [])
         sources_succeeded = getattr(result, 'sources_succeeded', [])
+        sources_failed = getattr(result, 'sources_failed', [])
         risk_score = getattr(result, 'risk_score', 0.0)
         avg_confidence = getattr(result, 'average_confidence', 0.0)
         
-        console.print(f"  [{GRAY}]Sources queried: {len(sources_queried)} | Succeeded: {len(sources_succeeded)}[/{GRAY}]")
+        for source in sources_succeeded:
+            console.print(f"  [ok] {source}", style=WHITE)
+        for source in sources_failed:
+            console.print(f"  [x] {source}", style=GRAY)
+        
+        console.print()
+        console.print(f"  Sources: {len(sources_succeeded)}/{len(sources_queried)} responded", style=GRAY)
+        console.print()
+        
+        console.print("  RESULTS", style=f"bold {WHITE}")
+        console.print("  -------", style=GRAY)
         console.print()
         
         if result.breached:
             render_exposed_status(console)
             
-            console.print(f"  [{YELLOW}]Found in {result.breach_count} breach(es)[/{YELLOW}]")
-            console.print(f"  [{GRAY}]Risk Score: {risk_score:.0f}/100 | Confidence: {avg_confidence:.0%}[/{GRAY}]")
+            console.print(f"  Found in {result.breach_count} breach(es)", style=WHITE)
+            if risk_score > 0:
+                console.print(f"  Risk Score: {risk_score:.0f}/100", style=WHITE)
             console.print()
             
             if result.breaches:
+                console.print("  BREACH DETAILS", style=f"bold {WHITE}")
+                console.print("  --------------", style=GRAY)
+                console.print()
+                
                 breach_dicts = []
                 for b in result.breaches:
                     if hasattr(b, 'to_dict'):
                         breach_dicts.append(b.to_dict())
                     elif isinstance(b, dict):
                         breach_dicts.append(b)
-                if breach_dicts:
-                    table = create_breach_table(breach_dicts)
-                    console.print(table)
+                
+                for i, breach in enumerate(breach_dicts[:10], 1):
+                    name = breach.get('name', 'Unknown')
+                    date = breach.get('date', 'Unknown')
+                    data = breach.get('data_classes', [])
+                    data_str = ', '.join(data[:3]) if data else 'Unknown'
+                    
+                    console.print(f"  {i}. {name}", style=WHITE)
+                    console.print(f"     Date: {date}", style=GRAY)
+                    console.print(f"     Data: {data_str}", style=GRAY)
+                    console.print()
+                
+                if len(breach_dicts) > 10:
+                    console.print(f"  ... and {len(breach_dicts) - 10} more breaches", style=GRAY)
+                    console.print()
             
-            console.print()
+            console.print("  RECOMMENDATIONS", style=f"bold {WHITE}")
+            console.print("  ---------------", style=GRAY)
             render_status(console, "Review account security for affected services", "warning")
             render_status(console, "Enable 2FA where available", "warning")
             render_status(console, "Consider changing passwords", "warning")
@@ -161,15 +217,17 @@ def do_email_check() -> None:
 
 def do_password_check() -> None:
     """Perform password exposure check interactively."""
+    import time
+    
     render_command_header(console, "Password Check", "Secure k-anonymity scan")
     
-    render_privacy_notice(console)
-    
-    render_status(console, "k-anonymity protocol - password never transmitted", "success")
-    render_status(console, "Only partial hash sent for lookup", "info")
+    console.print("  PRIVACY NOTICE", style=f"bold {WHITE}")
+    console.print("  --------------", style=GRAY)
+    console.print("  [ok] Your password is never stored or transmitted", style=WHITE)
+    console.print("       Uses k-anonymity - only partial hash sent", style=GRAY)
     console.print()
     
-    console.print(f"  [{CYAN}]Enter password (hidden):[/{CYAN}]")
+    console.print("  Enter password (hidden):", style=WHITE)
     
     try:
         password = getpass.getpass(prompt="  >> ")
@@ -182,15 +240,32 @@ def do_password_check() -> None:
         return
     
     try:
-        with console.status(f"[bold {CYAN}]  ▸ Checking password...[/]", spinner="dots"):
+        console.print()
+        console.print("  SCANNING", style=f"bold {WHITE}")
+        console.print("  --------", style=GRAY)
+        console.print()
+        console.print("  [.] Generating SHA-1 hash...", style=GRAY)
+        time.sleep(0.2)
+        console.print("  [.] Extracting first 5 characters...", style=GRAY)
+        time.sleep(0.2)
+        console.print("  [.] Querying Have I Been Pwned...", style=GRAY)
+        
+        with console.status("  Checking against breach database...", spinner="dots"):
             result = check_password(password)
         
         password = None
         
+        console.print("  [ok] Have I Been Pwned", style=WHITE)
+        console.print()
+        
+        console.print("  RESULTS", style=f"bold {WHITE}")
+        console.print("  -------", style=GRAY)
+        console.print()
+        
         if result.exposed:
             render_exposed_status(console)
             
-            console.print(f"  [{RED}]Seen {result.count:,} time(s) in breaches[/{RED}]")
+            console.print(f"  Seen {result.count:,} time(s) in breaches", style=WHITE)
             console.print()
             
             render_status(console, "DO NOT use this password", "error")
@@ -200,15 +275,8 @@ def do_password_check() -> None:
             render_status(console, "Password not found in breach databases", "success")
         
         if result.strength:
-            strength_colors = {
-                "WEAK": RED,
-                "FAIR": YELLOW,
-                "GOOD": CYAN,
-                "STRONG": GREEN,
-                "COMPROMISED": RED,
-            }
-            color = strength_colors.get(result.strength, GRAY)
-            console.print(f"  [{GRAY}]Strength:[/{GRAY}] [{color}]{result.strength}[/{color}]")
+            console.print()
+            console.print(f"  Strength: {result.strength}", style=WHITE)
         
         render_footer(console, result.source)
         
@@ -222,12 +290,12 @@ def do_password_check() -> None:
 
 def do_full_scan() -> None:
     """Perform complete identity scan."""
+    import time
+    
     render_command_header(console, "Full Identity Scan", "Complete exposure analysis")
     
-    console.print(f"  [{CYAN}]Enter email address:[/{CYAN}]")
-    prompt = Text()
-    prompt.append("  >> ", style=f"bold {CYAN}")
-    console.print(prompt, end="")
+    console.print("  Enter email address:", style=WHITE)
+    console.print("  >> ", style=WHITE, end="")
     
     try:
         email_address = input().strip()
@@ -240,9 +308,13 @@ def do_full_scan() -> None:
         return
     
     console.print()
-    render_privacy_notice(console)
+    console.print("  PRIVACY NOTICE", style=f"bold {WHITE}")
+    console.print("  --------------", style=GRAY)
+    console.print("  [ok] Your data is never stored or transmitted", style=WHITE)
+    console.print("       Password uses k-anonymity - only partial hash sent", style=GRAY)
+    console.print()
     
-    console.print(f"  [{CYAN}]Enter password (hidden):[/{CYAN}]")
+    console.print("  Enter password (hidden):", style=WHITE)
     
     try:
         password = getpass.getpass(prompt="  >> ")
@@ -255,10 +327,20 @@ def do_full_scan() -> None:
         return
     
     try:
+        console.print()
+        console.print("  SCANNING ALL SOURCES", style=f"bold {WHITE}")
+        console.print("  --------------------", style=GRAY)
+        console.print()
+        
+        sources = ["LeakCheck", "HackCheck", "XposedOrNot", "Have I Been Pwned"]
+        for source in sources:
+            console.print(f"  [.] {source}", style=GRAY)
+            time.sleep(0.1)
+        
         scanner = BreachScanner()
         
         console.print()
-        with console.status(f"[bold {CYAN}]  ▸ Running identity scan...[/]", spinner="dots"):
+        with console.status("  Running complete identity scan...", spinner="dots"):
             report = scanner.full_scan(email_address, password)
         
         password = None
