@@ -4,11 +4,7 @@ This module provides consistent branding, ASCII art, and styled output
 for the NothingHide CLI tool with clean, simple aesthetics.
 """
 
-import os
-import subprocess
 from rich.console import Console
-from rich.text import Text
-from rich.align import Align
 
 from . import __version__
 from .config import VERSION
@@ -21,14 +17,23 @@ RED = "#FF3B3B"
 CYAN = "#00F5FF"
 PURPLE = "#A855F7"
 
-ASCII_LOGO = """
+LOGO_FULL = """\
  _   _       _   _     _             _   _ _     _      
 | \\ | | ___ | |_| |__ (_)_ __   __ _| | | (_) __| | ___ 
 |  \\| |/ _ \\| __| '_ \\| | '_ \\ / _` | |_| | |/ _` |/ _ \\
 | |\\  | (_) | |_| | | | | | | | (_| |  _  | | (_| |  __/
 |_| \\_|\\___/ \\__|_| |_|_|_| |_|\\__, |_| |_|_|\\__,_|\\___|
-                               |___/                    
+                               |___/\
 """
+
+LOGO_COMPACT = """\
+ _  _     _   _    _          _  _ _    _     
+| \\| |___| |_| |_ (_)_ _  __ | || (_)__| |___ 
+| .` / _ \\  _| ' \\| | ' \\/ _|| __ | / _` / -_)
+|_|\\_\\___/\\__|_||_|_|_||_\\__||_||_|_\\__,_\\___|\
+"""
+
+LOGO_MINIMAL = "[ NothingHide ]"
 
 
 def get_terminal_size(console: Console) -> tuple[int, int]:
@@ -40,44 +45,34 @@ def clear_screen() -> None:
     print("\033[2J\033[H", end="", flush=True)
 
 
-def run_fastfetch_info() -> str:
-    """Run fastfetch to get system info only."""
-    try:
-        result = subprocess.run(
-            ["fastfetch", "--logo", "none", "--structure", "OS:Host:Kernel:Uptime:CPU:Memory"],
-            capture_output=True,
-            text=True,
-            timeout=5
-        )
-        if result.returncode == 0:
-            return result.stdout.strip()
-    except (subprocess.TimeoutExpired, FileNotFoundError, Exception):
-        pass
-    return ""
+def get_logo(width: int) -> str:
+    """Get appropriate logo based on terminal width."""
+    if width >= 58:
+        return LOGO_FULL
+    elif width >= 46:
+        return LOGO_COMPACT
+    else:
+        return LOGO_MINIMAL
 
 
 def render_banner(console: Console) -> None:
-    """Render the main NothingHide banner."""
+    """Render the main NothingHide banner with responsive width."""
     clear_screen()
-    console.print()
-    console.print(ASCII_LOGO, style=WHITE)
-    
-    sys_info = run_fastfetch_info()
-    if sys_info:
-        console.print(sys_info, style=GRAY)
+    width = console.width
+    logo = get_logo(width)
     
     console.print()
+    console.print(logo, style=WHITE)
     console.print(f"v{VERSION}", style=GRAY, justify="center")
     console.print()
 
 
 def render_welcome(console: Console, show_tagline: bool = True) -> None:
-    """Render the full welcome screen."""
+    """Render the full welcome screen - clean and minimal."""
     render_banner(console)
     
     if show_tagline:
-        console.print("Check emails and passwords against breach databases", style=GRAY, justify="center")
-        console.print("100% lawful sources - No data stored", style=GRAY, justify="center")
+        console.print("Breach exposure intelligence", style=GRAY, justify="center")
     
     console.print()
 
@@ -139,8 +134,11 @@ def render_section_header(console: Console, title: str, icon: str = "") -> None:
 def render_command_header(console: Console, command_name: str, description: str = "") -> None:
     """Render a command header with clear screen."""
     clear_screen()
+    width = console.width
+    logo = get_logo(width)
+    
     console.print()
-    console.print(ASCII_LOGO, style=WHITE)
+    console.print(logo, style=WHITE)
     console.print(command_name.upper(), style=f"bold {WHITE}", justify="center")
     
     if description:
