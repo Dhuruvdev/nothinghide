@@ -49,8 +49,8 @@ class AgentConfig:
     min_sources_for_result: int = 1
     max_retries_per_source: int = 2
     enable_correlation: bool = True
-    enable_rate_limiting: bool = True
-    priority_threshold: float = 50.0
+    enable_rate_limiting: bool = False
+    priority_threshold: float = 0.0
     fail_fast: bool = False
     xposedornot_api_key: Optional[str] = None
 
@@ -122,11 +122,7 @@ class BreachIntelligenceAgent:
     def _get_available_sources(self) -> List[DataSource]:
         available = []
         for source in self.sources:
-            if source.is_available():
-                if source.get_priority_score() >= self.config.priority_threshold:
-                    available.append(source)
-                elif not available:
-                    available.append(source)
+            available.append(source)
         return available
     
     async def _query_source_with_retry(
