@@ -4,7 +4,9 @@ This module provides consistent branding, ASCII art, and styled output
 for the NothingHide CLI tool with clean, simple aesthetics.
 """
 
+import os
 import subprocess
+from pathlib import Path
 from rich.console import Console
 from rich.text import Text
 from rich.align import Align
@@ -20,39 +22,61 @@ RED = "#FF3B3B"
 CYAN = "#00F5FF"
 PURPLE = "#A855F7"
 
+ASSETS_DIR = Path(__file__).parent.parent.parent / "assets"
+
 
 def get_terminal_size(console: Console) -> tuple[int, int]:
     return console.width, console.height
 
 
+def clear_screen() -> None:
+    """Clear the terminal screen."""
+    os.system('clear' if os.name != 'nt' else 'cls')
+
+
 def run_fastfetch(console: Console) -> None:
-    """Run fastfetch to display system info."""
+    """Run fastfetch with NothingHide ASCII art logo."""
+    logo_path = ASSETS_DIR / "logo.txt"
+    config_path = ASSETS_DIR / "fastfetch.jsonc"
+    
     try:
+        cmd = ["fastfetch"]
+        if logo_path.exists():
+            cmd.extend(["--logo", str(logo_path), "--logo-type", "file"])
+        if config_path.exists():
+            cmd.extend(["--config", str(config_path)])
+        
         result = subprocess.run(
-            ["fastfetch", "--logo", "none"],
+            cmd,
             capture_output=True,
             text=True,
-            timeout=5
+            timeout=5,
+            cwd=str(ASSETS_DIR.parent)
         )
         if result.returncode == 0:
             console.print(result.stdout, style=WHITE)
     except (subprocess.TimeoutExpired, FileNotFoundError, Exception):
-        pass
+        console.print("""
+ _   _       _   _     _             _   _ _     _      
+| \\ | | ___ | |_| |__ (_)_ __   __ _| | | (_) __| | ___ 
+|  \\| |/ _ \\| __| '_ \\| | '_ \\ / _` | |_| | |/ _` |/ _ \\
+| |\\  | (_) | |_| | | | | | | | (_| |  _  | | (_| |  __/
+|_| \\_|\\___/ \\__|_| |_|_|_| |_|\\__, |_| |_|_|\\__,_|\\___|
+                               |___/                    
+""", style=WHITE)
 
 
 def render_banner(console: Console) -> None:
     """Render the main NothingHide banner using fastfetch."""
+    clear_screen()
     console.print()
     run_fastfetch(console)
-    console.print()
-    console.print("NothingHide", style=f"bold {WHITE}", justify="center")
     console.print(f"v{VERSION}", style=GRAY, justify="center")
     console.print()
 
 
 def render_welcome(console: Console, show_tagline: bool = True) -> None:
     """Render the full welcome screen."""
-    console.print()
     render_banner(console)
     
     if show_tagline:
@@ -117,10 +141,18 @@ def render_section_header(console: Console, title: str, icon: str = "") -> None:
 
 
 def render_command_header(console: Console, command_name: str, description: str = "") -> None:
-    """Render a command header."""
+    """Render a command header with clear screen."""
+    clear_screen()
     console.print()
-    console.print("NothingHide", style=f"bold {WHITE}", justify="center")
-    console.print(command_name.upper(), style=WHITE, justify="center")
+    console.print("""
+ _   _       _   _     _             _   _ _     _      
+| \\ | | ___ | |_| |__ (_)_ __   __ _| | | (_) __| | ___ 
+|  \\| |/ _ \\| __| '_ \\| | '_ \\ / _` | |_| | |/ _` |/ _ \\
+| |\\  | (_) | |_| | | | | | | | (_| |  _  | | (_| |  __/
+|_| \\_|\\___/ \\__|_| |_|_|_| |_|\\__, |_| |_|_|\\__,_|\\___|
+                               |___/                    
+""", style=WHITE)
+    console.print(command_name.upper(), style=f"bold {WHITE}", justify="center")
     
     if description:
         console.print(description, style=GRAY, justify="center")
