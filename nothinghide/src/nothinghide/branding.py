@@ -18,32 +18,30 @@ CYAN = "#00F5FF"
 PURPLE = "#A855F7"
 
 LOGO_FULL = """\
- _   _  ___ _____ _   _ ___ _   _  ____ _   _ ___ ____  _____ 
-| \\ | |/ _ \\_   _| | | |_ _| \\ | |/ ___| | | |_ _|  _ \\| ____|
-|  \\| | | | || | | |_| || ||  \\| | |  _| |_| || || | | |  _|  
-| |\\  | |_| || | |  _  || || |\\  | |_| |  _  || || |_| | |___ 
-|_| \\_|\\___/ |_| |_| |_|___|_| \\_|\\____|_| |_|___|____/|_____|\
+▖ ▖  ▗ ▌ ▘      ▖▖▘ ▌  
+▛▖▌▛▌▜▘▛▌▌▛▌▛▌  ▙▌▌▛▌█▌
+▌▝▌▙▌▐▖▌▌▌▌▌▙▌  ▌▌▌▙▌▙▖
+            ▄▌\
 """
 
 LOGO_COMPACT = """\
- _  _  ___  _____ _  _ ___ _  _  ___  _  _ ___ ___  ___ 
-| \\| |/ _ \\|_   _| || |_ _| \\| |/ __|| || |_ _|   \\| __|
-| .` | (_) | | | | __ || || .` | (_ || __ || || |) | _| 
-|_|\\_|\\___/  |_| |_||_|___|_|\\_|\\___||_||_|___|___/|___|\
+▖ ▖  ▗ ▌ ▘      ▖▖▘ ▌  
+▛▖▌▛▌▜▘▛▌▌▛▌▛▌  ▙▌▌▛▌█▌
+▌▝▌▙▌▐▖▌▌▌▌▌▙▌  ▌▌▌▙▌▙▖
+            ▄▌\
 """
 
 LOGO_MINIMAL = """\
- _  _  ___  _____ _  _ ___ _  _  ___ 
-| \\| |/ _ \\|_   _| || |_ _| \\| |/ __|
-| .` | (_) | | | | __ || || .` | (_ |
-|_|\\_|\\___/  |_| |_||_|___|_|\\_|\\___|
- _  _ ___ ___  ___ 
-| || |_ _|   \\| __|
-| __ || || |) | _| 
-|_||_|___|___/|___|\
+▖ ▖  ▗ ▌ ▘      
+▛▖▌▛▌▜▘▛▌▌▛▌▛▌  
+▌▝▌▙▌▐▖▌▌▌▌▌▙▌  
+            ▄▌
+▖▖▘ ▌  
+▙▌▌▛▌█▌
+▌▌▌▙▌▙▖\
 """
 
-LOGO_TINY = "[ NOTHINGHIDE ]"
+LOGO_TINY = "NothingHide"
 
 
 def get_terminal_size(console: Console) -> tuple[int, int]:
@@ -58,17 +56,13 @@ def clear_screen() -> None:
 def get_logo(width: int) -> str:
     """Get appropriate logo based on terminal width.
     
-    All logos use pure ASCII - no Unicode blocks.
-    FULL: 62 chars wide, 5 lines
-    COMPACT: 54 chars wide, 4 lines  
-    MINIMAL: 40 chars wide, 8 lines (stacked)
+    FULL/COMPACT: ~24 chars wide, 4 lines
+    MINIMAL: ~16 chars wide, 7 lines (stacked)
     TINY: plain text fallback
     """
-    if width >= 64:
+    if width >= 26:
         return LOGO_FULL
-    elif width >= 56:
-        return LOGO_COMPACT
-    elif width >= 42:
+    elif width >= 18:
         return LOGO_MINIMAL
     else:
         return LOGO_TINY
