@@ -6,7 +6,6 @@ for the NothingHide CLI tool with clean, simple aesthetics.
 
 import os
 import subprocess
-from pathlib import Path
 from rich.console import Console
 from rich.text import Text
 from rich.align import Align
@@ -22,7 +21,14 @@ RED = "#FF3B3B"
 CYAN = "#00F5FF"
 PURPLE = "#A855F7"
 
-ASSETS_DIR = Path(__file__).parent.parent.parent / "assets"
+ASCII_LOGO = """
+ _   _       _   _     _             _   _ _     _      
+| \\ | | ___ | |_| |__ (_)_ __   __ _| | | (_) __| | ___ 
+|  \\| |/ _ \\| __| '_ \\| | '_ \\ / _` | |_| | |/ _` |/ _ \\
+| |\\  | (_) | |_| | | | | | | | (_| |  _  | | (_| |  __/
+|_| \\_|\\___/ \\__|_| |_|_|_| |_|\\__, |_| |_|_|\\__,_|\\___|
+                               |___/                    
+"""
 
 
 def get_terminal_size(console: Console) -> tuple[int, int]:
@@ -34,43 +40,33 @@ def clear_screen() -> None:
     os.system('clear' if os.name != 'nt' else 'cls')
 
 
-def run_fastfetch(console: Console) -> None:
-    """Run fastfetch with NothingHide ASCII art logo."""
-    logo_path = ASSETS_DIR / "logo.txt"
-    config_path = ASSETS_DIR / "fastfetch.jsonc"
-    
+def run_fastfetch_info() -> str:
+    """Run fastfetch to get system info only."""
     try:
-        cmd = ["fastfetch"]
-        if logo_path.exists():
-            cmd.extend(["--logo", str(logo_path), "--logo-type", "file"])
-        if config_path.exists():
-            cmd.extend(["--config", str(config_path)])
-        
         result = subprocess.run(
-            cmd,
+            ["fastfetch", "--logo", "none", "--structure", "OS:Host:Kernel:Uptime:CPU:Memory"],
             capture_output=True,
             text=True,
-            timeout=5,
-            cwd=str(ASSETS_DIR.parent)
+            timeout=5
         )
         if result.returncode == 0:
-            console.print(result.stdout, style=WHITE)
+            return result.stdout.strip()
     except (subprocess.TimeoutExpired, FileNotFoundError, Exception):
-        console.print("""
- _   _       _   _     _             _   _ _     _      
-| \\ | | ___ | |_| |__ (_)_ __   __ _| | | (_) __| | ___ 
-|  \\| |/ _ \\| __| '_ \\| | '_ \\ / _` | |_| | |/ _` |/ _ \\
-| |\\  | (_) | |_| | | | | | | | (_| |  _  | | (_| |  __/
-|_| \\_|\\___/ \\__|_| |_|_|_| |_|\\__, |_| |_|_|\\__,_|\\___|
-                               |___/                    
-""", style=WHITE)
+        pass
+    return ""
 
 
 def render_banner(console: Console) -> None:
-    """Render the main NothingHide banner using fastfetch."""
+    """Render the main NothingHide banner."""
     clear_screen()
     console.print()
-    run_fastfetch(console)
+    console.print(ASCII_LOGO, style=WHITE)
+    
+    sys_info = run_fastfetch_info()
+    if sys_info:
+        console.print(sys_info, style=GRAY)
+    
+    console.print()
     console.print(f"v{VERSION}", style=GRAY, justify="center")
     console.print()
 
@@ -144,14 +140,7 @@ def render_command_header(console: Console, command_name: str, description: str 
     """Render a command header with clear screen."""
     clear_screen()
     console.print()
-    console.print("""
- _   _       _   _     _             _   _ _     _      
-| \\ | | ___ | |_| |__ (_)_ __   __ _| | | (_) __| | ___ 
-|  \\| |/ _ \\| __| '_ \\| | '_ \\ / _` | |_| | |/ _` |/ _ \\
-| |\\  | (_) | |_| | | | | | | | (_| |  _  | | (_| |  __/
-|_| \\_|\\___/ \\__|_| |_|_|_| |_|\\__, |_| |_|_|\\__,_|\\___|
-                               |___/                    
-""", style=WHITE)
+    console.print(ASCII_LOGO, style=WHITE)
     console.print(command_name.upper(), style=f"bold {WHITE}", justify="center")
     
     if description:
