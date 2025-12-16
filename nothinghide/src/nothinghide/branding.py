@@ -36,8 +36,8 @@ def get_terminal_size(console: Console) -> tuple[int, int]:
 
 
 def clear_screen() -> None:
-    """Clear the terminal screen."""
-    os.system('clear' if os.name != 'nt' else 'cls')
+    """Clear the terminal screen using ANSI escape codes."""
+    print("\033[2J\033[H", end="", flush=True)
 
 
 def run_fastfetch_info() -> str:
