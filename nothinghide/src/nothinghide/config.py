@@ -11,6 +11,8 @@ APP_NAME = "nothinghide"
 
 HACKCHECK_API = "https://hackcheck.woventeams.com/api/v4/breachedaccount/{email}"
 XPOSEDORNOT_API = "https://api.xposedornot.com/v1/check-email/{email}"
+XPOSEDORNOT_BREACH_ANALYTICS = "https://api.xposedornot.com/v1/breach-analytics/{email}"
+LEAKCHECK_PUBLIC_API = "https://leakcheck.io/api/public?check={email}"
 HIBP_PASSWORD_API = "https://api.pwnedpasswords.com/range/{prefix}"
 BREACH_DIRECTORY_API = "https://breachdirectory.p.rapidapi.com/"
 
@@ -22,7 +24,7 @@ ASYNC_TIMEOUT = 10.0
 MAX_RETRIES = 3
 RETRY_DELAY = 1.0
 
-USER_AGENT = f"NothingHide/{VERSION} (Security Exposure Intelligence Library)"
+USER_AGENT = f"NothingHide/{VERSION} (Security Exposure Intelligence CLI)"
 
 EXIT_SUCCESS = 0
 EXIT_INPUT_ERROR = 1
@@ -67,19 +69,37 @@ DEFAULT_CONFIG: Dict[str, Any] = {
 }
 
 API_PROVIDERS = {
+    "leakcheck": {
+        "name": "LeakCheck",
+        "url": LEAKCHECK_PUBLIC_API,
+        "requires_key": False,
+        "rate_limit": None,
+        "priority": 1,
+        "free": True,
+    },
     "hackcheck": {
         "name": "HackCheck",
         "url": HACKCHECK_API,
         "requires_key": False,
         "rate_limit": None,
-        "priority": 1,
+        "priority": 2,
+        "free": True,
     },
     "xposedornot": {
         "name": "XposedOrNot",
         "url": XPOSEDORNOT_API,
         "requires_key": False,
         "rate_limit": None,
-        "priority": 2,
+        "priority": 3,
+        "free": True,
+    },
+    "xposedornot_analytics": {
+        "name": "XposedOrNot Analytics",
+        "url": XPOSEDORNOT_BREACH_ANALYTICS,
+        "requires_key": False,
+        "rate_limit": None,
+        "priority": 4,
+        "free": True,
     },
     "hibp_passwords": {
         "name": "Have I Been Pwned",
@@ -87,5 +107,6 @@ API_PROVIDERS = {
         "requires_key": False,
         "rate_limit": None,
         "priority": 1,
+        "free": True,
     },
 }
