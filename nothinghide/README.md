@@ -82,6 +82,19 @@ nothinghide
 nothinghide email user@example.com
 nothinghide password
 nothinghide scan user@example.com
+
+# Domain scanning (checks common email patterns)
+nothinghide domain example.com
+
+# Bulk check from file
+nothinghide bulk emails.csv --format json
+
+# Export results
+nothinghide domain example.com --export report.json
+
+# Configuration
+nothinghide config --show
+nothinghide config --set timeout 30
 ```
 
 ### Startup Script
