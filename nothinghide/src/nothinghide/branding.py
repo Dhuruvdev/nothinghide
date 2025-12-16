@@ -1,207 +1,125 @@
 """Branding and visual presentation module.
 
 This module provides consistent branding, ASCII art, and styled output
-for the NothingHide CLI tool with professional aesthetics.
+for the NothingHide CLI tool with clean, uncensored aesthetics.
 """
 
 from rich.console import Console
-from rich.panel import Panel
 from rich.text import Text
 from rich.align import Align
-from rich.style import Style
-from rich.table import Table
-from rich import box
 
 from . import __version__
 from .config import VERSION
 
-CYAN_PRIMARY = "#00D4FF"
-CYAN_GLOW = "#00F5FF"
-CYAN_DARK = "#0099CC"
-PURPLE_ACCENT = "#A855F7"
-PURPLE_GLOW = "#C084FC"
-MAGENTA_ACCENT = "#F472B6"
-GREEN_SUCCESS = "#22C55E"
-GREEN_GLOW = "#4ADE80"
-AMBER_WARNING = "#FBBF24"
-AMBER_GLOW = "#FCD34D"
-RED_ERROR = "#EF4444"
-RED_GLOW = "#F87171"
-GRAY_DIM = "#6B7280"
-GRAY_LIGHT = "#9CA3AF"
-WHITE = "#F9FAFB"
-DARK_BG = "#1F2937"
+CYAN = "#00F5FF"
+CYAN_DARK = "#00B4D8"
+PURPLE = "#A855F7"
+MAGENTA = "#F472B6"
+GREEN = "#22C55E"
+YELLOW = "#FBBF24"
+RED = "#FF3B3B"
+GRAY = "#6B7280"
+WHITE = "#FFFFFF"
 
-BANNER_FULL = """
-[bold #00D4FF]╔═══════════════════════════════════════════════════════════════════════════════════════╗[/]
-[bold #00D4FF]║[/]                                                                                       [bold #00D4FF]║[/]
-[bold #00D4FF]║[/]  [bold #00F5FF]███╗   ██╗ ██████╗ ████████╗██╗  ██╗██╗███╗   ██╗ ██████╗ ██╗  ██╗██╗██████╗ ███████╗[/]  [bold #00D4FF]║[/]
-[bold #00D4FF]║[/]  [bold #00E5FF]████╗  ██║██╔═══██╗╚══██╔══╝██║  ██║██║████╗  ██║██╔════╝ ██║  ██║██║██╔══██╗██╔════╝[/]  [bold #00D4FF]║[/]
-[bold #00D4FF]║[/]  [bold #00D4FF]██╔██╗ ██║██║   ██║   ██║   ███████║██║██╔██╗ ██║██║  ███╗███████║██║██║  ██║█████╗[/]    [bold #00D4FF]║[/]
-[bold #00D4FF]║[/]  [bold #00C4FF]██║╚██╗██║██║   ██║   ██║   ██╔══██║██║██║╚██╗██║██║   ██║██╔══██║██║██║  ██║██╔══╝[/]    [bold #00D4FF]║[/]
-[bold #00D4FF]║[/]  [bold #00B4FF]██║ ╚████║╚██████╔╝   ██║   ██║  ██║██║██║ ╚████║╚██████╔╝██║  ██║██║██████╔╝███████╗[/]  [bold #00D4FF]║[/]
-[bold #00D4FF]║[/]  [bold #00A4FF]╚═╝  ╚═══╝ ╚═════╝    ╚═╝   ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═╝╚═╝╚═════╝ ╚══════╝[/]  [bold #00D4FF]║[/]
-[bold #00D4FF]║[/]                                                                                       [bold #00D4FF]║[/]
-[bold #00D4FF]╚═══════════════════════════════════════════════════════════════════════════════════════╝[/]"""
+BANNER = """[bold #00F5FF]
+ _   _       _   _     _             _   _ _     _      
+| \\ | | ___ | |_| |__ (_)_ __   __ _| | | (_) __| | ___ 
+|  \\| |/ _ \\| __| '_ \\| | '_ \\ / _` | |_| | |/ _` |/ _ \\
+| |\\  | (_) | |_| | | | | | | | (_| |  _  | | (_| |  __/
+|_| \\_|\\___/ \\__|_| |_|_|_| |_|\\__, |_| |_|_|\\__,_|\\___|
+                               |___/                    
+[/bold #00F5FF]"""
 
-BANNER_MEDIUM = """
-[bold #00D4FF]╔════════════════════════════════════════════╗[/]
-[bold #00D4FF]║[/]                                            [bold #00D4FF]║[/]
-[bold #00D4FF]║[/]  [bold #00F5FF]╔╗╔╔═╗╔╦╗╦ ╦╦╔╗╔╔═╗╦ ╦╦╔╦╗╔═╗[/]  [bold #00D4FF]║[/]
-[bold #00D4FF]║[/]  [bold #00D4FF]║║║║ ║ ║ ╠═╣║║║║║ ╦╠═╣║ ║║║╣ [/]  [bold #00D4FF]║[/]
-[bold #00D4FF]║[/]  [bold #00B4FF]╝╚╝╚═╝ ╩ ╩ ╩╩╝╚╝╚═╝╩ ╩╩═╩╝╚═╝[/]  [bold #00D4FF]║[/]
-[bold #00D4FF]║[/]                                            [bold #00D4FF]║[/]
-[bold #00D4FF]╚════════════════════════════════════════════╝[/]"""
+TAGLINE = "[bold #A855F7]▓▓▓[/] [bold #FFFFFF]CYBERSECURITY CLI[/] [bold #A855F7]▓▓▓[/]"
 
-BANNER_COMPACT = """[bold #00D4FF]╔═══════════════════════════╗[/]
-[bold #00D4FF]║[/]  [bold #00F5FF]N O T H I N G H I D E[/]  [bold #00D4FF]║[/]
-[bold #00D4FF]╚═══════════════════════════╝[/]"""
-
-SHIELD_ICON = """[bold #00D4FF]    ╔══╗    [/]
-[bold #00D4FF]   ╔╝[/][bold #22C55E]██[/][bold #00D4FF]╚╗   [/]
-[bold #00D4FF]  ╔╝[/][bold #22C55E]████[/][bold #00D4FF]╚╗  [/]
-[bold #00D4FF]  ║[/][bold #22C55E]██████[/][bold #00D4FF]║  [/]
-[bold #00D4FF]  ╚╗[/][bold #22C55E]████[/][bold #00D4FF]╔╝  [/]
-[bold #00D4FF]   ╚╗[/][bold #22C55E]██[/][bold #00D4FF]╔╝   [/]
-[bold #00D4FF]    ╚══╝    [/]"""
-
-DIVIDER_DOUBLE = f"[{CYAN_PRIMARY}]{'═' * 60}[/{CYAN_PRIMARY}]"
-DIVIDER_SINGLE = f"[{GRAY_DIM}]{'─' * 60}[/{GRAY_DIM}]"
-DIVIDER_DOTS = f"[{GRAY_DIM}]{'·' * 60}[/{GRAY_DIM}]"
+SKULL = """[bold #FF3B3B]
+    ░░░░░░░░░░░░░░░░░░░░░░░░░░
+    ░░░░░░░░░▄▄▄▄▄▄░░░░░░░░░░░
+    ░░░░░░░▄█████████▄░░░░░░░░
+    ░░░░░▄███████████▄░░░░░░░░
+    ░░░░░█████▀░░▀████░░░░░░░░
+    ░░░░░████░░░░░░████░░░░░░░
+    ░░░░░▀▀▀░░░░░░░▀▀▀░░░░░░░░
+[/bold #FF3B3B]"""
 
 
 def get_terminal_size(console: Console) -> tuple[int, int]:
-    """Get terminal width and height."""
     return console.width, console.height
 
 
-def clear_screen(console: Console) -> None:
-    """Clear the terminal screen."""
-    console.clear()
-
-
-def render_banner(console: Console, with_border: bool = True) -> None:
-    """Render the NothingHide ASCII art banner.
-    
-    Adapts to terminal width for responsive display.
-    """
-    width = console.width
+def render_banner(console: Console) -> None:
+    """Render the main NothingHide banner."""
+    console.print(BANNER, justify="center")
+    console.print(TAGLINE, justify="center")
     console.print()
-    
-    if width >= 95:
-        console.print(BANNER_FULL, justify="center")
-    elif width >= 50:
-        console.print(BANNER_MEDIUM, justify="center")
-    else:
-        console.print(BANNER_COMPACT, justify="center")
-    
-    console.print()
-
-
-def render_tagline(console: Console) -> None:
-    """Render the professional tagline."""
-    tagline = Text()
-    tagline.append("█", style=f"bold {CYAN_PRIMARY}")
-    tagline.append(" SECURE EXPOSURE INTELLIGENCE ", style=f"bold {WHITE}")
-    tagline.append("█", style=f"bold {CYAN_PRIMARY}")
-    console.print(Align.center(tagline))
-
-
-def render_version(console: Console) -> None:
-    """Render version badge."""
-    version_text = Text()
-    version_text.append("┌─", style=GRAY_DIM)
-    version_text.append(f" v{VERSION} ", style=f"bold {CYAN_PRIMARY}")
-    version_text.append("─┐", style=GRAY_DIM)
-    console.print(Align.center(version_text))
 
 
 def render_welcome(console: Console, show_tagline: bool = True) -> None:
-    """Render the complete welcome screen with professional styling."""
+    """Render the full welcome screen."""
     console.print()
     render_banner(console)
-    render_tagline(console)
-    console.print()
-    render_version(console)
+    
+    version = Text()
+    version.append("v", style=GRAY)
+    version.append(VERSION, style=f"bold {CYAN}")
+    console.print(Align.center(version))
     
     if show_tagline:
         console.print()
-        desc = Text()
-        desc.append("Check if your email or password has been exposed in data breaches", style=GRAY_LIGHT)
-        console.print(Align.center(desc))
-        
-        source_info = Text()
-        source_info.append("Using only lawful, publicly available sources", style=GRAY_DIM)
-        console.print(Align.center(source_info))
+        console.print(f"[{GRAY}]Check emails & passwords against breach databases[/{GRAY}]", justify="center")
+        console.print(f"[{GRAY}]100% lawful sources • No data stored[/{GRAY}]", justify="center")
     
     console.print()
 
 
 def render_status(console: Console, status: str, status_type: str = "info") -> None:
-    """Render a styled status indicator."""
-    styles = {
-        "info": (CYAN_PRIMARY, "◆"),
-        "success": (GREEN_SUCCESS, "✓"),
-        "warning": (AMBER_WARNING, "⚠"),
-        "error": (RED_ERROR, "✗"),
+    """Render a status message."""
+    icons = {
+        "info": ("▸", CYAN),
+        "success": ("✓", GREEN),
+        "warning": ("!", YELLOW),
+        "error": ("✗", RED),
     }
     
-    color, symbol = styles.get(status_type, (CYAN_PRIMARY, "●"))
+    icon, color = icons.get(status_type, ("▸", CYAN))
     
     text = Text()
-    text.append(f"  {symbol} ", style=f"bold {color}")
+    text.append(f"  {icon} ", style=f"bold {color}")
     text.append(status, style=WHITE)
     console.print(text)
 
 
 def render_menu(console: Console) -> None:
-    """Render the main menu with professional styling."""
+    """Render the main menu."""
+    console.print()
+    console.print(f"[bold {PURPLE}]═══════════════════════════════════════════════════[/]", justify="center")
     console.print()
     
-    menu_box = Text()
-    menu_box.append("┌", style=CYAN_PRIMARY)
-    menu_box.append("─" * 50, style=CYAN_PRIMARY)
-    menu_box.append(" MAIN MENU ", style=f"bold {WHITE}")
-    menu_box.append("─" * 5, style=CYAN_PRIMARY)
-    menu_box.append("┐", style=CYAN_PRIMARY)
-    console.print(Align.center(menu_box))
-    
-    console.print(Align.center(Text("│" + " " * 66 + "│", style=CYAN_PRIMARY)))
-    
     menu_items = [
-        ("1", "Email Breach Check", "Scan public breach databases"),
-        ("2", "Password Security", "Check password exposure (k-anonymity)"),
-        ("3", "Full Identity Scan", "Complete exposure analysis"),
-        ("4", "Help & Information", "Documentation and guidance"),
-        ("5", "Exit Application", "Close NothingHide"),
+        ("1", "Email Breach Check", "scan breach databases"),
+        ("2", "Password Check", "k-anonymity lookup"),
+        ("3", "Full Scan", "complete identity check"),
+        ("4", "Help", "documentation"),
+        ("5", "Exit", "quit"),
     ]
     
     for num, title, desc in menu_items:
         line = Text()
-        line.append("│  ", style=CYAN_PRIMARY)
-        line.append(f"[{num}]", style=f"bold {CYAN_GLOW}")
-        line.append("  ", style="")
-        line.append(f"{title:<22}", style=f"bold {WHITE}")
-        line.append(f"{desc:<36}", style=GRAY_DIM)
-        line.append("│", style=CYAN_PRIMARY)
-        console.print(Align.center(line))
+        line.append(f"    [{num}] ", style=f"bold {CYAN}")
+        line.append(f"{title:<20}", style=f"bold {WHITE}")
+        line.append(f"  {desc}", style=GRAY)
+        console.print(line)
     
-    console.print(Align.center(Text("│" + " " * 66 + "│", style=CYAN_PRIMARY)))
-    
-    menu_bottom = Text()
-    menu_bottom.append("└", style=CYAN_PRIMARY)
-    menu_bottom.append("─" * 66, style=CYAN_PRIMARY)
-    menu_bottom.append("┘", style=CYAN_PRIMARY)
-    console.print(Align.center(menu_bottom))
-    
+    console.print()
+    console.print(f"[bold {PURPLE}]═══════════════════════════════════════════════════[/]", justify="center")
     console.print()
 
 
 def render_input_prompt(console: Console) -> str:
-    """Render the input prompt and get user choice."""
-    prompt_text = Text()
-    prompt_text.append("  ╰──▶ ", style=f"bold {CYAN_PRIMARY}")
-    console.print(prompt_text, end="")
+    """Render input prompt and get user choice."""
+    prompt = Text()
+    prompt.append("  >> ", style=f"bold {CYAN}")
+    console.print(prompt, end="")
     
     try:
         return input().strip()
@@ -210,291 +128,132 @@ def render_input_prompt(console: Console) -> str:
 
 
 def render_keyboard_shortcuts(console: Console) -> None:
-    """Render keyboard shortcuts footer with elegant styling."""
+    """Render keyboard shortcuts."""
     shortcuts = Text()
-    shortcuts.append("  ╭─────────────────────────────────────╮", style=GRAY_DIM)
-    console.print(Align.center(shortcuts))
-    
-    keys = Text()
-    keys.append("  │  ", style=GRAY_DIM)
-    keys.append("Ctrl+C", style=f"bold {WHITE}")
-    keys.append(" Exit  ", style=GRAY_DIM)
-    keys.append("│", style=GRAY_DIM)
-    keys.append("  ", style="")
-    keys.append("?", style=f"bold {WHITE}")
-    keys.append(" Help  ", style=GRAY_DIM)
-    keys.append("│  ", style=GRAY_DIM)
-    console.print(Align.center(keys))
-    
-    bottom = Text()
-    bottom.append("  ╰─────────────────────────────────────╯", style=GRAY_DIM)
-    console.print(Align.center(bottom))
+    shortcuts.append("  [", style=GRAY)
+    shortcuts.append("Ctrl+C", style=f"bold {WHITE}")
+    shortcuts.append("] exit  ", style=GRAY)
+    shortcuts.append("[", style=GRAY)
+    shortcuts.append("?", style=f"bold {WHITE}")
+    shortcuts.append("] help", style=GRAY)
+    console.print(shortcuts)
 
 
-def render_section_header(console: Console, title: str, icon: str = "◆") -> None:
-    """Render a section header with professional styling."""
+def render_section_header(console: Console, title: str, icon: str = "▓") -> None:
+    """Render a section header."""
     console.print()
-    
     header = Text()
-    header.append("╔", style=f"bold {CYAN_PRIMARY}")
-    header.append("═" * 8, style=f"bold {CYAN_PRIMARY}")
-    header.append(f" {icon} {title} {icon} ", style=f"bold {WHITE}")
-    header.append("═" * 8, style=f"bold {CYAN_PRIMARY}")
-    header.append("╗", style=f"bold {CYAN_PRIMARY}")
-    console.print(Align.center(header))
-    
+    header.append(f"  {icon} ", style=f"bold {PURPLE}")
+    header.append(title.upper(), style=f"bold {WHITE}")
+    header.append(f" {icon}", style=f"bold {PURPLE}")
+    console.print(header)
+    console.print(f"  [bold {PURPLE}]{'─' * (len(title) + 6)}[/]")
     console.print()
-
-
-def render_result_box(
-    console: Console,
-    title: str,
-    content: str,
-    result_type: str = "info"
-) -> None:
-    """Render a result in a styled box."""
-    colors = {
-        "info": CYAN_PRIMARY,
-        "success": GREEN_SUCCESS,
-        "warning": AMBER_WARNING,
-        "error": RED_ERROR,
-    }
-    
-    color = colors.get(result_type, CYAN_PRIMARY)
-    
-    console.print(Panel(
-        content,
-        title=f"[bold {WHITE}]{title}[/bold {WHITE}]",
-        border_style=color,
-        box=box.DOUBLE,
-        padding=(1, 3),
-    ))
 
 
 def render_command_header(console: Console, command_name: str, description: str = "") -> None:
-    """Render a command header with consistent styling."""
+    """Render a command header."""
     render_banner(console)
     
     header = Text()
-    header.append("┌─", style=CYAN_PRIMARY)
-    header.append(f" {command_name.upper()} ", style=f"bold {WHITE}")
-    header.append("─┐", style=CYAN_PRIMARY)
+    header.append("▓ ", style=f"bold {PURPLE}")
+    header.append(command_name.upper(), style=f"bold {WHITE}")
+    header.append(" ▓", style=f"bold {PURPLE}")
     console.print(Align.center(header))
     
     if description:
-        desc = Text()
-        desc.append(description, style=GRAY_LIGHT)
-        console.print(Align.center(desc))
+        console.print(f"[{GRAY}]{description}[/{GRAY}]", justify="center")
     
-    version_text = Text()
-    version_text.append(f"v{VERSION}", style=GRAY_DIM)
-    console.print(Align.center(version_text))
     console.print()
 
 
 def render_footer(console: Console, data_source: str = "") -> None:
-    """Render a footer with data source attribution."""
+    """Render footer with data source."""
     console.print()
     
     if data_source:
-        source = Text()
-        source.append("┌─", style=GRAY_DIM)
-        source.append(" Data Source: ", style=GRAY_DIM)
-        source.append(data_source, style=GRAY_LIGHT)
-        source.append(" ─┐", style=GRAY_DIM)
-        console.print(Align.center(source))
+        console.print(f"  [{GRAY}]source: {data_source}[/{GRAY}]")
     
     console.print()
-    
-    footer_line = Text()
-    footer_line.append("╔═══════════════════════════════════════════════════════╗", style=CYAN_PRIMARY)
-    console.print(Align.center(footer_line))
-    
-    brand = Text()
-    brand.append("║", style=CYAN_PRIMARY)
-    brand.append("          ", style="")
-    brand.append("NOTHINGHIDE", style=f"bold {CYAN_GLOW}")
-    brand.append(" │ ", style=GRAY_DIM)
-    brand.append("Secure Exposure Intelligence", style=GRAY_LIGHT)
-    brand.append("          ", style="")
-    brand.append("║", style=CYAN_PRIMARY)
-    console.print(Align.center(brand))
-    
-    footer_bottom = Text()
-    footer_bottom.append("╚═══════════════════════════════════════════════════════╝", style=CYAN_PRIMARY)
-    console.print(Align.center(footer_bottom))
-    
+    footer = Text()
+    footer.append("  ▓▓▓ ", style=f"bold {PURPLE}")
+    footer.append("NOTHINGHIDE", style=f"bold {CYAN}")
+    footer.append(" | ", style=GRAY)
+    footer.append("Secure Exposure Intelligence", style=GRAY)
+    footer.append(" ▓▓▓", style=f"bold {PURPLE}")
+    console.print(footer)
     console.print()
 
 
 def render_privacy_notice(console: Console) -> None:
-    """Render a privacy notice with professional styling."""
-    notice_box = Text()
-    notice_box.append("╭─────────────────────────────────────────────────────────────────╮", style=f"bold {GREEN_SUCCESS}")
-    console.print(Align.center(notice_box))
-    
-    lock_line = Text()
-    lock_line.append("│  ", style=f"bold {GREEN_SUCCESS}")
-    lock_line.append("🔒 ", style="")
-    lock_line.append("PRIVACY PROTECTED", style=f"bold {GREEN_SUCCESS}")
-    lock_line.append(" │ Your data is never stored or logged      │", style=f"bold {GREEN_SUCCESS}")
-    console.print(Align.center(lock_line))
-    
-    method_line = Text()
-    method_line.append("│  ", style=f"bold {GREEN_SUCCESS}")
-    method_line.append("   Password checks use secure k-anonymity protocol          ", style=GRAY_LIGHT)
-    method_line.append("│", style=f"bold {GREEN_SUCCESS}")
-    console.print(Align.center(method_line))
-    
-    notice_bottom = Text()
-    notice_bottom.append("╰─────────────────────────────────────────────────────────────────╯", style=f"bold {GREEN_SUCCESS}")
-    console.print(Align.center(notice_bottom))
-
-
-def render_loading_frame(console: Console, message: str) -> None:
-    """Render a loading animation frame."""
-    loading = Text()
-    loading.append("  ⣾ ", style=f"bold {CYAN_PRIMARY}")
-    loading.append(message, style=WHITE)
-    console.print(loading, end="\r")
-
-
-def render_success_banner(console: Console, message: str) -> None:
-    """Render a success message with prominent styling."""
+    """Render privacy notice."""
     console.print()
-    
-    success_box = Text()
-    success_box.append("╔", style=f"bold {GREEN_SUCCESS}")
-    success_box.append("═" * (len(message) + 10), style=f"bold {GREEN_SUCCESS}")
-    success_box.append("╗", style=f"bold {GREEN_SUCCESS}")
-    console.print(Align.center(success_box))
-    
-    success_msg = Text()
-    success_msg.append("║", style=f"bold {GREEN_SUCCESS}")
-    success_msg.append(f"  ✓ {message}  ", style=f"bold {GREEN_GLOW}")
-    success_msg.append("║", style=f"bold {GREEN_SUCCESS}")
-    console.print(Align.center(success_msg))
-    
-    success_bottom = Text()
-    success_bottom.append("╚", style=f"bold {GREEN_SUCCESS}")
-    success_bottom.append("═" * (len(message) + 10), style=f"bold {GREEN_SUCCESS}")
-    success_bottom.append("╝", style=f"bold {GREEN_SUCCESS}")
-    console.print(Align.center(success_bottom))
-    
-    console.print()
-
-
-def render_error_banner(console: Console, message: str) -> None:
-    """Render an error message with prominent styling."""
-    console.print()
-    
-    error_box = Text()
-    error_box.append("╔", style=f"bold {RED_ERROR}")
-    error_box.append("═" * (len(message) + 10), style=f"bold {RED_ERROR}")
-    error_box.append("╗", style=f"bold {RED_ERROR}")
-    console.print(Align.center(error_box))
-    
-    error_msg = Text()
-    error_msg.append("║", style=f"bold {RED_ERROR}")
-    error_msg.append(f"  ✗ {message}  ", style=f"bold {RED_GLOW}")
-    error_msg.append("║", style=f"bold {RED_ERROR}")
-    console.print(Align.center(error_msg))
-    
-    error_bottom = Text()
-    error_bottom.append("╚", style=f"bold {RED_ERROR}")
-    error_bottom.append("═" * (len(message) + 10), style=f"bold {RED_ERROR}")
-    error_bottom.append("╝", style=f"bold {RED_ERROR}")
-    console.print(Align.center(error_bottom))
-    
-    console.print()
-
-
-def render_warning_banner(console: Console, message: str) -> None:
-    """Render a warning message with prominent styling."""
-    console.print()
-    
-    warning_box = Text()
-    warning_box.append("╔", style=f"bold {AMBER_WARNING}")
-    warning_box.append("═" * (len(message) + 10), style=f"bold {AMBER_WARNING}")
-    warning_box.append("╗", style=f"bold {AMBER_WARNING}")
-    console.print(Align.center(warning_box))
-    
-    warning_msg = Text()
-    warning_msg.append("║", style=f"bold {AMBER_WARNING}")
-    warning_msg.append(f"  ⚠ {message}  ", style=f"bold {AMBER_GLOW}")
-    warning_msg.append("║", style=f"bold {AMBER_WARNING}")
-    console.print(Align.center(warning_msg))
-    
-    warning_bottom = Text()
-    warning_bottom.append("╚", style=f"bold {AMBER_WARNING}")
-    warning_bottom.append("═" * (len(message) + 10), style=f"bold {AMBER_WARNING}")
-    warning_bottom.append("╝", style=f"bold {AMBER_WARNING}")
-    console.print(Align.center(warning_bottom))
-    
+    console.print(f"  [{GREEN}]🔒 PRIVACY: Your data is never stored or transmitted[/{GREEN}]")
+    console.print(f"  [{GRAY}]   Password uses k-anonymity - only partial hash sent[/{GRAY}]")
     console.print()
 
 
 def render_exposed_status(console: Console) -> None:
-    """Render EXPOSED status with dramatic styling."""
+    """Render EXPOSED status with impact."""
     console.print()
-    
-    status_box = Text()
-    status_box.append("╔══════════════════════════════════════╗", style=f"bold {RED_ERROR}")
-    console.print(Align.center(status_box))
-    
-    status_line = Text()
-    status_line.append("║", style=f"bold {RED_ERROR}")
-    status_line.append("         STATUS: ", style=f"bold {WHITE}")
-    status_line.append("EXPOSED", style=f"bold {RED_GLOW}")
-    status_line.append("           ║", style=f"bold {RED_ERROR}")
-    console.print(Align.center(status_line))
-    
-    status_bottom = Text()
-    status_bottom.append("╚══════════════════════════════════════╝", style=f"bold {RED_ERROR}")
-    console.print(Align.center(status_bottom))
-    
+    exposed = Text()
+    exposed.append("  ▓▓▓ ", style=f"bold {RED}")
+    exposed.append("STATUS: ", style=f"bold {WHITE}")
+    exposed.append("EXPOSED", style=f"bold {RED}")
+    exposed.append(" ▓▓▓", style=f"bold {RED}")
+    console.print(exposed)
     console.print()
 
 
 def render_clear_status(console: Console) -> None:
-    """Render CLEAR status with positive styling."""
+    """Render CLEAR status."""
     console.print()
-    
-    status_box = Text()
-    status_box.append("╔══════════════════════════════════════╗", style=f"bold {GREEN_SUCCESS}")
-    console.print(Align.center(status_box))
-    
-    status_line = Text()
-    status_line.append("║", style=f"bold {GREEN_SUCCESS}")
-    status_line.append("          STATUS: ", style=f"bold {WHITE}")
-    status_line.append("CLEAR", style=f"bold {GREEN_GLOW}")
-    status_line.append("           ║", style=f"bold {GREEN_SUCCESS}")
-    console.print(Align.center(status_line))
-    
-    status_bottom = Text()
-    status_bottom.append("╚══════════════════════════════════════╝", style=f"bold {GREEN_SUCCESS}")
-    console.print(Align.center(status_bottom))
-    
+    clear = Text()
+    clear.append("  ▓▓▓ ", style=f"bold {GREEN}")
+    clear.append("STATUS: ", style=f"bold {WHITE}")
+    clear.append("CLEAR", style=f"bold {GREEN}")
+    clear.append(" ▓▓▓", style=f"bold {GREEN}")
+    console.print(clear)
     console.print()
 
 
 def render_not_found_status(console: Console) -> None:
-    """Render NOT FOUND status with positive styling."""
+    """Render NOT FOUND status."""
     console.print()
-    
-    status_box = Text()
-    status_box.append("╔══════════════════════════════════════╗", style=f"bold {GREEN_SUCCESS}")
-    console.print(Align.center(status_box))
-    
-    status_line = Text()
-    status_line.append("║", style=f"bold {GREEN_SUCCESS}")
-    status_line.append("        STATUS: ", style=f"bold {WHITE}")
-    status_line.append("NOT FOUND", style=f"bold {GREEN_GLOW}")
-    status_line.append("         ║", style=f"bold {GREEN_SUCCESS}")
-    console.print(Align.center(status_line))
-    
-    status_bottom = Text()
-    status_bottom.append("╚══════════════════════════════════════╝", style=f"bold {GREEN_SUCCESS}")
-    console.print(Align.center(status_bottom))
-    
+    notfound = Text()
+    notfound.append("  ▓▓▓ ", style=f"bold {GREEN}")
+    notfound.append("STATUS: ", style=f"bold {WHITE}")
+    notfound.append("NOT FOUND", style=f"bold {GREEN}")
+    notfound.append(" ▓▓▓", style=f"bold {GREEN}")
+    console.print(notfound)
+    console.print()
+
+
+def render_success_banner(console: Console, message: str) -> None:
+    """Render success message."""
+    console.print()
+    msg = Text()
+    msg.append("  ✓ ", style=f"bold {GREEN}")
+    msg.append(message, style=f"bold {WHITE}")
+    console.print(msg)
+    console.print()
+
+
+def render_error_banner(console: Console, message: str) -> None:
+    """Render error message."""
+    console.print()
+    msg = Text()
+    msg.append("  ✗ ", style=f"bold {RED}")
+    msg.append(message, style=f"bold {WHITE}")
+    console.print(msg)
+    console.print()
+
+
+def render_warning_banner(console: Console, message: str) -> None:
+    """Render warning message."""
+    console.print()
+    msg = Text()
+    msg.append("  ! ", style=f"bold {YELLOW}")
+    msg.append(message, style=f"bold {WHITE}")
+    console.print(msg)
     console.print()
