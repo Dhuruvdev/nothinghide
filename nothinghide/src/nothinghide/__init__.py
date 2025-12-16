@@ -3,6 +3,15 @@
 A professional Python library for checking email and password exposure
 in public data breaches using lawful, publicly available sources.
 
+Features:
+    - Multi-source breach intelligence from 6+ APIs
+    - Intelligent parallel processing with rate limiting
+    - Automatic source failover and retry
+    - Data correlation and deduplication
+    - Domain reputation analysis
+    - Paste site monitoring
+    - k-anonymity password checking
+
 Usage:
     # Simple API
     from nothinghide import check_email, check_password
@@ -10,11 +19,17 @@ Usage:
     result = check_email("user@example.com")
     result = check_password("mypassword123")
     
-    # Async API
-    from nothinghide import async_check_email, async_check_password
+    # Advanced Agent API (recommended)
+    from nothinghide import BreachIntelligenceAgent
     
-    result = await async_check_email("user@example.com")
-    result = await async_check_password("mypassword123")
+    agent = BreachIntelligenceAgent()
+    result = agent.check_email_sync("user@example.com")
+    
+    # Async usage
+    result = await agent.check_email("user@example.com")
+    
+    # Full intelligence gathering
+    intel = agent.get_full_intelligence("user@example.com")
     
     # Full scan
     from nothinghide import BreachScanner
@@ -64,6 +79,14 @@ from .exceptions import (
     RateLimitError,
 )
 
+from .agent import (
+    BreachIntelligenceAgent,
+    AgentConfig,
+    CorrelatedResult,
+    DomainChecker,
+    ThreatIntelligence,
+)
+
 __all__ = [
     "__version__",
     "check_email",
@@ -85,4 +108,9 @@ __all__ = [
     "NetworkError",
     "APIError",
     "RateLimitError",
+    "BreachIntelligenceAgent",
+    "AgentConfig",
+    "CorrelatedResult",
+    "DomainChecker",
+    "ThreatIntelligence",
 ]

@@ -21,6 +21,7 @@ from .core import (
     BreachResult,
     PasswordResult,
 )
+from .agent import BreachIntelligenceAgent
 from .config import (
     EXIT_SUCCESS,
     EXIT_INPUT_ERROR,
@@ -86,8 +87,8 @@ def version_callback(value: bool):
 
 
 def do_email_check() -> None:
-    """Perform email breach check interactively."""
-    render_command_header(console, "Email Breach Check", "Public breach database scan")
+    """Perform email breach check interactively using advanced agent."""
+    render_command_header(console, "Email Breach Check", "Multi-source intelligence scan")
     
     console.print(f"  [{CYAN}]Enter email address:[/{CYAN}]")
     prompt = Text()
@@ -108,18 +109,36 @@ def do_email_check() -> None:
         render_status(console, f"Target: {email_address}", "info")
         console.print()
         
-        with console.status(f"[bold {CYAN}]  ▸ Querying breach databases...[/]", spinner="dots"):
-            result = check_email(email_address)
+        agent = BreachIntelligenceAgent()
+        
+        with console.status(f"[bold {CYAN}]  ▸ Querying 6+ breach databases in parallel...[/]", spinner="dots"):
+            result = agent.check_email_sync(email_address)
+        
+        sources_queried = getattr(result, 'sources_queried', [])
+        sources_succeeded = getattr(result, 'sources_succeeded', [])
+        risk_score = getattr(result, 'risk_score', 0.0)
+        avg_confidence = getattr(result, 'average_confidence', 0.0)
+        
+        console.print(f"  [{GRAY}]Sources queried: {len(sources_queried)} | Succeeded: {len(sources_succeeded)}[/{GRAY}]")
+        console.print()
         
         if result.breached:
             render_exposed_status(console)
             
             console.print(f"  [{YELLOW}]Found in {result.breach_count} breach(es)[/{YELLOW}]")
+            console.print(f"  [{GRAY}]Risk Score: {risk_score:.0f}/100 | Confidence: {avg_confidence:.0%}[/{GRAY}]")
             console.print()
             
             if result.breaches:
-                table = create_breach_table(result.breaches)
-                console.print(table)
+                breach_dicts = []
+                for b in result.breaches:
+                    if hasattr(b, 'to_dict'):
+                        breach_dicts.append(b.to_dict())
+                    elif isinstance(b, dict):
+                        breach_dicts.append(b)
+                if breach_dicts:
+                    table = create_breach_table(breach_dicts)
+                    console.print(table)
             
             console.print()
             render_status(console, "Review account security for affected services", "warning")
@@ -129,14 +148,15 @@ def do_email_check() -> None:
             render_clear_status(console)
             render_status(console, "No public breach found", "success")
         
-        render_footer(console, result.source)
+        sources_str = ", ".join(sources_succeeded) if sources_succeeded else "No sources"
+        render_footer(console, sources_str)
         
     except ValidationError as e:
         render_error_banner(console, f"Validation Error: {e.message}")
     except NetworkError as e:
         render_error_banner(console, f"Network Error: {e.message}")
     except Exception as e:
-        render_error_banner(console, "An unexpected error occurred")
+        render_error_banner(console, f"An error occurred: {str(e)}")
 
 
 def do_password_check() -> None:
@@ -276,7 +296,7 @@ def show_help() -> None:
     render_section_header(console, "HELP")
     
     sections = [
-        ("EMAIL BREACH CHECK", "Queries public breach databases for your email"),
+        ("EMAIL BREACH CHECK", "Queries 6+ public breach databases in parallel"),
         ("PASSWORD CHECK", "Uses k-anonymity to check exposure (secure)"),
         ("FULL SCAN", "Both checks + risk assessment + recommendations"),
     ]
@@ -286,10 +306,26 @@ def show_help() -> None:
         console.print(f"  [{GRAY}]{desc}[/{GRAY}]")
         console.print()
     
-    render_section_header(console, "DATA SOURCES")
+    render_section_header(console, "DATA SOURCES (6+ APIs)")
     
-    console.print(f"  [{WHITE}]Email:[/{WHITE}] [{GRAY}]HackCheck, XposedOrNot[/{GRAY}]")
+    console.print(f"  [{WHITE}]Email Sources:[/{WHITE}]")
+    console.print(f"  [{GRAY}]  - LeakCheck (7B+ records)[/{GRAY}]")
+    console.print(f"  [{GRAY}]  - HackCheck[/{GRAY}]")
+    console.print(f"  [{GRAY}]  - XposedOrNot[/{GRAY}]")
+    console.print(f"  [{GRAY}]  - XposedOrNot Analytics[/{GRAY}]")
+    console.print(f"  [{GRAY}]  - EmailRep (reputation)[/{GRAY}]")
+    console.print(f"  [{GRAY}]  - DeXpose[/{GRAY}]")
+    console.print()
     console.print(f"  [{WHITE}]Password:[/{WHITE}] [{GRAY}]Have I Been Pwned (k-anonymity)[/{GRAY}]")
+    console.print()
+    
+    render_section_header(console, "ADVANCED FEATURES")
+    
+    console.print(f"  [{CYAN}]Intelligent Agent System[/{CYAN}]")
+    console.print(f"  [{GRAY}]  - Parallel multi-source querying[/{GRAY}]")
+    console.print(f"  [{GRAY}]  - Smart rate limiting & retry[/{GRAY}]")
+    console.print(f"  [{GRAY}]  - Data correlation & deduplication[/{GRAY}]")
+    console.print(f"  [{GRAY}]  - Source health monitoring[/{GRAY}]")
     console.print()
     
     render_keyboard_shortcuts(console)
