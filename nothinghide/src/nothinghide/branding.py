@@ -8,6 +8,7 @@ from rich.console import Console
 
 from . import __version__
 from .config import VERSION
+from .platform import clear_screen as platform_clear_screen, supports_unicode
 
 WHITE = "#FFFFFF"
 GRAY = "#6B7280"
@@ -49,8 +50,8 @@ def get_terminal_size(console: Console) -> tuple[int, int]:
 
 
 def clear_screen() -> None:
-    """Clear the terminal screen using ANSI escape codes."""
-    print("\033[2J\033[H", end="", flush=True)
+    """Clear the terminal screen (cross-platform)."""
+    platform_clear_screen()
 
 
 def get_logo(width: int) -> str:

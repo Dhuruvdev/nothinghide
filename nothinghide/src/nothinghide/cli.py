@@ -2,16 +2,22 @@
 
 A professional security tool for checking public exposure of email addresses
 and passwords using lawful, publicly available sources only.
+
+Supports: Linux, macOS, Windows PowerShell
 """
 
 import sys
 import getpass
+import json
+from pathlib import Path
 from typing import Optional
+from enum import Enum
 
 import typer
 from rich.console import Console
 from rich.text import Text
 from rich.align import Align
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
 
 from . import __version__
 from .core import (
@@ -71,11 +77,27 @@ from .utils import (
     get_recommendations,
     render_recommendations,
 )
+from .platform import enable_windows_ansi, IS_WINDOWS
+from .settings import Settings, get_settings, update_settings, reset_settings
+from .export import export_json, export_csv, export_html, format_output
+from .bulk import read_email_list, process_bulk, BulkResult
+from .domain import scan_domain, validate_domain
+
+enable_windows_ansi()
+
+
+class OutputFormat(str, Enum):
+    """Output format options."""
+    table = "table"
+    json = "json"
+    csv = "csv"
+
 
 app = typer.Typer(
     name="nothinghide",
     help="Check public exposure risk of your email and password using lawful sources.",
-    add_completion=False,
+    add_completion=True,
+    rich_markup_mode="rich",
 )
 
 
@@ -777,6 +799,318 @@ def scan(
     except NetworkError as e:
         render_error_banner(console, f"Network Error: {e.message}")
         raise typer.Exit(code=EXIT_NETWORK_ERROR)
+
+
+@app.command()
+def domain(
+    domain_name: str = typer.Argument(
+        ...,
+        help="Domain to scan for breach exposure.",
+    ),
+    output_format: OutputFormat = typer.Option(
+        OutputFormat.table,
+        "--format", "-f",
+        help="Output format (table, json, csv).",
+    ),
+    export_path: Optional[Path] = typer.Option(
+        None,
+        "--export", "-e",
+        help="Export results to file.",
+    ),
+    quiet: bool = typer.Option(
+        False,
+        "--quiet", "-q",
+        help="Quiet mode - minimal output.",
+    ),
+):
+    """Scan a domain for breach exposure across common email patterns."""
+    try:
+        if not quiet:
+            render_command_header(console, "Domain Scan", "Multi-email breach analysis")
+            render_status(console, f"Target: {domain_name}", "info")
+            console.print()
+        
+        def progress_cb(current: int, total: int, email: str):
+            if not quiet:
+                console.print(f"  [{GRAY}][{current}/{total}] Checking {email}...[/{GRAY}]")
+        
+        result = scan_domain(domain_name, progress_callback=progress_cb if not quiet else None)
+        
+        if output_format == OutputFormat.json:
+            data = {
+                "domain": result.domain,
+                "emails_checked": len(result.emails_checked),
+                "breached_emails": result.breached_emails,
+                "total_breaches": result.total_breaches,
+                "risk_level": result.risk_level,
+                "details": result.details,
+            }
+            console.print(json.dumps(data, indent=2))
+        elif output_format == OutputFormat.csv:
+            console.print("email,breached,breach_count")
+            for detail in result.details:
+                console.print(f"{detail['email']},{detail.get('breached', False)},{detail.get('breach_count', 0)}")
+        else:
+            if not quiet:
+                console.print()
+                render_section_header(console, "RESULTS")
+                console.print(f"  Domain: {result.domain}", style=WHITE)
+                console.print(f"  Emails checked: {len(result.emails_checked)}", style=WHITE)
+                console.print(f"  Breached emails: {len(result.breached_emails)}", style=WHITE)
+                console.print(f"  Risk level: {result.risk_level}", style=WHITE)
+                
+                if result.breached_emails:
+                    console.print()
+                    console.print("  Exposed emails:", style=f"bold {RED}")
+                    for email in result.breached_emails:
+                        console.print(f"    - {email}", style=RED)
+        
+        if export_path:
+            data = {
+                "domain": result.domain,
+                "emails_checked": result.emails_checked,
+                "breached_emails": result.breached_emails,
+                "total_breaches": result.total_breaches,
+                "risk_level": result.risk_level,
+                "details": result.details,
+            }
+            if str(export_path).endswith(".csv"):
+                export_csv(result.details, export_path)
+            elif str(export_path).endswith(".html"):
+                export_html(data, export_path)
+            else:
+                export_json(data, export_path)
+            
+            if not quiet:
+                render_success_banner(console, f"Results exported to {export_path}")
+        
+        raise typer.Exit(code=EXIT_SUCCESS)
+        
+    except ValidationError as e:
+        render_error_banner(console, f"Validation Error: {e.message}")
+        raise typer.Exit(code=EXIT_INPUT_ERROR)
+    except NetworkError as e:
+        render_error_banner(console, f"Network Error: {e.message}")
+        raise typer.Exit(code=EXIT_NETWORK_ERROR)
+
+
+@app.command()
+def bulk(
+    file_path: Path = typer.Argument(
+        ...,
+        help="Path to file containing email addresses (CSV or TXT).",
+        exists=True,
+    ),
+    output_format: OutputFormat = typer.Option(
+        OutputFormat.table,
+        "--format", "-f",
+        help="Output format (table, json, csv).",
+    ),
+    export_path: Optional[Path] = typer.Option(
+        None,
+        "--export", "-e",
+        help="Export results to file.",
+    ),
+    quiet: bool = typer.Option(
+        False,
+        "--quiet", "-q",
+        help="Quiet mode - minimal output.",
+    ),
+):
+    """Check multiple email addresses from a file (CSV or TXT)."""
+    try:
+        if not quiet:
+            render_command_header(console, "Bulk Check", "Multi-email breach scan")
+            render_status(console, f"Source: {file_path}", "info")
+            console.print()
+        
+        emails = list(read_email_list(file_path))
+        
+        if not emails:
+            render_error_banner(console, "No valid email addresses found in file")
+            raise typer.Exit(code=EXIT_INPUT_ERROR)
+        
+        if not quiet:
+            console.print(f"  Found {len(emails)} email addresses", style=WHITE)
+            console.print()
+        
+        results = []
+        breached_count = 0
+        
+        import time
+        REQUEST_DELAY = 1.0
+        MAX_RETRIES = 2
+        
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+            console=console,
+            disable=quiet,
+        ) as progress:
+            task = progress.add_task("Checking emails...", total=len(emails))
+            
+            for idx, item in enumerate(emails):
+                retries = 0
+                success = False
+                
+                while retries <= MAX_RETRIES and not success:
+                    try:
+                        result = check_email(item.value)
+                        results.append({
+                            "email": item.value,
+                            "breached": result.breached,
+                            "breach_count": len(result.breaches) if result.breaches else 0,
+                            "source": result.source,
+                        })
+                        if result.breached:
+                            breached_count += 1
+                        success = True
+                    except Exception as e:
+                        retries += 1
+                        if retries > MAX_RETRIES:
+                            results.append({
+                                "email": item.value,
+                                "breached": None,
+                                "error": str(e),
+                            })
+                        else:
+                            time.sleep(REQUEST_DELAY * retries)
+                
+                progress.update(task, advance=1)
+                
+                if idx < len(emails) - 1:
+                    time.sleep(REQUEST_DELAY)
+        
+        if output_format == OutputFormat.json:
+            console.print(json.dumps({"results": results, "summary": {"total": len(results), "breached": breached_count}}, indent=2))
+        elif output_format == OutputFormat.csv:
+            console.print("email,breached,breach_count")
+            for r in results:
+                console.print(f"{r['email']},{r.get('breached', 'error')},{r.get('breach_count', 0)}")
+        else:
+            if not quiet:
+                console.print()
+                render_section_header(console, "SUMMARY")
+                console.print(f"  Total checked: {len(results)}", style=WHITE)
+                console.print(f"  Breached: {breached_count}", style=RED if breached_count > 0 else GREEN)
+                console.print(f"  Clean: {len(results) - breached_count}", style=GREEN)
+        
+        if export_path:
+            if str(export_path).endswith(".csv"):
+                export_csv(results, export_path)
+            elif str(export_path).endswith(".html"):
+                export_html({"results": results, "summary": {"total": len(results), "breached": breached_count}}, export_path)
+            else:
+                export_json({"results": results, "summary": {"total": len(results), "breached": breached_count}}, export_path)
+            
+            if not quiet:
+                render_success_banner(console, f"Results exported to {export_path}")
+        
+        raise typer.Exit(code=EXIT_SUCCESS)
+        
+    except ValidationError as e:
+        render_error_banner(console, f"Validation Error: {e.message}")
+        raise typer.Exit(code=EXIT_INPUT_ERROR)
+
+
+@app.command(name="export")
+def export_cmd(
+    export_format: str = typer.Argument(
+        ...,
+        help="Export format: json, csv, or html.",
+    ),
+    output_path: Optional[Path] = typer.Option(
+        None,
+        "--output", "-o",
+        help="Output file path (default: auto-generated).",
+    ),
+):
+    """Generate a report template file. Use --export flag with scan commands for real data."""
+    render_command_header(console, "Export Template", "Generate empty report file")
+    
+    template_data = {
+        "tool": "NothingHide",
+        "version": __version__,
+        "note": "This is a template. Use 'nothinghide domain example.com --export report.json' for real results.",
+        "results": [],
+    }
+    
+    if export_format == "json":
+        path = export_json(template_data, output_path)
+    elif export_format == "csv":
+        path = export_csv([], output_path)
+    elif export_format == "html":
+        path = export_html(template_data, output_path)
+    else:
+        render_error_banner(console, f"Unknown format: {export_format}. Use json, csv, or html.")
+        raise typer.Exit(code=EXIT_INPUT_ERROR)
+    
+    render_success_banner(console, f"Template exported to: {path}")
+    console.print(f"  [{GRAY}]Tip: Use --export flag with domain/bulk commands for real results[/{GRAY}]")
+    raise typer.Exit(code=EXIT_SUCCESS)
+
+
+@app.command()
+def config(
+    show: bool = typer.Option(
+        False,
+        "--show", "-s",
+        help="Show current configuration.",
+    ),
+    reset: bool = typer.Option(
+        False,
+        "--reset",
+        help="Reset configuration to defaults.",
+    ),
+    set_format: Optional[str] = typer.Option(
+        None,
+        "--format",
+        help="Set default output format (table, json, csv).",
+    ),
+    set_quiet: Optional[bool] = typer.Option(
+        None,
+        "--quiet",
+        help="Set default quiet mode (true/false).",
+    ),
+    set_color: Optional[bool] = typer.Option(
+        None,
+        "--color",
+        help="Enable/disable colored output.",
+    ),
+):
+    """View or modify NothingHide configuration."""
+    render_command_header(console, "Configuration", "User preferences")
+    
+    if reset:
+        settings = reset_settings()
+        render_success_banner(console, "Configuration reset to defaults")
+        raise typer.Exit(code=EXIT_SUCCESS)
+    
+    updates = {}
+    if set_format:
+        updates["output_format"] = set_format
+    if set_quiet is not None:
+        updates["quiet"] = set_quiet
+    if set_color is not None:
+        updates["color"] = set_color
+    
+    if updates:
+        settings = update_settings(**updates)
+        render_success_banner(console, "Configuration updated")
+    else:
+        settings = get_settings()
+    
+    if show or not updates:
+        console.print()
+        console.print("  Current settings:", style=f"bold {WHITE}")
+        console.print()
+        for key, value in settings.to_dict().items():
+            console.print(f"    {key}: {value}", style=GRAY)
+        console.print()
+    
+    raise typer.Exit(code=EXIT_SUCCESS)
 
 
 def main():
