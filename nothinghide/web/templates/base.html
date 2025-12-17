@@ -6,33 +6,75 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>{% block title %}NothingHide{% endblock %}</title>
+    
+    <title>{% block title %}NothingHide - Breach Exposure Intelligence{% endblock %}</title>
+    <meta name="description" content="{% block description %}Check if your email or password has been exposed in data breaches. Free breach detection using public databases with k-anonymity protection.{% endblock %}">
+    <meta name="keywords" content="data breach, email leak, password check, haveibeenpwned, breach detection, security, privacy, k-anonymity">
+    <meta name="author" content="NothingHide">
+    <meta name="robots" content="index, follow">
+    
+    <meta property="og:title" content="NothingHide - Breach Exposure Intelligence">
+    <meta property="og:description" content="Check if your email or password has been exposed in data breaches. Free and secure breach detection.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="{{ url_for('static', path='/favicon.png') }}">
+    
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="NothingHide - Breach Exposure Intelligence">
+    <meta name="twitter:description" content="Check if your email or password has been exposed in data breaches.">
+    
+    <link rel="icon" type="image/png" href="{{ url_for('static', path='/favicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', path='/favicon.png') }}">
+    
+    <link rel="canonical" href="{% block canonical %}{% endblock %}">
+    
     <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
+    
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "NothingHide",
+        "description": "Breach exposure intelligence - Check if your email or password has been exposed in data breaches",
+        "applicationCategory": "SecurityApplication",
+        "operatingSystem": "Web",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        }
+    }
+    </script>
 </head>
 <body>
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <img src="{{ url_for('static', path='/loading.gif') }}" alt="Loading..." class="loading-gif">
+            <p class="loading-text">Scanning breach databases...</p>
+        </div>
+    </div>
+
     {% block content %}{% endblock %}
     
     <div class="footer">
-        <table class="footer-table">
-            <tr>
-                <td class="footer-left">
-                    <a href="/email">Email Check</a><br>
-                    <a href="/password">Password Check</a>
-                </td>
-                <td class="footer-center">
-                    <a href="/help">Help</a><br>
-                    <a href="/">About NothingHide</a>
-                </td>
-                <td class="footer-right">
-                    Get breach alerts<br>
-                    <form style="display:inline;">
-                        <input type="email" placeholder="your e-mail" class="email-subscribe">
-                        <button type="button" class="btn-small">Subscribe</button>
-                    </form>
-                </td>
-            </tr>
-        </table>
-        <p class="copyright">Copyright 2025 Talwinder</p>
+        <div class="footer-content">
+            <p class="copyright">Copyright 2025 NothingHide</p>
+            <p class="disclaimer">Breach exposure intelligence - All checks use lawful public sources</p>
+        </div>
     </div>
+
+    <script>
+        function showLoading() {
+            document.getElementById('loading-overlay').style.display = 'flex';
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            var forms = document.querySelectorAll('form[data-loading="true"]');
+            forms.forEach(function(form) {
+                form.addEventListener('submit', function() {
+                    showLoading();
+                });
+            });
+        });
+    </script>
 </body>
 </html>

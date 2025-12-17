@@ -18,9 +18,18 @@ body {
     text-align: center;
 }
 
-.logo img {
-    max-width: 280px;
-    height: auto;
+.logo-text {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 42px;
+    font-weight: bold;
+    letter-spacing: 4px;
+    color: #333333;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    margin: 0;
+    background: linear-gradient(135deg, #666666 0%, #999999 50%, #666666 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .tagline {
@@ -38,11 +47,16 @@ body {
 .search-box input[type="password"] {
     width: 350px;
     max-width: 90%;
-    padding: 6px 10px;
+    padding: 10px 14px;
     font-size: 14px;
     border: 1px solid #000000;
     border-radius: 0;
     outline: none;
+}
+
+.search-box input:focus {
+    border-color: #666666;
+    box-shadow: 0 0 3px rgba(0,0,0,0.2);
 }
 
 .buttons {
@@ -52,9 +66,9 @@ body {
 .btn {
     background-color: #eeeeee;
     border: 1px solid #666666;
-    padding: 6px 12px;
+    padding: 8px 16px;
     margin: 3px;
-    font-size: 12px;
+    font-size: 13px;
     cursor: pointer;
     color: #000000;
     font-family: Arial, sans-serif;
@@ -89,34 +103,14 @@ body {
 
 .footer {
     background-color: #99cccc;
-    padding: 10px 20px;
+    padding: 15px 20px;
     margin-top: 40px;
     text-align: center;
 }
 
-.footer-table {
-    width: 100%;
+.footer-content {
     max-width: 600px;
     margin: 0 auto;
-    border-collapse: collapse;
-}
-
-.footer-table td {
-    padding: 8px 15px;
-    vertical-align: top;
-    font-size: 12px;
-}
-
-.footer-left {
-    text-align: left;
-}
-
-.footer-center {
-    text-align: center;
-}
-
-.footer-right {
-    text-align: right;
 }
 
 .footer a {
@@ -130,10 +124,15 @@ body {
 }
 
 .copyright {
-    font-size: 11px;
+    font-size: 12px;
     color: #333333;
-    margin: 10px 0 5px 0;
-    text-align: center;
+    margin: 5px 0;
+}
+
+.disclaimer {
+    font-size: 11px;
+    color: #444444;
+    margin: 5px 0;
 }
 
 hr.divider {
@@ -342,4 +341,33 @@ hr.divider {
 
 .nav-links a:hover {
     color: #cc0000;
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-content {
+    text-align: center;
+}
+
+.loading-gif {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 15px;
+}
+
+.loading-text {
+    font-size: 14px;
+    color: #666666;
+    margin: 0;
 }

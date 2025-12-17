@@ -1,21 +1,21 @@
 {% extends "base.html" %}
 
-{% block title %}NothingHide - Breach Exposure Intelligence{% endblock %}
+{% block title %}NothingHide - Free Breach Exposure Check{% endblock %}
+{% block description %}Check if your email or password has been exposed in data breaches. Free, secure breach detection using k-anonymity protection.{% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="logo">
-        <img src="{{ url_for('static', path='/logo.png') }}" alt="NothingHide">
+        <h1 class="logo-text">NOTHINGHIDE</h1>
     </div>
     <p class="tagline">Search the web for breaches using NothingHide!</p>
     
-    <form action="/email" method="post">
+    <form action="/check" method="post" data-loading="true">
         <div class="search-box">
-            <input type="email" name="email" placeholder="" required>
+            <input type="text" name="query" placeholder="Enter email or password to check..." required>
         </div>
         <div class="buttons">
             <button type="submit" class="btn">Check Breaches</button>
-            <a href="/password" class="btn">Password Check</a>
         </div>
     </form>
     
