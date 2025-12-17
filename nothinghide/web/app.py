@@ -53,7 +53,7 @@ async def unified_check(request: Request, query: str = Form(...)):
         
         try:
             agent = BreachIntelligenceAgent()
-            result = agent.check_email_sync(query)
+            result = await agent.check_email(query)
             
             breaches = []
             if result.breaches:
@@ -167,7 +167,7 @@ async def email_check(request: Request, email: str = Form(...)):
     
     try:
         agent = BreachIntelligenceAgent()
-        result = agent.check_email_sync(email)
+        result = await agent.check_email(email)
         
         breaches = []
         if result.breaches:
