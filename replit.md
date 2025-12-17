@@ -13,6 +13,7 @@ NothingHide is a professional, pip-installable Python library for breach detecti
 - **Domain Reputation**: Checks domain validity and reputation
 - **Paste Site Monitoring**: Detects email exposure in paste sites
 - **k-Anonymity Password Checking**: Password never transmitted
+- **Username OSINT**: Advanced reconnaissance across 60+ platforms with identity risk scoring
 
 ## Project Structure
 
@@ -28,6 +29,7 @@ nothinghide/
 │   ├── config.py           # API endpoints and constants
 │   ├── exceptions.py       # Custom exception hierarchy
 │   ├── utils.py            # Validators, formatters, helpers
+│   ├── username_checker.py # Username OSINT with 60+ platform support
 │   └── agent/              # Advanced Agent System
 │       ├── __init__.py     # Agent exports
 │       ├── orchestrator.py # Main BreachIntelligenceAgent
@@ -153,8 +155,27 @@ for source, info in status.items():
 - Queries only lawful public sources
 - All breach data from publicly available APIs
 
+## Web Interface
+
+Access the web interface at port 5000:
+- `/` - Home page with unified search
+- `/email` - Email breach check
+- `/password` - Password exposure check
+- `/username` - Username OSINT (60+ platforms)
+- `/fullscan` - Complete identity scan
+- `/help` - Documentation
+
+### Username OSINT Features
+- **Platform Discovery**: Checks 60+ platforms (Social, Dev, Financial, etc.)
+- **Identity Correlation**: Analyzes patterns linking accounts
+- **Weakness Detection**: Identifies username patterns exposing personal info
+- **Risk Assessment**: Calculates overall identity exposure score (0-100)
+- **Recommendations**: Provides actionable security advice
+
 ## Recent Changes
 
+- **Dec 2024**: Added Username OSINT with 60+ platform reconnaissance
+- **Dec 2024**: Added identity risk scoring and weakness detection
 - **Dec 2024**: Added Advanced Agent System with multi-source intelligence
 - **Dec 2024**: Implemented data correlation engine for result deduplication
 - **Dec 2024**: Added domain reputation and paste site monitoring
