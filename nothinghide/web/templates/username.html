@@ -5,105 +5,6 @@
 
 {% block content %}
 <style>
-.username-page {
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0f0f23 100%);
-    min-height: 100vh;
-    padding: 20px;
-}
-
-.username-page .container {
-    max-width: 900px;
-}
-
-.username-page .logo-text {
-    background: linear-gradient(135deg, #00ff88 0%, #00cc6a 50%, #00ff88 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-shadow: none;
-    font-size: 36px;
-}
-
-.username-page .tagline {
-    color: #00ff88;
-    font-family: 'Courier New', monospace;
-    letter-spacing: 2px;
-}
-
-.username-page .privacy-notice {
-    background: rgba(0, 255, 136, 0.1);
-    border: 1px solid #00ff88;
-    color: #00ff88;
-    font-family: 'Courier New', monospace;
-    font-size: 12px;
-}
-
-.username-page .search-box input {
-    background: rgba(0, 0, 0, 0.6);
-    border: 2px solid #00ff88;
-    color: #00ff88;
-    font-family: 'Courier New', monospace;
-    font-size: 16px;
-    padding: 15px 20px;
-    width: 100%;
-    max-width: 500px;
-    box-sizing: border-box;
-}
-
-.username-page .search-box input::placeholder {
-    color: rgba(0, 255, 136, 0.5);
-}
-
-.username-page .search-box input:focus {
-    outline: none;
-    box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
-}
-
-.username-page .btn {
-    background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
-    border: none;
-    color: #000;
-    font-weight: bold;
-    font-family: 'Courier New', monospace;
-    padding: 12px 30px;
-    font-size: 14px;
-    letter-spacing: 1px;
-    transition: all 0.3s ease;
-}
-
-.username-page .btn:hover {
-    box-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
-    transform: translateY(-2px);
-}
-
-.username-page .divider {
-    border-color: #00ff88;
-    opacity: 0.3;
-}
-
-.username-page .help-section {
-    color: #888;
-    font-size: 12px;
-}
-
-.username-page .help-section h3 {
-    color: #00ff88;
-    border-bottom-color: #00ff88;
-    font-family: 'Courier New', monospace;
-}
-
-.username-page .help-section ul {
-    color: #aaa;
-}
-
-.username-page .back-link {
-    color: #00ff88;
-}
-
-.username-page .back-link:hover {
-    color: #00cc6a;
-}
-
 #loading-section {
     display: none;
     margin: 30px auto;
@@ -117,15 +18,8 @@
 }
 
 #loading-section p {
-    color: #00ff88;
-    font-family: 'Courier New', monospace;
+    color: #666;
     font-size: 14px;
-    animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
 }
 
 #results-section {
@@ -134,18 +28,19 @@
 }
 
 .results-header {
-    background: rgba(0, 255, 136, 0.1);
-    border: 1px solid #00ff88;
+    background: #f9f9f9;
+    border: 1px solid #cccccc;
     padding: 20px;
     margin-bottom: 20px;
     text-align: left;
 }
 
 .results-header h2 {
-    color: #00ff88;
-    font-family: 'Courier New', monospace;
+    color: #333;
     margin: 0 0 15px 0;
     font-size: 18px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 8px;
 }
 
 .stats-grid {
@@ -155,7 +50,8 @@
 }
 
 .stat-item {
-    background: rgba(0, 0, 0, 0.4);
+    background: #fff;
+    border: 1px solid #ddd;
     padding: 15px;
     text-align: center;
 }
@@ -163,13 +59,12 @@
 .stat-value {
     font-size: 28px;
     font-weight: bold;
-    color: #00ff88;
-    font-family: 'Courier New', monospace;
+    color: #333;
 }
 
 .stat-label {
     font-size: 11px;
-    color: #888;
+    color: #666;
     text-transform: uppercase;
     letter-spacing: 1px;
     margin-top: 5px;
@@ -177,17 +72,16 @@
 
 .risk-indicator {
     padding: 8px 16px;
-    font-family: 'Courier New', monospace;
     font-size: 14px;
     font-weight: bold;
     display: inline-block;
     margin-top: 10px;
 }
 
-.risk-critical { background: #ff0040; color: #fff; }
-.risk-high { background: #ff6600; color: #fff; }
-.risk-moderate { background: #ffcc00; color: #000; }
-.risk-low { background: #00ff88; color: #000; }
+.risk-critical { background: #ffcccc; color: #cc0000; border: 1px solid #cc0000; }
+.risk-high { background: #ffe0cc; color: #cc6600; border: 1px solid #cc6600; }
+.risk-moderate { background: #ffffcc; color: #666600; border: 1px solid #cccc00; }
+.risk-low { background: #ccffcc; color: #006600; border: 1px solid #008800; }
 
 .categories-container {
     display: grid;
@@ -197,42 +91,39 @@
 }
 
 .category-card {
-    background: rgba(0, 0, 0, 0.6);
-    border: 1px solid #333;
+    background: #fff;
+    border: 1px solid #cccccc;
     padding: 0;
     overflow: hidden;
-    transition: all 0.3s ease;
 }
 
 .category-card:hover {
-    border-color: #00ff88;
-    box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+    border-color: #999;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .category-header {
-    background: linear-gradient(135deg, #1a1a2e 0%, #0f0f23 100%);
+    background: #f0f0f0;
     padding: 12px 15px;
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid #ccc;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 .category-name {
-    color: #00ff88;
-    font-family: 'Courier New', monospace;
-    font-size: 12px;
-    letter-spacing: 2px;
+    color: #333;
+    font-size: 13px;
+    font-weight: bold;
     text-transform: uppercase;
 }
 
 .category-count {
-    background: #00ff88;
-    color: #000;
+    background: #666;
+    color: #fff;
     padding: 3px 10px;
     font-size: 11px;
     font-weight: bold;
-    font-family: 'Courier New', monospace;
 }
 
 .category-platforms {
@@ -245,71 +136,66 @@
     display: flex;
     align-items: center;
     padding: 8px 10px;
-    background: rgba(0, 255, 136, 0.05);
+    background: #f9f9f9;
     margin-bottom: 6px;
-    border-left: 3px solid #00ff88;
-    transition: all 0.2s ease;
+    border-left: 3px solid #666;
 }
 
 .platform-item:hover {
-    background: rgba(0, 255, 136, 0.15);
+    background: #f0f0f0;
 }
 
 .platform-name {
-    color: #fff;
+    color: #333;
     font-size: 13px;
     flex: 1;
 }
 
 .platform-link {
-    color: #00ff88;
+    color: #0066cc;
     font-size: 11px;
-    text-decoration: none;
-    opacity: 0.7;
-}
-
-.platform-link:hover {
-    opacity: 1;
     text-decoration: underline;
 }
 
+.platform-link:hover {
+    color: #cc0000;
+}
+
 .weaknesses-section {
-    background: rgba(255, 100, 0, 0.1);
-    border: 1px solid #ff6600;
+    background: #fff8f0;
+    border: 1px solid #cc6600;
     padding: 15px;
     margin-top: 20px;
 }
 
 .weaknesses-section h3 {
-    color: #ff6600;
-    font-family: 'Courier New', monospace;
+    color: #cc6600;
     font-size: 14px;
     margin: 0 0 10px 0;
 }
 
 .weakness-item {
-    color: #ff6600;
+    color: #cc6600;
     font-size: 12px;
     padding: 5px 0;
-    border-bottom: 1px solid rgba(255, 100, 0, 0.2);
+    border-bottom: 1px solid rgba(204, 102, 0, 0.2);
 }
 
 .recommendations-section {
-    background: rgba(0, 255, 136, 0.05);
-    border: 1px solid #00ff88;
+    background: #ffffcc;
+    border: 1px solid #cccc00;
     padding: 15px;
     margin-top: 20px;
 }
 
 .recommendations-section h3 {
-    color: #00ff88;
-    font-family: 'Courier New', monospace;
+    color: #666600;
     font-size: 14px;
     margin: 0 0 10px 0;
 }
 
 .recommendation-item {
-    color: #aaa;
+    color: #333;
     font-size: 12px;
     padding: 5px 0;
     padding-left: 15px;
@@ -320,39 +206,38 @@
     content: ">";
     position: absolute;
     left: 0;
-    color: #00ff88;
+    color: #666600;
 }
 
 .error-message {
-    background: rgba(255, 0, 64, 0.1);
-    border: 1px solid #ff0040;
-    color: #ff0040;
+    background: #ffeeee;
+    border: 1px solid #cc0000;
+    color: #cc0000;
     padding: 20px;
     margin: 20px 0;
-    font-family: 'Courier New', monospace;
     text-align: center;
+    font-weight: bold;
 }
 
 .all-platforms-toggle {
-    background: transparent;
-    border: 1px solid #00ff88;
-    color: #00ff88;
+    background: #eeeeee;
+    border: 1px solid #666;
+    color: #333;
     padding: 10px 20px;
-    font-family: 'Courier New', monospace;
     cursor: pointer;
     margin-top: 20px;
-    transition: all 0.3s ease;
+    font-size: 13px;
 }
 
 .all-platforms-toggle:hover {
-    background: rgba(0, 255, 136, 0.1);
+    background: #dddddd;
 }
 
 .all-platforms-list {
     display: none;
     margin-top: 15px;
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid #333;
+    background: #f9f9f9;
+    border: 1px solid #ccc;
     padding: 15px;
     max-height: 300px;
     overflow-y: auto;
@@ -366,20 +251,21 @@
     display: flex;
     justify-content: space-between;
     padding: 5px 0;
-    border-bottom: 1px solid #222;
+    border-bottom: 1px solid #eee;
     font-size: 11px;
 }
 
 .platform-status-name {
-    color: #888;
+    color: #666;
 }
 
 .platform-status-found {
-    color: #00ff88;
+    color: #008800;
+    font-weight: bold;
 }
 
 .platform-status-notfound {
-    color: #444;
+    color: #999;
 }
 
 @media (max-width: 768px) {
@@ -390,54 +276,54 @@
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    
-    .username-page .logo-text {
-        font-size: 28px;
-    }
 }
 </style>
 
-<div class="username-page">
-    <div class="container">
-        <div class="logo">
-            <h1 class="logo-text">NOTHINGHIDE</h1>
-        </div>
-        <p class="tagline">// USERNAME OSINT INTELLIGENCE</p>
-        
-        <div class="privacy-notice">
-            [SYSTEM] Advanced reconnaissance: Scans 60+ platforms for account presence. No data stored.
-        </div>
-        
-        <form id="username-form">
-            <div class="search-box">
-                <input type="text" name="username" id="username-input" placeholder="> enter_username_" required 
-                       pattern="[a-zA-Z0-9._-]+" title="Letters, numbers, dots, underscores, and hyphens only">
-            </div>
-            <div class="buttons">
-                <button type="submit" class="btn">[ SCAN USERNAME ]</button>
-            </div>
-        </form>
-        
-        <div id="loading-section">
-            <img src="/static/loading.gif" alt="Scanning...">
-            <p id="loading-text">[SCANNING] Probing platforms...</p>
-        </div>
-        
-        <div id="results-section"></div>
-        
-        <hr class="divider">
-        
-        <div class="help-section">
-            <h3>// CAPABILITIES</h3>
-            <ul>
-                <li>Platform Discovery: 60+ platforms scanned</li>
-                <li>Identity Correlation: Pattern analysis</li>
-                <li>Risk Assessment: Exposure score calculation</li>
-            </ul>
-        </div>
-        
-        <a href="/" class="back-link">&larr; Back to Home</a>
+<div class="container">
+    <div class="logo">
+        <h1 class="logo-text">NOTHINGHIDE</h1>
     </div>
+    <p class="tagline">Username OSINT Intelligence</p>
+    
+    <div class="privacy-notice">
+        <strong>Advanced Reconnaissance:</strong> Scans 60+ platforms to detect account presence, 
+        identity exposure patterns, and security weaknesses. No data is stored.
+    </div>
+    
+    <form id="username-form">
+        <div class="search-box">
+            <input type="text" name="username" id="username-input" placeholder="Enter username to investigate..." required 
+                   pattern="[a-zA-Z0-9._-]+" title="Letters, numbers, dots, underscores, and hyphens only">
+        </div>
+        <div class="buttons">
+            <button type="submit" class="btn">Scan Username</button>
+        </div>
+    </form>
+    
+    <div id="loading-section">
+        <img src="/static/loading.gif" alt="Scanning...">
+        <p id="loading-text">Scanning platforms...</p>
+    </div>
+    
+    <div id="results-section"></div>
+    
+    <hr class="divider">
+    
+    <div class="help-section">
+        <h3>What This Tool Does</h3>
+        <ul>
+            <li><strong>Platform Discovery:</strong> Checks 60+ platforms for account existence</li>
+            <li><strong>Identity Correlation:</strong> Analyzes patterns that could link accounts</li>
+            <li><strong>Weakness Detection:</strong> Identifies username patterns that expose personal info</li>
+            <li><strong>Risk Assessment:</strong> Calculates overall identity exposure score</li>
+            <li><strong>Recommendations:</strong> Provides actionable security advice</li>
+        </ul>
+        
+        <h3>Categories Scanned</h3>
+        <p>Social Media, Development, Professional, Financial, Gaming, Media, Security, E-commerce, and more.</p>
+    </div>
+    
+    <a href="/" class="back-link">&larr; Back to Home</a>
 </div>
 
 <script>
@@ -456,12 +342,12 @@ document.getElementById('username-form').addEventListener('submit', async functi
     resultsSection.innerHTML = '';
     
     const messages = [
-        '[SCANNING] Initializing probes...',
-        '[SCANNING] Checking social networks...',
-        '[SCANNING] Probing development platforms...',
-        '[SCANNING] Analyzing gaming services...',
-        '[SCANNING] Checking professional networks...',
-        '[SCANNING] Correlating identities...'
+        'Initializing scan...',
+        'Checking social networks...',
+        'Probing development platforms...',
+        'Analyzing gaming services...',
+        'Checking professional networks...',
+        'Correlating identities...'
     ];
     
     let msgIndex = 0;
@@ -485,7 +371,7 @@ document.getElementById('username-form').addEventListener('submit', async functi
         loadingSection.style.display = 'none';
         
         if (data.error) {
-            resultsSection.innerHTML = `<div class="error-message">[ERROR] ${data.error}</div>`;
+            resultsSection.innerHTML = `<div class="error-message">${data.error}</div>`;
             resultsSection.style.display = 'block';
             return;
         }
@@ -496,7 +382,7 @@ document.getElementById('username-form').addEventListener('submit', async functi
     } catch (error) {
         clearInterval(msgInterval);
         loadingSection.style.display = 'none';
-        resultsSection.innerHTML = `<div class="error-message">[ERROR] Connection failed. Try again.</div>`;
+        resultsSection.innerHTML = `<div class="error-message">Connection failed. Please try again.</div>`;
         resultsSection.style.display = 'block';
     }
 });
@@ -511,7 +397,7 @@ function renderResults(data) {
     
     let html = `
         <div class="results-header">
-            <h2>> SCAN COMPLETE: ${data.username}</h2>
+            <h2>Scan Complete: ${data.username}</h2>
             <div class="stats-grid">
                 <div class="stat-item">
                     <div class="stat-value">${data.accounts_found}</div>
@@ -526,7 +412,7 @@ function renderResults(data) {
                     <div class="stat-label">Risk Score</div>
                 </div>
             </div>
-            <div class="risk-indicator ${riskClass}">[${riskLevel} RISK]</div>
+            <div class="risk-indicator ${riskClass}">${riskLevel} RISK</div>
         </div>
     `;
     
@@ -556,7 +442,7 @@ function renderResults(data) {
                         ${platforms.map(p => `
                             <div class="platform-item">
                                 <span class="platform-name">${p.platform}</span>
-                                <a href="${p.url}" target="_blank" rel="noopener" class="platform-link">[VISIT]</a>
+                                <a href="${p.url}" target="_blank" rel="noopener" class="platform-link">Visit</a>
                             </div>
                         `).join('')}
                     </div>
@@ -570,9 +456,9 @@ function renderResults(data) {
     if (data.username_analysis?.weaknesses?.length > 0) {
         html += `
             <div class="weaknesses-section">
-                <h3>> WEAKNESSES DETECTED</h3>
+                <h3>Weaknesses Detected</h3>
                 ${data.username_analysis.weaknesses.map(w => `
-                    <div class="weakness-item">[!] ${w}</div>
+                    <div class="weakness-item">Warning: ${w}</div>
                 `).join('')}
             </div>
         `;
@@ -581,7 +467,7 @@ function renderResults(data) {
     if (data.identity_risk?.recommendations?.length > 0) {
         html += `
             <div class="recommendations-section">
-                <h3>> RECOMMENDATIONS</h3>
+                <h3>Security Recommendations</h3>
                 ${data.identity_risk.recommendations.map(r => `
                     <div class="recommendation-item">${r}</div>
                 `).join('')}
@@ -591,14 +477,14 @@ function renderResults(data) {
     
     html += `
         <button class="all-platforms-toggle" onclick="toggleAllPlatforms()">
-            [ VIEW ALL SCANNED PLATFORMS ]
+            View All Scanned Platforms
         </button>
         <div id="all-platforms-list" class="all-platforms-list">
             ${data.platforms ? data.platforms.map(p => `
                 <div class="platform-status">
                     <span class="platform-status-name">${p.platform}</span>
                     <span class="${p.exists ? 'platform-status-found' : 'platform-status-notfound'}">
-                        ${p.exists ? '[FOUND]' : '[NOT FOUND]'}
+                        ${p.exists ? 'Found' : 'Not Found'}
                     </span>
                 </div>
             `).join('') : ''}
