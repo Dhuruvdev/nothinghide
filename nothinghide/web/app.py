@@ -161,8 +161,11 @@ async def email_page(request: Request):
     return templates.TemplateResponse("email.html", {"request": request})
 
 
-@app.post("/email", response_class=HTMLResponse)
+@app.post("/email")
 async def email_check(request: Request, email: str = Form(...)):
+    accept_header = request.headers.get("accept", "")
+    wants_json = "application/json" in accept_header
+    
     result = None
     error = None
     
@@ -186,6 +189,7 @@ async def email_check(request: Request, email: str = Form(...)):
             "risk_score": getattr(result, 'risk_score', 0),
             "sources_succeeded": getattr(result, 'sources_succeeded', []),
             "sources_failed": getattr(result, 'sources_failed', []),
+            "sources_checked": 6,
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         }
     except ValidationError as e:
@@ -197,6 +201,11 @@ async def email_check(request: Request, email: str = Form(...)):
     except Exception as e:
         error = f"An error occurred: {str(e)}"
         result_data = None
+    
+    if wants_json:
+        if error:
+            return JSONResponse(content={"error": error})
+        return JSONResponse(content=result_data)
     
     return templates.TemplateResponse("email_result.html", {
         "request": request,
@@ -210,8 +219,11 @@ async def password_page(request: Request):
     return templates.TemplateResponse("password.html", {"request": request})
 
 
-@app.post("/password", response_class=HTMLResponse)
+@app.post("/password")
 async def password_check(request: Request, password: str = Form(...)):
+    accept_header = request.headers.get("accept", "")
+    wants_json = "application/json" in accept_header
+    
     result = None
     error = None
     
@@ -249,9 +261,12 @@ async def password_check(request: Request, password: str = Form(...)):
         
         result_data = {
             "exposed": result.exposed,
+            "compromised": result.exposed,
+            "pwned": result.exposed,
             "count": result.count,
             "strength": strength_label,
             "strength_score": strength_score,
+            "score": min(4, strength_score // 2),
             "length": length,
             "has_upper": has_upper,
             "has_lower": has_lower,
@@ -270,6 +285,13 @@ async def password_check(request: Request, password: str = Form(...)):
         error = f"An error occurred: {str(e)}"
         result_data = None
     
+    if wants_json:
+        if error:
+            return JSONResponse(content={"error": error})
+        response_data = dict(result_data) if result_data else {}
+        response_data["strength"] = result_data
+        return JSONResponse(content=response_data)
+    
     return templates.TemplateResponse("password_result.html", {
         "request": request,
         "result": result_data,
@@ -282,8 +304,11 @@ async def fullscan_page(request: Request):
     return templates.TemplateResponse("fullscan.html", {"request": request})
 
 
-@app.post("/fullscan", response_class=HTMLResponse)
+@app.post("/fullscan")
 async def fullscan_check(request: Request, email: str = Form(...), password: str = Form(...)):
+    accept_header = request.headers.get("accept", "")
+    wants_json = "application/json" in accept_header
+    
     result = None
     error = None
     
@@ -307,6 +332,15 @@ async def fullscan_check(request: Request, email: str = Form(...), password: str
             "password_count": report.password_result.count,
             "risk_level": report.risk_level,
             "recommendations": report.recommendations,
+            "email_result": {
+                "breaches": breaches[:10],
+                "breached": report.email_result.breached,
+            },
+            "password_result": {
+                "compromised": report.password_result.exposed,
+                "pwned": report.password_result.exposed,
+                "count": report.password_result.count,
+            },
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         }
     except ValidationError as e:
@@ -318,6 +352,11 @@ async def fullscan_check(request: Request, email: str = Form(...), password: str
     except Exception as e:
         error = f"An error occurred: {str(e)}"
         result_data = None
+    
+    if wants_json:
+        if error:
+            return JSONResponse(content={"error": error})
+        return JSONResponse(content=result_data)
     
     return templates.TemplateResponse("fullscan_result.html", {
         "request": request,

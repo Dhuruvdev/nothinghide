@@ -3,6 +3,187 @@
 {% block title %}Email Breach Check - NothingHide{% endblock %}
 
 {% block content %}
+<style>
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.loading-section {
+    display: none;
+    text-align: center;
+    padding: 30px;
+    margin-top: 20px;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #ddd;
+    border-top: 3px solid #333;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-text {
+    color: #666;
+    font-size: 14px;
+}
+
+.results-section {
+    display: none;
+    margin-top: 20px;
+}
+
+.results-header {
+    background: #f5f5f5;
+    padding: 20px;
+    border: 1px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.results-header h2 {
+    margin: 0 0 15px 0;
+    color: #333;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #ddd;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.stat-label {
+    font-size: 11px;
+    color: #666;
+}
+
+.risk-indicator {
+    display: inline-block;
+    padding: 8px 16px;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.risk-critical { background: #cc0000; color: #fff; }
+.risk-high { background: #ff6600; color: #fff; }
+.risk-moderate { background: #ffcc00; color: #333; }
+.risk-low { background: #00cc00; color: #fff; }
+
+.breach-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+    padding: 15px;
+}
+
+.breach-card:hover {
+    border-color: #999;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.breach-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.breach-name {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
+.breach-date {
+    font-size: 12px;
+    color: #666;
+}
+
+.breach-description {
+    font-size: 12px;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+.breach-data-types {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.data-type-tag {
+    background: #f0f0f0;
+    padding: 3px 8px;
+    font-size: 10px;
+    color: #666;
+    border-radius: 3px;
+}
+
+.recommendations-section {
+    background: #f0fff0;
+    border: 1px solid #00cc00;
+    padding: 15px;
+    margin-top: 20px;
+}
+
+.recommendations-section h3 {
+    margin: 0 0 10px 0;
+    color: #006600;
+    font-size: 14px;
+}
+
+.recommendation-item {
+    padding: 8px 0;
+    border-bottom: 1px solid #ddd;
+    font-size: 12px;
+    color: #333;
+}
+
+.recommendation-item:last-child {
+    border-bottom: none;
+}
+
+.error-message {
+    background: #fff0f0;
+    border: 1px solid #cc0000;
+    color: #cc0000;
+    padding: 15px;
+    text-align: center;
+}
+
+.no-breaches {
+    background: #f0fff0;
+    border: 1px solid #00cc00;
+    color: #006600;
+    padding: 30px;
+    text-align: center;
+    font-size: 16px;
+}
+</style>
+
 <div class="container">
     <div class="logo">
         <h1 class="logo-text">NOTHINGHIDE</h1>
@@ -10,14 +191,21 @@
     
     <p class="tagline">Email Breach Check - Multi-source intelligence scan</p>
     
-    <form action="/email" method="post" data-loading="true">
+    <form id="email-form">
         <div class="search-box">
-            <input type="email" name="email" placeholder="Enter email address..." required>
+            <input type="email" name="email" id="email-input" placeholder="Enter email address..." required>
         </div>
         <div class="buttons">
-            <button type="submit" class="btn">Check Email</button>
+            <button type="submit" class="btn" id="submit-btn">Check Email</button>
         </div>
     </form>
+    
+    <div id="loading-section" class="loading-section">
+        <div class="loading-spinner"></div>
+        <div class="loading-text" id="loading-text">Checking breach databases...</div>
+    </div>
+    
+    <div id="results-section" class="results-section"></div>
     
     <div class="privacy-notice">
         Your email is checked against 6+ public breach databases. No data is stored or logged.
@@ -25,4 +213,142 @@
     
     <a href="/" class="back-link">&laquo; Back to Home</a>
 </div>
+
+<script>
+const loadingMessages = [
+    "Checking breach databases...",
+    "Querying HaveIBeenPwned...",
+    "Scanning exposed data dumps...",
+    "Analyzing results...",
+    "Compiling report..."
+];
+
+document.getElementById('email-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const email = document.getElementById('email-input').value.trim();
+    if (!email) return;
+    
+    const loadingSection = document.getElementById('loading-section');
+    const resultsSection = document.getElementById('results-section');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    loadingSection.style.display = 'block';
+    resultsSection.style.display = 'none';
+    submitBtn.disabled = true;
+    
+    let msgIndex = 0;
+    const msgInterval = setInterval(() => {
+        msgIndex = (msgIndex + 1) % loadingMessages.length;
+        document.getElementById('loading-text').textContent = loadingMessages[msgIndex];
+    }, 2000);
+    
+    try {
+        const response = await fetch('/email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/json'
+            },
+            body: `email=${encodeURIComponent(email)}`
+        });
+        
+        clearInterval(msgInterval);
+        loadingSection.style.display = 'none';
+        submitBtn.disabled = false;
+        
+        const data = await response.json();
+        
+        if (data.error) {
+            resultsSection.innerHTML = `<div class="error-message">${data.error}</div>`;
+            resultsSection.style.display = 'block';
+            return;
+        }
+        
+        renderResults(data);
+        resultsSection.style.display = 'block';
+        
+    } catch (error) {
+        clearInterval(msgInterval);
+        loadingSection.style.display = 'none';
+        submitBtn.disabled = false;
+        resultsSection.innerHTML = `<div class="error-message">Connection failed. Please try again.</div>`;
+        resultsSection.style.display = 'block';
+    }
+});
+
+function renderResults(data) {
+    const resultsSection = document.getElementById('results-section');
+    const breachCount = data.breaches?.length || 0;
+    
+    let riskLevel = 'LOW';
+    if (breachCount >= 5) riskLevel = 'CRITICAL';
+    else if (breachCount >= 3) riskLevel = 'HIGH';
+    else if (breachCount >= 1) riskLevel = 'MODERATE';
+    
+    const riskClass = riskLevel === 'CRITICAL' ? 'risk-critical' : 
+                      riskLevel === 'HIGH' ? 'risk-high' : 
+                      riskLevel === 'MODERATE' ? 'risk-moderate' : 'risk-low';
+    
+    if (breachCount === 0) {
+        resultsSection.innerHTML = `
+            <div class="no-breaches">
+                <strong>No breaches found for ${data.email || 'this email'}</strong><br><br>
+                Your email was not found in any known data breaches. Keep practicing good security habits!
+            </div>
+        `;
+        return;
+    }
+    
+    let html = `
+        <div class="results-header">
+            <h2>Scan Complete: ${data.email || 'Email'}</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value">${breachCount}</div>
+                    <div class="stat-label">Breaches Found</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">${data.sources_checked || 6}</div>
+                    <div class="stat-label">Sources Checked</div>
+                </div>
+            </div>
+            <div class="risk-indicator ${riskClass}">${riskLevel} RISK</div>
+        </div>
+    `;
+    
+    if (data.breaches && data.breaches.length > 0) {
+        html += '<div class="breaches-list">';
+        data.breaches.forEach(breach => {
+            html += `
+                <div class="breach-card">
+                    <div class="breach-header">
+                        <span class="breach-name">${breach.name || breach.Name || 'Unknown Breach'}</span>
+                        <span class="breach-date">${breach.date || breach.BreachDate || ''}</span>
+                    </div>
+                    ${breach.description || breach.Description ? `<div class="breach-description">${breach.description || breach.Description}</div>` : ''}
+                    ${(breach.data_types || breach.DataClasses) ? `
+                        <div class="breach-data-types">
+                            ${(breach.data_types || breach.DataClasses || []).map(dt => `<span class="data-type-tag">${dt}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        });
+        html += '</div>';
+    }
+    
+    html += `
+        <div class="recommendations-section">
+            <h3>Security Recommendations</h3>
+            <div class="recommendation-item">Change your password on all affected services immediately</div>
+            <div class="recommendation-item">Enable two-factor authentication where available</div>
+            <div class="recommendation-item">Use a unique password for each service</div>
+            <div class="recommendation-item">Consider using a password manager</div>
+        </div>
+    `;
+    
+    resultsSection.innerHTML = html;
+}
+</script>
 {% endblock %}
