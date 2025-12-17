@@ -43,6 +43,12 @@ async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
+@app.get("/terminal", response_class=HTMLResponse)
+async def terminal(request: Request):
+    """CLI-style terminal interface - lightweight client-side rendering."""
+    return templates.TemplateResponse("terminal.html", {"request": request})
+
+
 @app.post("/check", response_class=HTMLResponse)
 async def unified_check(request: Request, query: str = Form(...)):
     """Unified check endpoint - detects if input is email or password and routes accordingly."""
