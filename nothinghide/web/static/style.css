@@ -371,3 +371,158 @@ hr.divider {
     color: #666666;
     margin: 0;
 }
+
+@media screen and (max-width: 768px) {
+    .container {
+        padding: 15px;
+        max-width: 100%;
+    }
+    
+    .logo {
+        margin: 30px 0 10px 0;
+    }
+    
+    .logo-text {
+        font-size: 28px;
+        letter-spacing: 2px;
+    }
+    
+    .tagline {
+        font-size: 13px;
+        margin: 5px 0 20px 0;
+        padding: 0 10px;
+    }
+    
+    .search-box input[type="text"],
+    .search-box input[type="email"],
+    .search-box input[type="password"] {
+        width: 100%;
+        max-width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        box-sizing: border-box;
+    }
+    
+    .buttons {
+        margin: 15px 0 20px 0;
+    }
+    
+    .btn {
+        padding: 12px 20px;
+        font-size: 14px;
+        display: block;
+        width: 100%;
+        margin: 8px 0;
+        box-sizing: border-box;
+    }
+    
+    .menu-list {
+        padding-left: 15px;
+        margin: 15px 10px;
+        width: calc(100% - 20px);
+    }
+    
+    .menu-list li {
+        font-size: 14px;
+        margin: 10px 0;
+        line-height: 1.4;
+    }
+    
+    .result-box {
+        margin: 15px 10px;
+        padding: 12px;
+        max-width: 100%;
+    }
+    
+    .stats-table td {
+        padding: 8px 6px;
+        font-size: 13px;
+        word-break: break-word;
+    }
+    
+    .stats-table td:first-child {
+        width: 35%;
+    }
+    
+    .help-section {
+        margin: 15px 10px;
+        max-width: 100%;
+    }
+    
+    .help-section h3 {
+        font-size: 16px;
+    }
+    
+    .help-section p,
+    .help-section ul {
+        font-size: 14px;
+    }
+    
+    .privacy-notice {
+        font-size: 13px;
+        padding: 10px;
+        margin: 15px 10px;
+    }
+    
+    .recommendations {
+        padding: 10px;
+        margin: 10px 0;
+    }
+    
+    .recommendations li {
+        font-size: 13px;
+    }
+    
+    .error-box {
+        margin: 15px 10px;
+        font-size: 14px;
+    }
+    
+    .footer {
+        padding: 15px 10px;
+    }
+    
+    .copyright,
+    .disclaimer {
+        font-size: 12px;
+    }
+    
+    .back-link {
+        font-size: 14px;
+        padding: 8px 0;
+    }
+    
+    .loading-gif {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .loading-text {
+        font-size: 13px;
+    }
+    
+    .breach-list li {
+        padding: 10px;
+        font-size: 13px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .logo-text {
+        font-size: 22px;
+        letter-spacing: 1px;
+    }
+    
+    .tagline {
+        font-size: 12px;
+    }
+    
+    .menu-list li {
+        font-size: 13px;
+    }
+    
+    .stats-table td {
+        font-size: 12px;
+        padding: 6px 4px;
+    }
+}
