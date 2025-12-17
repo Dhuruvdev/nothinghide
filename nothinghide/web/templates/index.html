@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}NothingHide - Breach Exposure Intelligence{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="logo">
+        <img src="{{ url_for('static', path='/logo.png') }}" alt="NothingHide">
+    </div>
+    <p class="tagline">Breach exposure intelligence</p>
+    
+    <form action="/email" method="post">
+        <div class="search-box">
+            <input type="email" name="email" placeholder="Enter email address to check..." required>
+        </div>
+        <div class="buttons">
+            <button type="submit" class="btn btn-primary">Check Breaches</button>
+            <a href="/password" class="btn">Password Check</a>
+        </div>
+    </form>
+    
+    <hr>
+    
+    <ul class="menu-list">
+        <li>
+            <a href="/email">Email Breach Check</a>
+            <span class="desc">Scan breach databases for your email</span>
+        </li>
+        <li>
+            <a href="/password">Password Check</a>
+            <span class="desc">k-anonymity lookup - your password never leaves your browser</span>
+        </li>
+        <li>
+            <a href="/fullscan">Full Scan</a>
+            <span class="desc">Complete identity check with recommendations</span>
+        </li>
+        <li>
+            <a href="/help">Help</a>
+            <span class="desc">Documentation and data sources</span>
+        </li>
+    </ul>
+</div>
+{% endblock %}

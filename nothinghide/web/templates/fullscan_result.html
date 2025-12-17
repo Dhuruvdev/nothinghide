@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Full Scan Results - NothingHide{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="logo">
+        <img src="{{ url_for('static', path='/logo.png') }}" alt="NothingHide">
+    </div>
+    
+    <h2>Full Scan Results</h2>
+    
+    {% if error %}
+    <div class="error-box">
+        {{ error }}
+    </div>
+    {% elif result %}
+    <div class="result-box">
+        <h2>Identity Scan Report</h2>
+        
+        <table class="stats-table">
+            <tr>
+                <td>Email</td>
+                <td>{{ result.email }}</td>
+            </tr>
+            <tr>
+                <td>Overall Risk Level</td>
+                <td>
+                    {% if result.risk_level == 'CRITICAL' or result.risk_level == 'HIGH' %}
+                    <span class="status-exposed">{{ result.risk_level }}</span>
+                    {% elif result.risk_level == 'MEDIUM' %}
+                    <span class="status-warning">{{ result.risk_level }}</span>
+                    {% else %}
+                    <span class="status-clear">{{ result.risk_level }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>Email Status</td>
+                <td>
+                    {% if result.email_breached %}
+                    <span class="status-exposed">COMPROMISED</span> ({{ result.email_breach_count }} breaches)
+                    {% else %}
+                    <span class="status-clear">CLEAR</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>Password Status</td>
+                <td>
+                    {% if result.password_exposed %}
+                    <span class="status-exposed">EXPOSED</span> ({{ "{:,}".format(result.password_count) }} times)
+                    {% else %}
+                    <span class="status-clear">CLEAR</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>Timestamp</td>
+                <td>{{ result.timestamp }}</td>
+            </tr>
+        </table>
+        
+        {% if result.breaches %}
+        <h3>Breach Details</h3>
+        <ul class="breach-list">
+            {% for breach in result.breaches %}
+            <li>
+                <span class="breach-name">{{ breach.name or 'Unknown' }}</span>
+                <span class="breach-date"> - {{ breach.date or breach.year or 'Unknown date' }}</span>
+                {% if breach.data_classes %}
+                <div class="breach-data">Exposed: {{ breach.data_classes|join(', ') }}</div>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        
+        {% if result.recommendations %}
+        <div class="recommendations">
+            <h3>Recommended Actions</h3>
+            <ul>
+                {% for rec in result.recommendations %}
+                <li>{{ rec }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    <a href="/fullscan" class="back-link">&laquo; Run Another Scan</a>
+    <br>
+    <a href="/" class="back-link">&laquo; Back to Home</a>
+</div>
+{% endblock %}

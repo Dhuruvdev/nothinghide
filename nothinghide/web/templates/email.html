@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Email Breach Check - NothingHide{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="logo">
+        <img src="{{ url_for('static', path='/logo.png') }}" alt="NothingHide">
+    </div>
+    
+    <h2>Email Breach Check</h2>
+    <p class="tagline">Multi-source intelligence scan</p>
+    
+    <form action="/email" method="post">
+        <div class="search-box">
+            <input type="email" name="email" placeholder="Enter email address..." required>
+        </div>
+        <div class="buttons">
+            <button type="submit" class="btn btn-primary">Check Email</button>
+        </div>
+    </form>
+    
+    <div class="privacy-notice">
+        Your email is checked against 6+ public breach databases.
+        No data is stored or logged.
+    </div>
+    
+    <a href="/" class="back-link">&laquo; Back to Home</a>
+</div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Full Scan - NothingHide{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="logo">
+        <img src="{{ url_for('static', path='/logo.png') }}" alt="NothingHide">
+    </div>
+    
+    <h2>Full Identity Scan</h2>
+    <p class="tagline">Complete exposure analysis</p>
+    
+    <div class="privacy-notice">
+        <strong>Privacy Notice</strong><br>
+        Your data is never stored or transmitted. Password uses k-anonymity - only a partial hash is sent.
+    </div>
+    
+    <form action="/fullscan" method="post">
+        <div class="search-box">
+            <input type="email" name="email" placeholder="Enter email address..." required>
+        </div>
+        <div class="search-box">
+            <input type="password" name="password" placeholder="Enter password..." required>
+        </div>
+        <div class="buttons">
+            <button type="submit" class="btn btn-primary">Run Full Scan</button>
+        </div>
+    </form>
+    
+    <a href="/" class="back-link">&laquo; Back to Home</a>
+</div>
+{% endblock %}
