@@ -10,23 +10,29 @@
     <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
 </head>
 <body>
-    <div class="nav-bar">
-        <a href="/">Home</a>
-        <a href="/email">Email Check</a>
-        <a href="/password">Password Check</a>
-        <a href="/fullscan">Full Scan</a>
-        <a href="/help">Help</a>
-    </div>
-    
     {% block content %}{% endblock %}
     
     <div class="footer">
-        <div class="footer-links">
-            <a href="/help">Help</a>
-            <a href="/">About NothingHide</a>
-        </div>
-        <p>Copyright 2025 NothingHide</p>
-        <p>Breach exposure intelligence - All checks use lawful public sources</p>
+        <table class="footer-table">
+            <tr>
+                <td class="footer-left">
+                    <a href="/email">Email Check</a><br>
+                    <a href="/password">Password Check</a>
+                </td>
+                <td class="footer-center">
+                    <a href="/help">Help</a><br>
+                    <a href="/">About NothingHide</a>
+                </td>
+                <td class="footer-right">
+                    Get breach alerts<br>
+                    <form style="display:inline;">
+                        <input type="email" placeholder="your e-mail" class="email-subscribe">
+                        <button type="button" class="btn-small">Subscribe</button>
+                    </form>
+                </td>
+            </tr>
+        </table>
+        <p class="copyright">Copyright 2025 Talwinder</p>
     </div>
 </body>
 </html>

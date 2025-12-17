@@ -7,37 +7,25 @@
     <div class="logo">
         <img src="{{ url_for('static', path='/logo.png') }}" alt="NothingHide">
     </div>
-    <p class="tagline">Breach exposure intelligence</p>
+    <p class="tagline">Search the web for breaches using NothingHide!</p>
     
     <form action="/email" method="post">
         <div class="search-box">
-            <input type="email" name="email" placeholder="Enter email address to check..." required>
+            <input type="email" name="email" placeholder="" required>
         </div>
         <div class="buttons">
-            <button type="submit" class="btn btn-primary">Check Breaches</button>
+            <button type="submit" class="btn">Check Breaches</button>
             <a href="/password" class="btn">Password Check</a>
         </div>
     </form>
     
-    <hr>
+    <hr class="divider">
     
     <ul class="menu-list">
-        <li>
-            <a href="/email">Email Breach Check</a>
-            <span class="desc">Scan breach databases for your email</span>
-        </li>
-        <li>
-            <a href="/password">Password Check</a>
-            <span class="desc">k-anonymity lookup - your password never leaves your browser</span>
-        </li>
-        <li>
-            <a href="/fullscan">Full Scan</a>
-            <span class="desc">Complete identity check with recommendations</span>
-        </li>
-        <li>
-            <a href="/help">Help</a>
-            <span class="desc">Documentation and data sources</span>
-        </li>
+        <li><a href="/email">Email Breach Check</a> Scan breach databases for your email</li>
+        <li><a href="/password">Password Check</a> k-anonymity lookup - your password never leaves your browser</li>
+        <li><a href="/fullscan">Full Scan</a> Complete identity check with recommendations</li>
+        <li><a href="/help">Help</a> Documentation and data sources</li>
     </ul>
 </div>
 {% endblock %}

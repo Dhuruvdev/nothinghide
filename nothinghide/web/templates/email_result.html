@@ -8,7 +8,7 @@
         <img src="{{ url_for('static', path='/logo.png') }}" alt="NothingHide">
     </div>
     
-    <h2>Email Breach Check Results</h2>
+    <p class="tagline">Email Breach Check Results</p>
     
     {% if error %}
     <div class="error-box">
@@ -80,8 +80,7 @@
         </div>
         {% else %}
         <div class="privacy-notice">
-            No breach records found in queried databases.
-            Continue practicing good security hygiene.
+            No breach records found in queried databases. Continue practicing good security hygiene.
         </div>
         {% endif %}
     </div>

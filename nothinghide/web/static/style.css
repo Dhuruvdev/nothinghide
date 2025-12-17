@@ -14,157 +14,174 @@ body {
 }
 
 .logo {
-    margin: 40px 0 20px 0;
+    margin: 60px 0 10px 0;
+    text-align: center;
 }
 
 .logo img {
-    max-width: 300px;
+    max-width: 280px;
     height: auto;
 }
 
 .tagline {
     font-size: 14px;
     color: #666666;
-    margin-bottom: 30px;
-    font-style: italic;
+    margin: 5px 0 30px 0;
 }
 
 .search-box {
-    margin: 20px 0;
+    margin: 15px 0;
 }
 
 .search-box input[type="text"],
 .search-box input[type="email"],
 .search-box input[type="password"] {
-    width: 400px;
+    width: 350px;
     max-width: 90%;
-    padding: 8px 12px;
-    font-size: 16px;
-    border: 2px solid #4285f4;
+    padding: 6px 10px;
+    font-size: 14px;
+    border: 1px solid #000000;
     border-radius: 0;
     outline: none;
 }
 
-.search-box input:focus {
-    border-color: #1a73e8;
-}
-
 .buttons {
-    margin: 20px 0;
+    margin: 15px 0 30px 0;
 }
 
 .btn {
-    background-color: #f2f2f2;
-    border: 1px solid #999999;
-    padding: 8px 16px;
-    margin: 4px;
-    font-size: 13px;
+    background-color: #eeeeee;
+    border: 1px solid #666666;
+    padding: 6px 12px;
+    margin: 3px;
+    font-size: 12px;
     cursor: pointer;
     color: #000000;
     font-family: Arial, sans-serif;
+    text-decoration: none;
+    display: inline-block;
 }
 
 .btn:hover {
-    background-color: #e6e6e6;
+    background-color: #dddddd;
 }
 
 .btn-primary {
-    background-color: #4285f4;
-    color: #ffffff;
-    border: none;
-    padding: 10px 20px;
-    font-size: 14px;
+    background-color: #eeeeee;
+    color: #000000;
+    border: 1px solid #666666;
 }
 
-.btn-primary:hover {
-    background-color: #1a73e8;
+.btn-small {
+    background-color: #eeeeee;
+    border: 1px solid #666666;
+    padding: 3px 8px;
+    font-size: 11px;
+    cursor: pointer;
 }
 
-.nav-bar {
-    background-color: #a5d6e0;
-    padding: 8px 20px;
-    text-align: left;
-    border-bottom: 1px solid #888888;
-}
-
-.nav-bar a {
-    color: #000066;
-    text-decoration: underline;
-    margin-right: 20px;
-    font-size: 13px;
-}
-
-.nav-bar a:hover {
-    color: #cc0000;
+.email-subscribe {
+    width: 100px;
+    padding: 3px 5px;
+    font-size: 11px;
+    border: 1px solid #666666;
 }
 
 .footer {
-    background-color: #a5d6e0;
-    padding: 15px 20px;
-    text-align: center;
+    background-color: #99cccc;
+    padding: 10px 20px;
     margin-top: 40px;
-    border-top: 1px solid #888888;
+    text-align: center;
 }
 
-.footer-links {
-    margin-bottom: 10px;
+.footer-table {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    border-collapse: collapse;
 }
 
-.footer-links a {
-    color: #000066;
-    text-decoration: underline;
-    margin: 0 15px;
+.footer-table td {
+    padding: 8px 15px;
+    vertical-align: top;
     font-size: 12px;
 }
 
-.footer p {
-    font-size: 11px;
-    color: #333333;
-    margin: 5px 0;
+.footer-left {
+    text-align: left;
 }
 
-.menu-list {
-    list-style: none;
-    padding: 0;
-    margin: 30px 0;
+.footer-center {
     text-align: center;
 }
 
+.footer-right {
+    text-align: right;
+}
+
+.footer a {
+    color: #0000cc;
+    text-decoration: underline;
+    font-size: 12px;
+}
+
+.footer a:hover {
+    color: #cc0000;
+}
+
+.copyright {
+    font-size: 11px;
+    color: #333333;
+    margin: 10px 0 5px 0;
+    text-align: center;
+}
+
+hr.divider {
+    border: none;
+    border-top: 1px solid #999999;
+    margin: 25px auto;
+    width: 90%;
+    max-width: 500px;
+}
+
+.menu-list {
+    list-style-type: disc;
+    padding-left: 20px;
+    margin: 20px auto;
+    text-align: left;
+    display: inline-block;
+}
+
 .menu-list li {
-    margin: 15px 0;
+    margin: 8px 0;
+    font-size: 13px;
 }
 
 .menu-list a {
     color: #0000cc;
     text-decoration: underline;
-    font-size: 16px;
+    font-weight: bold;
 }
 
 .menu-list a:hover {
     color: #cc0000;
 }
 
-.menu-list .desc {
-    color: #666666;
-    font-size: 12px;
-    display: block;
-    margin-top: 3px;
-}
-
 .result-box {
     background-color: #f9f9f9;
-    border: 2px solid #cccccc;
-    padding: 20px;
-    margin: 20px 0;
+    border: 1px solid #cccccc;
+    padding: 15px;
+    margin: 20px auto;
     text-align: left;
+    max-width: 500px;
 }
 
 .result-box h2 {
     margin-top: 0;
-    font-size: 18px;
+    font-size: 16px;
     color: #333333;
     border-bottom: 1px solid #cccccc;
-    padding-bottom: 10px;
+    padding-bottom: 8px;
 }
 
 .status-clear {
@@ -185,15 +202,15 @@ body {
 .breach-list {
     list-style: none;
     padding: 0;
-    margin: 15px 0;
+    margin: 10px 0;
 }
 
 .breach-list li {
     background-color: #ffffff;
     border: 1px solid #dddddd;
-    padding: 10px;
-    margin: 8px 0;
-    font-size: 13px;
+    padding: 8px;
+    margin: 6px 0;
+    font-size: 12px;
 }
 
 .breach-list .breach-name {
@@ -203,25 +220,25 @@ body {
 
 .breach-list .breach-date {
     color: #666666;
-    font-size: 12px;
+    font-size: 11px;
 }
 
 .breach-list .breach-data {
     color: #888888;
-    font-size: 11px;
-    margin-top: 5px;
+    font-size: 10px;
+    margin-top: 4px;
 }
 
 .stats-table {
     width: 100%;
     border-collapse: collapse;
-    margin: 15px 0;
+    margin: 10px 0;
 }
 
 .stats-table td {
-    padding: 8px 12px;
+    padding: 6px 10px;
     border: 1px solid #cccccc;
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .stats-table td:first-child {
@@ -231,84 +248,98 @@ body {
 }
 
 .recommendations {
-    background-color: #ffffd0;
+    background-color: #ffffcc;
     border: 1px solid #cccc00;
-    padding: 15px;
-    margin: 15px 0;
+    padding: 12px;
+    margin: 12px 0;
 }
 
 .recommendations h3 {
     margin-top: 0;
-    font-size: 14px;
+    font-size: 13px;
     color: #666600;
 }
 
 .recommendations ul {
-    margin: 10px 0;
-    padding-left: 20px;
+    margin: 8px 0;
+    padding-left: 18px;
 }
 
 .recommendations li {
-    margin: 5px 0;
-    font-size: 13px;
+    margin: 4px 0;
+    font-size: 12px;
     color: #333333;
 }
 
 .error-box {
     background-color: #ffeeee;
-    border: 2px solid #cc0000;
-    padding: 15px;
-    margin: 20px 0;
+    border: 1px solid #cc0000;
+    padding: 12px;
+    margin: 20px auto;
+    max-width: 500px;
     color: #cc0000;
     font-weight: bold;
+    font-size: 13px;
 }
 
 .privacy-notice {
-    background-color: #e8f4e8;
+    background-color: #eeffee;
     border: 1px solid #008800;
-    padding: 10px;
-    margin: 15px 0;
-    font-size: 12px;
+    padding: 8px;
+    margin: 12px 0;
+    font-size: 11px;
     color: #006600;
 }
 
 .help-section {
     text-align: left;
-    margin: 20px 0;
+    margin: 15px auto;
+    max-width: 500px;
 }
 
 .help-section h3 {
     color: #333333;
     border-bottom: 1px solid #cccccc;
-    padding-bottom: 5px;
+    padding-bottom: 4px;
+    font-size: 14px;
 }
 
 .help-section p {
-    font-size: 13px;
-    line-height: 1.6;
+    font-size: 12px;
+    line-height: 1.5;
     color: #444444;
 }
 
 .help-section ul {
-    font-size: 13px;
-    line-height: 1.8;
+    font-size: 12px;
+    line-height: 1.6;
     color: #444444;
-}
-
-hr {
-    border: none;
-    border-top: 1px solid #cccccc;
-    margin: 20px 0;
 }
 
 .back-link {
     display: inline-block;
-    margin: 20px 0;
+    margin: 15px 0;
     color: #0000cc;
     text-decoration: underline;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .back-link:hover {
+    color: #cc0000;
+}
+
+.nav-links {
+    margin: 0 0 20px 0;
+    text-align: center;
+}
+
+.nav-links a {
+    color: #0000cc;
+    text-decoration: underline;
+    margin: 0 10px;
+    font-size: 12px;
+}
+
+.nav-links a:hover {
     color: #cc0000;
 }
