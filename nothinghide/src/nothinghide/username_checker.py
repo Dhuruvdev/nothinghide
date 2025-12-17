@@ -86,6 +86,37 @@ PLATFORMS = [
 
 
 @dataclass
+class ProfileInfo:
+    """Profile information extracted from a platform."""
+    avatar_url: Optional[str] = None
+    display_name: Optional[str] = None
+    bio: Optional[str] = None
+    followers: Optional[int] = None
+    following: Optional[int] = None
+    posts_count: Optional[int] = None
+    location: Optional[str] = None
+    website: Optional[str] = None
+    joined_date: Optional[str] = None
+    verified: bool = False
+    extra: Dict[str, Any] = field(default_factory=dict)
+    
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "avatar_url": self.avatar_url,
+            "display_name": self.display_name,
+            "bio": self.bio,
+            "followers": self.followers,
+            "following": self.following,
+            "posts_count": self.posts_count,
+            "location": self.location,
+            "website": self.website,
+            "joined_date": self.joined_date,
+            "verified": self.verified,
+            "extra": self.extra,
+        }
+
+
+@dataclass
 class PlatformResult:
     """Result of checking a single platform."""
     platform: str
@@ -95,6 +126,7 @@ class PlatformResult:
     status_code: Optional[int] = None
     response_time: Optional[float] = None
     error: Optional[str] = None
+    profile: Optional[ProfileInfo] = None
     
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -105,6 +137,7 @@ class PlatformResult:
             "status_code": self.status_code,
             "response_time": self.response_time,
             "error": self.error,
+            "profile": self.profile.to_dict() if self.profile else None,
         }
 
 
@@ -230,6 +263,157 @@ class UsernameChecker:
         
         return analysis
     
+    def extract_profile_info(self, platform_name: str, html: str, username: str) -> Optional[ProfileInfo]:
+        """Extract profile information from HTML based on platform."""
+        try:
+            profile = ProfileInfo()
+            
+            # Extract Open Graph and meta tags (works for many platforms)
+            og_image = re.search(r'<meta[^>]*property=["\']og:image["\'][^>]*content=["\']([^"\']+)["\']', html, re.I)
+            if not og_image:
+                og_image = re.search(r'<meta[^>]*content=["\']([^"\']+)["\'][^>]*property=["\']og:image["\']', html, re.I)
+            if og_image:
+                profile.avatar_url = og_image.group(1)
+            
+            og_title = re.search(r'<meta[^>]*property=["\']og:title["\'][^>]*content=["\']([^"\']+)["\']', html, re.I)
+            if not og_title:
+                og_title = re.search(r'<meta[^>]*content=["\']([^"\']+)["\'][^>]*property=["\']og:title["\']', html, re.I)
+            if og_title:
+                profile.display_name = og_title.group(1)[:100]
+            
+            og_desc = re.search(r'<meta[^>]*property=["\']og:description["\'][^>]*content=["\']([^"\']+)["\']', html, re.I)
+            if not og_desc:
+                og_desc = re.search(r'<meta[^>]*name=["\']description["\'][^>]*content=["\']([^"\']+)["\']', html, re.I)
+            if og_desc:
+                profile.bio = og_desc.group(1)[:300]
+            
+            # Platform-specific extraction
+            if platform_name == "GitHub":
+                avatar = re.search(r'<img[^>]*class="[^"]*avatar[^"]*"[^>]*src=["\']([^"\']+)["\']', html)
+                if avatar:
+                    profile.avatar_url = avatar.group(1)
+                
+                followers = re.search(r'<span[^>]*class="[^"]*text-bold[^"]*"[^>]*>(\d+(?:,\d+)*(?:\.\d+)?[kKmM]?)</span>\s*followers', html, re.I)
+                if followers:
+                    profile.followers = self._parse_count(followers.group(1))
+                
+                following = re.search(r'<span[^>]*class="[^"]*text-bold[^"]*"[^>]*>(\d+(?:,\d+)*(?:\.\d+)?[kKmM]?)</span>\s*following', html, re.I)
+                if following:
+                    profile.following = self._parse_count(following.group(1))
+                
+                repos = re.search(r'Repositories[^<]*<span[^>]*>(\d+)', html)
+                if repos:
+                    profile.posts_count = int(repos.group(1))
+                
+                location = re.search(r'<span[^>]*itemprop=["\']homeLocation["\'][^>]*>([^<]+)</span>', html)
+                if location:
+                    profile.location = location.group(1).strip()
+                
+                bio_tag = re.search(r'<div[^>]*class="[^"]*user-profile-bio[^"]*"[^>]*>([^<]+)', html)
+                if bio_tag:
+                    profile.bio = bio_tag.group(1).strip()[:300]
+            
+            elif platform_name == "Twitter/X":
+                # Twitter requires API, but we can try meta tags
+                pass
+            
+            elif platform_name == "Instagram":
+                # Try to get from JSON data embedded in page
+                json_data = re.search(r'"profile_pic_url(?:_hd)?"\s*:\s*"([^"]+)"', html)
+                if json_data:
+                    profile.avatar_url = json_data.group(1).replace('\\u0026', '&')
+                
+                followers = re.search(r'"edge_followed_by"\s*:\s*\{\s*"count"\s*:\s*(\d+)', html)
+                if followers:
+                    profile.followers = int(followers.group(1))
+                
+                following = re.search(r'"edge_follow"\s*:\s*\{\s*"count"\s*:\s*(\d+)', html)
+                if following:
+                    profile.following = int(following.group(1))
+            
+            elif platform_name == "Reddit":
+                karma = re.search(r'(\d+(?:,\d+)*)\s*karma', html, re.I)
+                if karma:
+                    profile.extra["karma"] = self._parse_count(karma.group(1))
+                
+                avatar = re.search(r'<img[^>]*src=["\']([^"\']*(?:reddit|redd\.it)[^"\']*(?:avatar|snoo)[^"\']*)["\']', html, re.I)
+                if avatar:
+                    profile.avatar_url = avatar.group(1)
+            
+            elif platform_name == "LinkedIn":
+                # LinkedIn blocks scraping heavily, rely on meta tags
+                pass
+            
+            elif platform_name == "YouTube":
+                subs = re.search(r'"subscriberCountText"\s*:\s*\{\s*"simpleText"\s*:\s*"([^"]+)"', html)
+                if subs:
+                    profile.followers = self._parse_count(subs.group(1).split()[0])
+                
+                videos = re.search(r'"videosCountText"\s*:\s*\{\s*"runs"\s*:\s*\[\s*\{\s*"text"\s*:\s*"(\d+)', html)
+                if videos:
+                    profile.posts_count = int(videos.group(1))
+            
+            elif platform_name == "TikTok":
+                followers = re.search(r'"followerCount"\s*:\s*(\d+)', html)
+                if followers:
+                    profile.followers = int(followers.group(1))
+                
+                following = re.search(r'"followingCount"\s*:\s*(\d+)', html)
+                if following:
+                    profile.following = int(following.group(1))
+                
+                likes = re.search(r'"heartCount"\s*:\s*(\d+)', html)
+                if likes:
+                    profile.extra["likes"] = int(likes.group(1))
+            
+            elif platform_name == "Twitch":
+                avatar = re.search(r'"profileImageURL"\s*:\s*"([^"]+)"', html)
+                if avatar:
+                    profile.avatar_url = avatar.group(1)
+            
+            elif platform_name == "Medium":
+                followers = re.search(r'(\d+(?:\.\d+)?[kKmM]?)\s*Followers', html, re.I)
+                if followers:
+                    profile.followers = self._parse_count(followers.group(1))
+            
+            elif platform_name == "Dev.to":
+                avatar = re.search(r'<img[^>]*class="[^"]*profile-pic[^"]*"[^>]*src=["\']([^"\']+)["\']', html)
+                if avatar:
+                    profile.avatar_url = avatar.group(1)
+            
+            elif platform_name == "Dribbble":
+                followers = re.search(r'<span[^>]*class="[^"]*stat-value[^"]*"[^>]*>(\d+(?:,\d+)*)</span>\s*Followers', html, re.I)
+                if followers:
+                    profile.followers = self._parse_count(followers.group(1))
+            
+            elif platform_name == "Behance":
+                followers = re.search(r'"appreciations"\s*:\s*(\d+)', html)
+                if followers:
+                    profile.extra["appreciations"] = int(followers.group(1))
+            
+            # Check if we got any useful info
+            if profile.avatar_url or profile.display_name or profile.bio or profile.followers:
+                return profile
+            
+            return None
+            
+        except Exception:
+            return None
+    
+    def _parse_count(self, count_str: str) -> int:
+        """Parse count strings like '1.2K' or '3,456' to integers."""
+        try:
+            count_str = count_str.replace(',', '').strip().upper()
+            if 'K' in count_str:
+                return int(float(count_str.replace('K', '')) * 1000)
+            elif 'M' in count_str:
+                return int(float(count_str.replace('M', '')) * 1000000)
+            elif 'B' in count_str:
+                return int(float(count_str.replace('B', '')) * 1000000000)
+            return int(float(count_str))
+        except:
+            return 0
+
     async def check_platform(
         self, 
         client: httpx.AsyncClient,
@@ -249,18 +433,24 @@ class UsernameChecker:
             response_time = asyncio.get_event_loop().time() - start_time
             
             exists = response.status_code == 200
+            profile = None
             
             if exists:
-                content = response.text.lower()
+                content = response.text
+                content_lower = content.lower()
                 not_found_indicators = [
                     "not found", "doesn't exist", "page not found",
                     "user not found", "404", "no user", "this page",
                     "sorry", "unavailable", "deleted", "suspended"
                 ]
                 for indicator in not_found_indicators:
-                    if indicator in content[:2000]:
+                    if indicator in content_lower[:2000]:
                         exists = False
                         break
+                
+                # Extract profile info if account exists
+                if exists:
+                    profile = self.extract_profile_info(platform["name"], content, username)
             
             return PlatformResult(
                 platform=platform["name"],
@@ -269,6 +459,7 @@ class UsernameChecker:
                 category=platform["category"],
                 status_code=response.status_code,
                 response_time=round(response_time, 3),
+                profile=profile,
             )
             
         except httpx.TimeoutException:

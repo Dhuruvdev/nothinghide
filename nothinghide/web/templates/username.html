@@ -128,27 +128,104 @@
 
 .category-platforms {
     padding: 10px;
-    max-height: 200px;
+    max-height: 400px;
     overflow-y: auto;
 }
 
-.platform-item {
+.platform-card {
+    background: #fff;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    padding: 12px;
     display: flex;
-    align-items: center;
-    padding: 8px 10px;
-    background: #f9f9f9;
-    margin-bottom: 6px;
-    border-left: 3px solid #666;
+    gap: 12px;
+    align-items: flex-start;
 }
 
-.platform-item:hover {
-    background: #f0f0f0;
+.platform-card:hover {
+    border-color: #999;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.platform-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
+    flex-shrink: 0;
+}
+
+.platform-avatar-placeholder {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: bold;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.platform-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.platform-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
 }
 
 .platform-name {
     color: #333;
-    font-size: 13px;
-    flex: 1;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.platform-display-name {
+    color: #666;
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+.platform-bio {
+    color: #555;
+    font-size: 11px;
+    line-height: 1.4;
+    margin: 6px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.platform-stats {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.platform-stat {
+    font-size: 11px;
+    color: #666;
+}
+
+.platform-stat strong {
+    color: #333;
+}
+
+.platform-location {
+    font-size: 10px;
+    color: #888;
+    margin-top: 4px;
 }
 
 .platform-link {
@@ -159,6 +236,28 @@
 
 .platform-link:hover {
     color: #cc0000;
+}
+
+.platform-item-simple {
+    display: flex;
+    align-items: center;
+    padding: 8px 10px;
+    background: #f9f9f9;
+    margin-bottom: 6px;
+    border-left: 3px solid #666;
+}
+
+.platform-item-simple:hover {
+    background: #f0f0f0;
+}
+
+.verified-badge {
+    background: #1da1f2;
+    color: #fff;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-left: 6px;
 }
 
 .weaknesses-section {
@@ -439,12 +538,7 @@ function renderResults(data) {
                         <span class="category-count">${platforms.length}</span>
                     </div>
                     <div class="category-platforms">
-                        ${platforms.map(p => `
-                            <div class="platform-item">
-                                <span class="platform-name">${p.platform}</span>
-                                <a href="${p.url}" target="_blank" rel="noopener" class="platform-link">Visit</a>
-                            </div>
-                        `).join('')}
+                        ${platforms.map(p => renderPlatformCard(p, data.username)).join('')}
                     </div>
                 </div>
             `;
@@ -492,6 +586,85 @@ function renderResults(data) {
     `;
     
     resultsSection.innerHTML = html;
+}
+
+function renderPlatformCard(p, username) {
+    const profile = p.profile;
+    const hasProfile = profile && (profile.avatar_url || profile.display_name || profile.bio || profile.followers);
+    
+    if (hasProfile) {
+        const avatarHtml = profile.avatar_url 
+            ? `<img src="${escapeHtml(profile.avatar_url)}" alt="${p.platform}" class="platform-avatar" onerror="this.outerHTML='<div class=\\'platform-avatar-placeholder\\'>${p.platform.charAt(0)}</div>'">`
+            : `<div class="platform-avatar-placeholder">${p.platform.charAt(0)}</div>`;
+        
+        let statsHtml = '';
+        if (profile.followers !== null && profile.followers !== undefined) {
+            statsHtml += `<span class="platform-stat"><strong>${formatNumber(profile.followers)}</strong> followers</span>`;
+        }
+        if (profile.following !== null && profile.following !== undefined) {
+            statsHtml += `<span class="platform-stat"><strong>${formatNumber(profile.following)}</strong> following</span>`;
+        }
+        if (profile.posts_count !== null && profile.posts_count !== undefined) {
+            statsHtml += `<span class="platform-stat"><strong>${formatNumber(profile.posts_count)}</strong> posts</span>`;
+        }
+        if (profile.extra) {
+            if (profile.extra.karma) {
+                statsHtml += `<span class="platform-stat"><strong>${formatNumber(profile.extra.karma)}</strong> karma</span>`;
+            }
+            if (profile.extra.likes) {
+                statsHtml += `<span class="platform-stat"><strong>${formatNumber(profile.extra.likes)}</strong> likes</span>`;
+            }
+            if (profile.extra.appreciations) {
+                statsHtml += `<span class="platform-stat"><strong>${formatNumber(profile.extra.appreciations)}</strong> appreciations</span>`;
+            }
+        }
+        
+        return `
+            <div class="platform-card">
+                ${avatarHtml}
+                <div class="platform-info">
+                    <div class="platform-header">
+                        <div>
+                            <div class="platform-name">
+                                ${p.platform}
+                                ${profile.verified ? '<span class="verified-badge">VERIFIED</span>' : ''}
+                            </div>
+                            ${profile.display_name ? `<div class="platform-display-name">${escapeHtml(profile.display_name)}</div>` : ''}
+                        </div>
+                        <a href="${p.url}" target="_blank" rel="noopener" class="platform-link">Visit</a>
+                    </div>
+                    ${profile.bio ? `<div class="platform-bio">${escapeHtml(profile.bio)}</div>` : ''}
+                    ${statsHtml ? `<div class="platform-stats">${statsHtml}</div>` : ''}
+                    ${profile.location ? `<div class="platform-location">📍 ${escapeHtml(profile.location)}</div>` : ''}
+                </div>
+            </div>
+        `;
+    } else {
+        return `
+            <div class="platform-item-simple">
+                <div class="platform-avatar-placeholder" style="width:30px;height:30px;font-size:12px;margin-right:10px;">${p.platform.charAt(0)}</div>
+                <span class="platform-name" style="flex:1;font-size:13px;">${p.platform}</span>
+                <a href="${p.url}" target="_blank" rel="noopener" class="platform-link">Visit</a>
+            </div>
+        `;
+    }
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function formatNumber(num) {
+    if (num === null || num === undefined) return '0';
+    if (num >= 1000000) {
+        return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+        return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toString();
 }
 
 function toggleAllPlatforms() {
