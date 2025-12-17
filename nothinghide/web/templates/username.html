@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Username OSINT - NothingHide{% endblock %}
+{% block description %}Advanced username reconnaissance across 60+ platforms. Detect identity exposure and security weaknesses.{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="logo">
+        <h1 class="logo-text">NOTHINGHIDE</h1>
+    </div>
+    <p class="tagline">Username OSINT Intelligence</p>
+    
+    <div class="privacy-notice">
+        <strong>Advanced Reconnaissance:</strong> Scans 60+ platforms to detect account presence, 
+        identity exposure patterns, and security weaknesses. No data is stored.
+    </div>
+    
+    <form action="/username" method="post" data-loading="true">
+        <div class="search-box">
+            <input type="text" name="username" placeholder="Enter username to investigate..." required 
+                   pattern="[a-zA-Z0-9._-]+" title="Letters, numbers, dots, underscores, and hyphens only">
+        </div>
+        <div class="buttons">
+            <button type="submit" class="btn">Scan Username</button>
+        </div>
+    </form>
+    
+    <hr class="divider">
+    
+    <div class="help-section">
+        <h3>What This Tool Does</h3>
+        <ul>
+            <li><strong>Platform Discovery:</strong> Checks 60+ platforms for account existence</li>
+            <li><strong>Identity Correlation:</strong> Analyzes patterns that could link accounts</li>
+            <li><strong>Weakness Detection:</strong> Identifies username patterns that expose personal info</li>
+            <li><strong>Risk Assessment:</strong> Calculates overall identity exposure score</li>
+            <li><strong>Recommendations:</strong> Provides actionable security advice</li>
+        </ul>
+        
+        <h3>Categories Scanned</h3>
+        <p>Social Media, Development, Professional, Financial, Gaming, Media, Security, E-commerce, and more.</p>
+    </div>
+    
+    <a href="/" class="back-link">&larr; Back to Home</a>
+</div>
+{% endblock %}

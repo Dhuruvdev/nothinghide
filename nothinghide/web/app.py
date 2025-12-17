@@ -20,6 +20,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from nothinghide.core import check_email, check_password, BreachScanner
 from nothinghide.agent import BreachIntelligenceAgent
+from nothinghide.username_checker import UsernameChecker
 from nothinghide.exceptions import ValidationError, NetworkError
 
 app = FastAPI(title="NothingHide", version="1.0.0")
@@ -328,6 +329,50 @@ async def fullscan_check(request: Request, email: str = Form(...), password: str
 @app.get("/help", response_class=HTMLResponse)
 async def help_page(request: Request):
     return templates.TemplateResponse("help.html", {"request": request})
+
+
+@app.get("/username", response_class=HTMLResponse)
+async def username_page(request: Request):
+    return templates.TemplateResponse("username.html", {"request": request})
+
+
+@app.post("/username", response_class=HTMLResponse)
+async def username_check(request: Request, username: str = Form(...)):
+    result = None
+    error = None
+    
+    try:
+        checker = UsernameChecker(timeout=8.0, max_concurrent=15)
+        scan_result = await checker.check_username(username)
+        
+        found_platforms = [p.to_dict() for p in scan_result.platforms if p.exists]
+        all_platforms = [p.to_dict() for p in scan_result.platforms]
+        
+        result_data = {
+            "username": scan_result.username,
+            "total_platforms_checked": scan_result.total_platforms_checked,
+            "accounts_found": scan_result.accounts_found,
+            "platforms": all_platforms,
+            "categories": scan_result.categories,
+            "identity_risk": scan_result.identity_risk.to_dict() if scan_result.identity_risk else None,
+            "username_analysis": scan_result.username_analysis,
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        }
+    except ValidationError as e:
+        error = f"Invalid username: {e.message}"
+        result_data = None
+    except NetworkError as e:
+        error = f"Network error: {e.message}"
+        result_data = None
+    except Exception as e:
+        error = f"An error occurred: {str(e)}"
+        result_data = None
+    
+    return templates.TemplateResponse("username_result.html", {
+        "request": request,
+        "result": result_data,
+        "error": error,
+    })
 
 
 if __name__ == "__main__":
