@@ -336,6 +336,35 @@ async def username_page(request: Request):
     return templates.TemplateResponse("username.html", {"request": request})
 
 
+from fastapi.responses import JSONResponse
+
+@app.post("/username/api")
+async def username_check_api(username: str = Form(...)):
+    try:
+        checker = UsernameChecker(timeout=8.0, max_concurrent=15)
+        scan_result = await checker.check_username(username)
+        
+        all_platforms = [p.to_dict() for p in scan_result.platforms]
+        
+        result_data = {
+            "username": scan_result.username,
+            "total_platforms_checked": scan_result.total_platforms_checked,
+            "accounts_found": scan_result.accounts_found,
+            "platforms": all_platforms,
+            "categories": scan_result.categories,
+            "identity_risk": scan_result.identity_risk.to_dict() if scan_result.identity_risk else None,
+            "username_analysis": scan_result.username_analysis,
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        return JSONResponse(content=result_data)
+    except ValidationError as e:
+        return JSONResponse(content={"error": f"Invalid username: {e.message}"})
+    except NetworkError as e:
+        return JSONResponse(content={"error": f"Network error: {e.message}"})
+    except Exception as e:
+        return JSONResponse(content={"error": f"An error occurred: {str(e)}"})
+
+
 @app.post("/username", response_class=HTMLResponse)
 async def username_check(request: Request, username: str = Form(...)):
     result = None
@@ -345,7 +374,6 @@ async def username_check(request: Request, username: str = Form(...)):
         checker = UsernameChecker(timeout=8.0, max_concurrent=15)
         scan_result = await checker.check_username(username)
         
-        found_platforms = [p.to_dict() for p in scan_result.platforms if p.exists]
         all_platforms = [p.to_dict() for p in scan_result.platforms]
         
         result_data = {
