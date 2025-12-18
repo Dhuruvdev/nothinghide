@@ -55,7 +55,10 @@ async def home(request: Request):
 
 @app.get("/terminal", response_class=HTMLResponse)
 async def terminal(request: Request):
-    """CLI-style terminal interface - lightweight client-side rendering."""
+    """Lightweight client-side interface for traffic handling.
+    
+    All rendering and logic runs in the browser to minimize server load.
+    Perfect for self-hosted and high-traffic deployments."""
     return templates.TemplateResponse("terminal.html", {"request": request})
 
 
