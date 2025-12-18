@@ -87,8 +87,39 @@ class BaseAgent:
         self.name = name
         self.model_id = model_id
         self.api_url = f"https://api-inference.huggingface.co/models/{model_id}"
-        self.timeout = 60.0
+        self.timeout = 90.0
         self.api_key = os.getenv("HUGGINGFACE_API_KEY")
+        self.max_retries = 3
+        self.retry_delay = 2.0
+    
+    async def _make_request_with_retry(self, client: httpx.AsyncClient, files: dict, headers: dict) -> httpx.Response:
+        """Make API request with exponential backoff retry logic."""
+        for attempt in range(self.max_retries):
+            try:
+                response = await client.post(
+                    self.api_url,
+                    files=files,
+                    headers=headers,
+                    timeout=self.timeout
+                )
+                
+                # Success
+                if response.status_code == 200:
+                    return response
+                
+                # Model loading - wait and retry
+                if response.status_code == 503 and attempt < self.max_retries - 1:
+                    await asyncio.sleep(self.retry_delay * (2 ** attempt))
+                    continue
+                
+                return response
+            except httpx.TimeoutException:
+                if attempt < self.max_retries - 1:
+                    await asyncio.sleep(self.retry_delay * (2 ** attempt))
+                    continue
+                raise
+        
+        raise httpx.TimeoutException("Max retries exceeded")
     
     async def analyze(self, image_bytes: bytes) -> AgentResult:
         raise NotImplementedError
@@ -99,33 +130,21 @@ class DeepfakeDetectorAgent(BaseAgent):
     
     def __init__(self):
         super().__init__(
-            name="Deepfake Detector v2",
-            model_id="lora957/deepfake-image-detection"
+            name="Deepfake Detector",
+            model_id="dima806/deepfake_detector"
         )
     
     async def analyze(self, image_bytes: bytes) -> AgentResult:
         start_time = asyncio.get_event_loop().time()
         
         try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
+            async with httpx.AsyncClient() as client:
                 headers = {}
                 if self.api_key:
                     headers["Authorization"] = f"Bearer {self.api_key}"
                 
                 files = {"data": ("image.jpg", image_bytes, "image/jpeg")}
-                response = await client.post(
-                    self.api_url,
-                    files=files,
-                    headers=headers
-                )
-                
-                if response.status_code == 503:
-                    return AgentResult(
-                        agent_name=self.name,
-                        status=AnalysisStatus.ERROR,
-                        error="Model is loading, please try again in a few seconds",
-                        processing_time=asyncio.get_event_loop().time() - start_time
-                    )
+                response = await self._make_request_with_retry(client, files, headers)
                 
                 if response.status_code != 200:
                     return AgentResult(
@@ -140,21 +159,21 @@ class DeepfakeDetectorAgent(BaseAgent):
                 if isinstance(results, list) and len(results) > 0:
                     top_result = max(results, key=lambda x: x.get("score", 0))
                     label = top_result.get("label", "unknown").lower()
-                    score = top_result.get("score", 0)
+                    score = min(1.0, float(top_result.get("score", 0)))
                     
-                    is_real = "real" in label or "realism" in label
+                    is_real = "real" in label or "authentic" in label
                     prediction = "AUTHENTIC" if is_real else "DEEPFAKE DETECTED"
+                    confidence = score if is_real else (1.0 - score)
                     
                     return AgentResult(
                         agent_name=self.name,
                         status=AnalysisStatus.COMPLETE,
-                        confidence=score,
+                        confidence=max(0.0, min(1.0, confidence)),
                         prediction=prediction,
                         details={
                             "raw_label": top_result.get("label"),
                             "all_scores": {r.get("label"): round(r.get("score", 0) * 100, 2) for r in results},
-                            "model_version": "v2",
-                            "architecture": "Vision Transformer (ViT)"
+                            "detection_method": "Vision Analysis"
                         },
                         processing_time=asyncio.get_event_loop().time() - start_time
                     )
@@ -162,22 +181,15 @@ class DeepfakeDetectorAgent(BaseAgent):
                 return AgentResult(
                     agent_name=self.name,
                     status=AnalysisStatus.ERROR,
-                    error="Unexpected response format",
+                    error="No detection results",
                     processing_time=asyncio.get_event_loop().time() - start_time
                 )
                 
-        except httpx.TimeoutException:
-            return AgentResult(
-                agent_name=self.name,
-                status=AnalysisStatus.ERROR,
-                error="Request timed out - model may be loading",
-                processing_time=asyncio.get_event_loop().time() - start_time
-            )
         except Exception as e:
             return AgentResult(
                 agent_name=self.name,
                 status=AnalysisStatus.ERROR,
-                error=str(e),
+                error=f"Analysis failed: {str(e)[:100]}",
                 processing_time=asyncio.get_event_loop().time() - start_time
             )
 
@@ -195,25 +207,13 @@ class AIGeneratedDetectorAgent(BaseAgent):
         start_time = asyncio.get_event_loop().time()
         
         try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
+            async with httpx.AsyncClient() as client:
                 headers = {}
                 if self.api_key:
                     headers["Authorization"] = f"Bearer {self.api_key}"
                 
                 files = {"data": ("image.jpg", image_bytes, "image/jpeg")}
-                response = await client.post(
-                    self.api_url,
-                    files=files,
-                    headers=headers
-                )
-                
-                if response.status_code == 503:
-                    return AgentResult(
-                        agent_name=self.name,
-                        status=AnalysisStatus.ERROR,
-                        error="Model is loading, please try again in a few seconds",
-                        processing_time=asyncio.get_event_loop().time() - start_time
-                    )
+                response = await self._make_request_with_retry(client, files, headers)
                 
                 if response.status_code != 200:
                     return AgentResult(
@@ -228,15 +228,16 @@ class AIGeneratedDetectorAgent(BaseAgent):
                 if isinstance(results, list) and len(results) > 0:
                     top_result = max(results, key=lambda x: x.get("score", 0))
                     label = top_result.get("label", "unknown").lower()
-                    score = top_result.get("score", 0)
+                    score = min(1.0, float(top_result.get("score", 0)))
                     
-                    is_human = "human" in label or "real" in label
+                    is_human = "human" in label or "real" in label or "authentic" in label
                     prediction = "HUMAN-CREATED" if is_human else "AI-GENERATED"
+                    confidence = score if is_human else (1.0 - score)
                     
                     return AgentResult(
                         agent_name=self.name,
                         status=AnalysisStatus.COMPLETE,
-                        confidence=score,
+                        confidence=max(0.0, min(1.0, confidence)),
                         prediction=prediction,
                         details={
                             "raw_label": top_result.get("label"),
@@ -249,22 +250,15 @@ class AIGeneratedDetectorAgent(BaseAgent):
                 return AgentResult(
                     agent_name=self.name,
                     status=AnalysisStatus.ERROR,
-                    error="Unexpected response format",
+                    error="No detection results",
                     processing_time=asyncio.get_event_loop().time() - start_time
                 )
                 
-        except httpx.TimeoutException:
-            return AgentResult(
-                agent_name=self.name,
-                status=AnalysisStatus.ERROR,
-                error="Request timed out - model may be loading",
-                processing_time=asyncio.get_event_loop().time() - start_time
-            )
         except Exception as e:
             return AgentResult(
                 agent_name=self.name,
                 status=AnalysisStatus.ERROR,
-                error=str(e),
+                error=f"Analysis failed: {str(e)[:100]}",
                 processing_time=asyncio.get_event_loop().time() - start_time
             )
 
@@ -282,25 +276,13 @@ class NSFWDetectorAgent(BaseAgent):
         start_time = asyncio.get_event_loop().time()
         
         try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
+            async with httpx.AsyncClient() as client:
                 headers = {}
                 if self.api_key:
                     headers["Authorization"] = f"Bearer {self.api_key}"
                 
                 files = {"data": ("image.jpg", image_bytes, "image/jpeg")}
-                response = await client.post(
-                    self.api_url,
-                    files=files,
-                    headers=headers
-                )
-                
-                if response.status_code == 503:
-                    return AgentResult(
-                        agent_name=self.name,
-                        status=AnalysisStatus.ERROR,
-                        error="Model is loading, please try again in a few seconds",
-                        processing_time=asyncio.get_event_loop().time() - start_time
-                    )
+                response = await self._make_request_with_retry(client, files, headers)
                 
                 if response.status_code != 200:
                     return AgentResult(
@@ -315,15 +297,16 @@ class NSFWDetectorAgent(BaseAgent):
                 if isinstance(results, list) and len(results) > 0:
                     top_result = max(results, key=lambda x: x.get("score", 0))
                     label = top_result.get("label", "unknown").lower()
-                    score = top_result.get("score", 0)
+                    score = min(1.0, float(top_result.get("score", 0)))
                     
                     is_safe = "normal" in label or "safe" in label or "sfw" in label
                     prediction = "SAFE CONTENT" if is_safe else "INAPPROPRIATE CONTENT"
+                    confidence = score if is_safe else (1.0 - score)
                     
                     return AgentResult(
                         agent_name=self.name,
                         status=AnalysisStatus.COMPLETE,
-                        confidence=score,
+                        confidence=max(0.0, min(1.0, confidence)),
                         prediction=prediction,
                         details={
                             "raw_label": top_result.get("label"),
@@ -336,22 +319,15 @@ class NSFWDetectorAgent(BaseAgent):
                 return AgentResult(
                     agent_name=self.name,
                     status=AnalysisStatus.ERROR,
-                    error="Unexpected response format",
+                    error="No detection results",
                     processing_time=asyncio.get_event_loop().time() - start_time
                 )
                 
-        except httpx.TimeoutException:
-            return AgentResult(
-                agent_name=self.name,
-                status=AnalysisStatus.ERROR,
-                error="Request timed out - model may be loading",
-                processing_time=asyncio.get_event_loop().time() - start_time
-            )
         except Exception as e:
             return AgentResult(
                 agent_name=self.name,
                 status=AnalysisStatus.ERROR,
-                error=str(e),
+                error=f"Analysis failed: {str(e)[:100]}",
                 processing_time=asyncio.get_event_loop().time() - start_time
             )
 
