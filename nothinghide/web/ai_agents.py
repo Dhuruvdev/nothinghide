@@ -106,10 +106,10 @@ class DeepfakeDetectorAgent(BaseAgent):
         
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
+                files = {"data": ("image.jpg", image_bytes, "image/jpeg")}
                 response = await client.post(
                     self.api_url,
-                    content=image_bytes,
-                    headers={"Content-Type": "application/octet-stream"}
+                    files=files
                 )
                 
                 if response.status_code == 503:
@@ -189,10 +189,10 @@ class AIGeneratedDetectorAgent(BaseAgent):
         
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
+                files = {"data": ("image.jpg", image_bytes, "image/jpeg")}
                 response = await client.post(
                     self.api_url,
-                    content=image_bytes,
-                    headers={"Content-Type": "application/octet-stream"}
+                    files=files
                 )
                 
                 if response.status_code == 503:
@@ -271,10 +271,10 @@ class NSFWDetectorAgent(BaseAgent):
         
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
+                files = {"data": ("image.jpg", image_bytes, "image/jpeg")}
                 response = await client.post(
                     self.api_url,
-                    content=image_bytes,
-                    headers={"Content-Type": "application/octet-stream"}
+                    files=files
                 )
                 
                 if response.status_code == 503:
