@@ -100,7 +100,7 @@ class DeepfakeDetectorAgent(BaseAgent):
     def __init__(self):
         super().__init__(
             name="Deepfake Detector v2",
-            model_id="prithivMLmods/Deep-Fake-Detector-v2-Model"
+            model_id="lora957/deepfake-image-detection"
         )
     
     async def analyze(self, image_bytes: bytes) -> AgentResult:
@@ -188,7 +188,7 @@ class AIGeneratedDetectorAgent(BaseAgent):
     def __init__(self):
         super().__init__(
             name="AI-Generated Content Detector",
-            model_id="umm-maybe/AI-image-detector"
+            model_id="Organika/sdxl-detector"
         )
     
     async def analyze(self, image_bytes: bytes) -> AgentResult:
@@ -275,7 +275,7 @@ class NSFWDetectorAgent(BaseAgent):
     def __init__(self):
         super().__init__(
             name="Content Safety Scanner",
-            model_id="Falconsai/nsfw_image_detection"
+            model_id="Falconsai/nsfw_image_detection_v2"
         )
     
     async def analyze(self, image_bytes: bytes) -> AgentResult:
