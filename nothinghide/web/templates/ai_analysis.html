@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}AI Image Analysis - NothingHide{% endblock %}
+{% block description %}Advanced multi-agent AI analysis for deepfake detection and AI-generated content identification.{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="logo">
+        <a href="/"><img src="{{ url_for('static', path='/logo-title.png') }}" alt="NothingHide" class="logo-img"></a>
+    </div>
+    <h2 style="font-size: 16px; margin: 10px 0;">Advanced Multi-Agent AI Analysis</h2>
+    <p class="tagline">Deepfake Detection & AI-Generated Content Scanner</p>
+    
+    <div class="privacy-notice">
+        <strong>Powered by 3 AI Agents:</strong> Deepfake Detector v2 (ViT), AI-Generated Content Detector, Content Safety Scanner
+    </div>
+    
+    <form action="/ai-analysis" method="post" enctype="multipart/form-data" data-loading="true" id="analysisForm">
+        <div class="search-box">
+            <input type="file" name="image" accept="image/*" required id="imageInput" style="width: 100%; padding: 10px; border: 1px solid #000; font-size: 14px;">
+        </div>
+        
+        <div id="imagePreview" style="display: none; margin: 15px auto; max-width: 300px;">
+            <img id="previewImg" src="" alt="Preview" style="max-width: 100%; border: 1px solid #ccc;">
+        </div>
+        
+        <div class="buttons">
+            <button type="submit" class="btn">Analyze Image</button>
+        </div>
+    </form>
+    
+    <hr class="divider">
+    
+    <div class="help-section">
+        <h3>What This Tool Detects</h3>
+        <ul>
+            <li><strong>Deepfakes:</strong> AI-manipulated faces and videos (92%+ accuracy)</li>
+            <li><strong>AI-Generated Images:</strong> DALL-E, Midjourney, Stable Diffusion</li>
+            <li><strong>Content Safety:</strong> Inappropriate or NSFW content</li>
+        </ul>
+        
+        <h3>Multi-Agent Technology</h3>
+        <p>Uses Vision Transformer (ViT) and SigLIP architectures running on Hugging Face's free inference API. Multiple specialized agents analyze your image in parallel for comprehensive results.</p>
+    </div>
+    
+    <a href="/" class="back-link">Back to Home</a>
+</div>
+
+<script>
+document.getElementById('imageInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('previewImg').src = e.target.result;
+            document.getElementById('imagePreview').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+{% endblock %}
