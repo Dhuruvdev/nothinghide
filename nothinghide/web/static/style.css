@@ -14,12 +14,12 @@ body {
 }
 
 .logo {
-    margin: 60px 0 10px 0;
+    margin: 40px 0 20px 0;
     text-align: center;
 }
 
 .logo-img {
-    height: 42px;
+    height: 150px;
     width: auto;
     display: inline-block;
 }
@@ -386,11 +386,11 @@ hr.divider {
     }
     
     .logo {
-        margin: 30px 0 10px 0;
+        margin: 30px 0 15px 0;
     }
     
     .logo-img {
-        height: 32px;
+        height: 110px;
     }
     
     .tagline {
@@ -515,7 +515,7 @@ hr.divider {
 
 @media screen and (max-width: 480px) {
     .logo-img {
-        height: 26px;
+        height: 80px;
     }
     
     .tagline {
