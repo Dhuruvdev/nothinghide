@@ -1,9 +1,10 @@
 """Advanced Multi-Agent AI Analysis System.
 
 Uses Hugging Face Inference API for deepfake detection and AI-generated content analysis.
-Free tier compatible - no API key required for public models.
+API key optional - improves rate limits and reliability.
 """
 
+import os
 import io
 import base64
 import asyncio
@@ -87,6 +88,7 @@ class BaseAgent:
         self.model_id = model_id
         self.api_url = f"https://api-inference.huggingface.co/models/{model_id}"
         self.timeout = 60.0
+        self.api_key = os.getenv("HUGGINGFACE_API_KEY")
     
     async def analyze(self, image_bytes: bytes) -> AgentResult:
         raise NotImplementedError
@@ -106,10 +108,15 @@ class DeepfakeDetectorAgent(BaseAgent):
         
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
+                headers = {}
+                if self.api_key:
+                    headers["Authorization"] = f"Bearer {self.api_key}"
+                
                 files = {"data": ("image.jpg", image_bytes, "image/jpeg")}
                 response = await client.post(
                     self.api_url,
-                    files=files
+                    files=files,
+                    headers=headers
                 )
                 
                 if response.status_code == 503:
@@ -189,10 +196,15 @@ class AIGeneratedDetectorAgent(BaseAgent):
         
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
+                headers = {}
+                if self.api_key:
+                    headers["Authorization"] = f"Bearer {self.api_key}"
+                
                 files = {"data": ("image.jpg", image_bytes, "image/jpeg")}
                 response = await client.post(
                     self.api_url,
-                    files=files
+                    files=files,
+                    headers=headers
                 )
                 
                 if response.status_code == 503:
@@ -271,10 +283,15 @@ class NSFWDetectorAgent(BaseAgent):
         
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
+                headers = {}
+                if self.api_key:
+                    headers["Authorization"] = f"Bearer {self.api_key}"
+                
                 files = {"data": ("image.jpg", image_bytes, "image/jpeg")}
                 response = await client.post(
                     self.api_url,
-                    files=files
+                    files=files,
+                    headers=headers
                 )
                 
                 if response.status_code == 503:
