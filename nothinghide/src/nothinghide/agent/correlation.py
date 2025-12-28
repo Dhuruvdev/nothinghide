@@ -137,11 +137,23 @@ class CorrelationEngine:
         }
     
     def correlate(self, results: List[SourceResult], email: str) -> CorrelatedResult:
+        """Advanced correlation engine with weighted scoring and temporal decay."""
+        import math
         correlated_breaches: Dict[str, CorrelatedBreach] = {}
         sources_queried = []
         sources_succeeded = []
         sources_failed = []
         total_response_time = 0.0
+        
+        # Source reliability weights
+        SOURCE_WEIGHTS = {
+            "LeakCheck": 0.95,
+            "Have I Been Pwned": 0.98,
+            "XposedOrNot": 0.90,
+            "HackCheck": 0.75,
+            "EmailRep": 0.85,
+            "DeXpose": 0.80
+        }
         
         for result in results:
             sources_queried.append(result.source_name)
@@ -149,13 +161,15 @@ class CorrelationEngine:
             
             if result.success:
                 sources_succeeded.append(result.source_name)
-                
                 for breach in result.breaches:
                     name = breach.get("name", "Unknown")
                     normalized = self._normalize_with_aliases(name)
                     
                     if normalized in correlated_breaches:
-                        correlated_breaches[normalized].merge_from(breach, result.source_name)
+                        cb = correlated_breaches[normalized]
+                        cb.merge_from(breach, result.source_name)
+                        # Boost confidence with multiple sources
+                        cb.confidence = min(1.0, cb.confidence + 0.1)
                     else:
                         cb = CorrelatedBreach(
                             name=name,
@@ -166,35 +180,55 @@ class CorrelationEngine:
                             description=breach.get("description"),
                             records_exposed=breach.get("records_exposed"),
                             sources=[result.source_name],
-                            confidence=0.33,
+                            confidence=SOURCE_WEIGHTS.get(result.source_name, 0.33),
                         )
                         correlated_breaches[normalized] = cb
             else:
                 sources_failed.append(result.source_name)
         
         breaches_list = list(correlated_breaches.values())
-        
         breaches_list.sort(key=lambda b: (b.year or 0, b.name), reverse=True)
         
-        average_confidence = 0.0
+        # Calculate Advanced Risk Score
+        risk_score = 0.0
+        current_year = datetime.now().year
+        
         if breaches_list:
-            average_confidence = sum(b.confidence for b in breaches_list) / len(breaches_list)
+            # 1. Volume Factor (Logarithmic)
+            risk_score += min(30.0, 10 * math.log2(len(breaches_list) + 1))
+            
+            # 2. Sensitivity & Temporal Decay
+            for b in breaches_list:
+                sensitivity = 1.0
+                dc_lower = [dc.lower() for dc in b.data_classes]
+                if any(x in dc_lower for x in ["password", "hashes"]): sensitivity *= 2.0
+                if any(x in dc_lower for x in ["financial", "banking"]): sensitivity *= 2.5
+                if any(x in dc_lower for x in ["ssn", "identity"]): sensitivity *= 3.0
+                
+                decay = 1.0
+                if b.year:
+                    age = current_year - b.year
+                    decay = 1.0 / (1.0 + (age * 0.2))
+                
+                risk_score += (5.0 * sensitivity * decay * b.confidence)
+
+        final_score = min(100.0, risk_score)
         
-        is_breached = len(breaches_list) > 0
-        
-        risk_score = self._calculate_risk_score(breaches_list, sources_succeeded)
+        avg_conf = 0.0
+        if breaches_list:
+            avg_conf = sum(b.confidence for b in breaches_list) / len(breaches_list)
         
         return CorrelatedResult(
             email=email,
-            breached=is_breached,
+            breached=len(breaches_list) > 0,
             breach_count=len(breaches_list),
             breaches=breaches_list,
             sources_queried=sources_queried,
             sources_succeeded=sources_succeeded,
             sources_failed=sources_failed,
             total_response_time_ms=total_response_time,
-            average_confidence=average_confidence,
-            risk_score=risk_score,
+            average_confidence=avg_conf,
+            risk_score=final_score,
         )
     
     def _normalize_with_aliases(self, name: str) -> str:
