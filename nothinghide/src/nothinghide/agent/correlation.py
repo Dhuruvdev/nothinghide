@@ -201,33 +201,40 @@ class CorrelationEngine:
         normalized = normalize_breach_name(name)
         return self._known_aliases.get(normalized, normalized)
     
-    def _calculate_risk_score(
-        self,
-        breaches: List[CorrelatedBreach],
-        sources_succeeded: List[str]
-    ) -> float:
-        if not breaches:
-            return 0.0
+    def correlate_identity(self, correlated_result: CorrelatedResult, password_results: Optional[Dict] = None) -> Dict[str, Any]:
+        """Perform advanced identity correlation between email breaches and password exposure."""
+        correlations = []
+        risk_score = correlated_result.risk_score
         
-        score = 0.0
+        # Extract all categories
+        categories = set()
+        for breach in correlated_result.breaches:
+            if breach.data_classes:
+                for dc in breach.data_classes:
+                    categories.add(dc.lower())
         
-        score += min(len(breaches) * 5, 40)
-        
+        # Cross-reference with password exposure
+        if "passwords" in categories and password_results and password_results.get('exposed'):
+            correlations.append("CRITICAL: Password exposed in known breaches and matches current exposure check.")
+            risk_score = min(100.0, risk_score + 40.0)
+            
+        if any(c in categories for c in ["banking", "financial", "credit cards"]):
+            correlations.append("HIGH: Financial data exposure detected in identity cluster.")
+            risk_score = min(100.0, risk_score + 20.0)
+            
+        # Identity risk scoring based on breach age
         current_year = datetime.now().year
-        recent_breaches = sum(1 for b in breaches if b.year and current_year - b.year <= 2)
-        score += recent_breaches * 15
-        
-        sensitive_data = {"password", "passwords", "financial", "credit card", "ssn", "health"}
-        for breach in breaches:
-            for dc in breach.data_classes:
-                if dc.lower() in sensitive_data:
-                    score += 10
-                    break
-        
-        high_confidence = sum(1 for b in breaches if b.confidence >= 0.5)
-        score += high_confidence * 5
-        
-        return min(100.0, score)
+        for breach in correlated_result.breaches:
+            if breach.year and current_year - breach.year <= 1:
+                correlations.append(f"URGENT: Recent data breach detected ({breach.name}, {breach.year}).")
+                risk_score = min(100.0, risk_score + 15.0)
+
+        return {
+            "correlations": correlations,
+            "risk_score": risk_score,
+            "categories": list(categories),
+            "identity_verified": True if correlated_result.breach_count > 0 else False
+        }
 
 
 class IntelligenceAggregator:

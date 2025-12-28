@@ -251,23 +251,36 @@ class PasswordChecker:
         self._last_check_time: Optional[datetime] = None
     
     def check(self, password: str) -> Dict[str, Any]:
-        """Check if password has been exposed in breaches.
-        
-        Args:
-            password: Plain text password to check.
-            
-        Returns:
-            Dictionary with exposure status and count.
-            
-        Raises:
-            ValidationError: If password is empty.
-            NetworkError: If API request fails.
-        """
+        """Check if password has been exposed in breaches with fuzzy variations."""
+        # Check original
         result = check_password_hibp(
             password,
             timeout=self.timeout,
             enable_padding=self.enable_padding,
         )
+        
+        # Check common variations (fuzzy matching)
+        variations = [
+            password.lower(),
+            password + "1",
+            password + "!",
+        ]
+        
+        max_count = result.get("count", 0)
+        exposed = result.get("exposed", False)
+        
+        for var in set(variations):
+            if var == password: continue
+            try:
+                res = check_password_hibp(var, timeout=self.timeout)
+                if res.get("exposed"):
+                    exposed = True
+                    max_count = max(max_count, res.get("count", 0))
+            except:
+                continue
+                
+        result["exposed"] = exposed
+        result["count"] = max_count
         self._last_check_time = datetime.now()
         return result
     
