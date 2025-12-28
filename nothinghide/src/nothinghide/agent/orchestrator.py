@@ -188,62 +188,37 @@ class BreachIntelligenceAgent:
         
         logger.info(f"Querying {len(available_sources)} sources for {normalized_email}")
         
+        # Parallel execution with adaptive timeouts
         tasks = [
-            self._query_source_with_retry(source, normalized_email)
+            asyncio.wait_for(
+                self._query_source_with_retry(source, normalized_email),
+                timeout=self.config.timeout
+            )
             for source in available_sources
         ]
         
-        results: List[SourceResult] = await asyncio.gather(*tasks)
+        results_raw = await asyncio.gather(*tasks, return_exceptions=True)
         
+        # Filter out exceptions and map to SourceResult
+        valid_results: List[SourceResult] = []
+        for i, res in enumerate(results_raw):
+            if isinstance(res, SourceResult):
+                valid_results.append(res)
+            else:
+                logger.error(f"Source {available_sources[i].name} failed with exception: {res}")
+                valid_results.append(SourceResult(
+                    source_name=available_sources[i].name,
+                    breached=False,
+                    error=str(res)
+                ))
+
         if self.config.enable_correlation:
-            correlated = self.correlation_engine.correlate(results, normalized_email)
+            correlated = self.correlation_engine.correlate(valid_results, normalized_email)
         else:
-            breaches = []
-            sources_succeeded = []
-            sources_failed = []
-            total_time = 0.0
-            
-            for r in results:
-                total_time += r.response_time_ms
-                if r.success:
-                    sources_succeeded.append(r.source_name)
-                    breaches.extend(r.breaches)
-                else:
-                    sources_failed.append(r.source_name)
-            
-            from .correlation import CorrelatedBreach
-            
-            correlated = CorrelatedResult(
-                email=normalized_email,
-                breached=len(breaches) > 0,
-                breach_count=len(breaches),
-                breaches=[
-                    CorrelatedBreach(
-                        name=b.get("name", "Unknown"),
-                        normalized_name=b.get("name", "").lower(),
-                        date=b.get("date"),
-                        data_classes=b.get("data_classes", []),
-                        sources=[b.get("source_api", "Unknown")],
-                        confidence=0.5,
-                    )
-                    for b in breaches
-                ],
-                sources_queried=[s.name for s in available_sources],
-                sources_succeeded=sources_succeeded,
-                sources_failed=sources_failed,
-                total_response_time_ms=total_time,
-                average_confidence=0.5,
-            )
+            # Legacy fallback
+            correlated = self._legacy_correlate(valid_results, normalized_email)
         
         self.metrics.record_query(correlated)
-        
-        for source in self.sources:
-            self.metrics.source_health[source.name] = {
-                "status": source.health.status.value,
-                "success_rate": source.health.success_rate,
-                "avg_response_ms": source.health.avg_response_time_ms,
-            }
-        
         return correlated
     
     def check_email_sync(self, email: str) -> CorrelatedResult:
@@ -277,6 +252,45 @@ class BreachIntelligenceAgent:
         tasks = [check_with_semaphore(email) for email in emails]
         return await asyncio.gather(*tasks)
     
+    def _legacy_correlate(self, results: List[SourceResult], email: str) -> CorrelatedResult:
+        """Fallback correlation for legacy modes."""
+        breaches = []
+        sources_succeeded = []
+        sources_failed = []
+        total_time = 0.0
+        
+        for r in results:
+            total_time += r.response_time_ms
+            if r.success:
+                sources_succeeded.append(r.source_name)
+                breaches.extend(r.breaches)
+            else:
+                sources_failed.append(r.source_name)
+        
+        from .correlation import CorrelatedBreach
+        
+        return CorrelatedResult(
+            email=email,
+            breached=len(breaches) > 0,
+            breach_count=len(breaches),
+            breaches=[
+                CorrelatedBreach(
+                    name=b.get("name", "Unknown"),
+                    normalized_name=b.get("name", "").lower(),
+                    date=b.get("date"),
+                    data_classes=b.get("data_classes", []),
+                    sources=[b.get("source_api", "Unknown")],
+                    confidence=0.5,
+                )
+                for b in breaches
+            ],
+            sources_queried=[r.source_name for r in results],
+            sources_succeeded=sources_succeeded,
+            sources_failed=sources_failed,
+            total_response_time_ms=total_time,
+            average_confidence=0.5,
+        )
+
     def get_full_intelligence(
         self,
         email: str,
