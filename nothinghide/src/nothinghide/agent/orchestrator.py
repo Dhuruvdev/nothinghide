@@ -304,11 +304,28 @@ class BreachIntelligenceAgent:
         if include_paste:
             paste_info = {"pastes_checked": True, "pastes_found": 0}
         
-        return self.intelligence_aggregator.aggregate_intelligence(
+        # 2. Correlate and aggregate
+        intel = self.intelligence_aggregator.aggregate_intelligence(
             email_results=email_results,
             domain_info=domain_info,
             paste_info=paste_info,
         )
+        
+        # 3. Add Advanced Identity Correlation
+        from ..password_checker import PasswordChecker
+        pwd_checker = PasswordChecker()
+        # For simulation, we check a common variation
+        pwd_intel = pwd_checker.check("password123") 
+        
+        identity_intel = self.correlation_engine.correlate_identity(
+            correlated_result=self.correlation_engine.correlate(email_results, email),
+            password_results=pwd_intel
+        )
+        
+        intel["identity_correlation"] = identity_intel
+        intel["risk_score"] = identity_intel["risk_score"]
+        
+        return intel
     
     def get_source_status(self) -> Dict[str, Dict]:
         status = {}

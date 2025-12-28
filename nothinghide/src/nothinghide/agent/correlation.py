@@ -204,7 +204,7 @@ class CorrelationEngine:
     def correlate_identity(self, correlated_result: CorrelatedResult, password_results: Optional[Dict] = None) -> Dict[str, Any]:
         """Perform advanced identity correlation between email breaches and password exposure."""
         correlations = []
-        risk_score = correlated_result.risk_score
+        risk_score = self._calculate_risk_score(correlated_result.breaches, correlated_result.sources_succeeded)
         
         # Extract all categories
         categories = set()
@@ -235,6 +235,34 @@ class CorrelationEngine:
             "categories": list(categories),
             "identity_verified": True if correlated_result.breach_count > 0 else False
         }
+
+    def _calculate_risk_score(
+        self,
+        breaches: List[CorrelatedBreach],
+        sources_succeeded: List[str]
+    ) -> float:
+        if not breaches:
+            return 0.0
+        
+        score = 0.0
+        
+        score += min(len(breaches) * 5, 40)
+        
+        current_year = datetime.now().year
+        recent_breaches = sum(1 for b in breaches if b.year and current_year - b.year <= 2)
+        score += recent_breaches * 15
+        
+        sensitive_data = {"password", "passwords", "financial", "credit card", "ssn", "health"}
+        for breach in breaches:
+            for dc in breach.data_classes:
+                if dc.lower() in sensitive_data:
+                    score += 10
+                    break
+        
+        high_confidence = sum(1 for b in breaches if b.confidence >= 0.5)
+        score += high_confidence * 5
+        
+        return min(100.0, score)
 
 
 class IntelligenceAggregator:

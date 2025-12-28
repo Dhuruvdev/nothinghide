@@ -283,6 +283,10 @@ class PasswordChecker:
         result["count"] = max_count
         self._last_check_time = datetime.now()
         return result
+
+    def to_dict(self, result: Dict[str, Any]) -> Dict[str, Any]:
+        """Convert result to a standard dictionary format."""
+        return result
     
     async def async_check(self, password: str) -> Dict[str, Any]:
         """Async check if password has been exposed.
