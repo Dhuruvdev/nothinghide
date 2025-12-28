@@ -18,9 +18,6 @@ from fastapi.templating import Jinja2Templates
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from web.ai_agents import MultiAgentAnalyzer
-from nothinghide.osint_analyzer import OSINTImageAnalyzer
-
 from nothinghide.core import check_email, check_password, BreachScanner
 from nothinghide.agent import BreachIntelligenceAgent
 from nothinghide.username_checker import UsernameChecker
@@ -52,15 +49,6 @@ def is_email(query: str) -> bool:
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
-
-
-@app.get("/terminal", response_class=HTMLResponse)
-async def terminal(request: Request):
-    """Lightweight client-side interface for traffic handling.
-    
-    All rendering and logic runs in the browser to minimize server load.
-    Perfect for self-hosted and high-traffic deployments."""
-    return templates.TemplateResponse("terminal.html", {"request": request})
 
 
 @app.post("/check", response_class=HTMLResponse)
@@ -460,90 +448,6 @@ async def username_check(request: Request, username: str = Form(...)):
         "result": result_data,
         "error": error,
     })
-
-
-@app.get("/osint-map", response_class=HTMLResponse)
-async def osint_map_page(request: Request):
-    """OSINT Image-to-Location Map interface."""
-    return templates.TemplateResponse("osint_map.html", {"request": request})
-
-
-@app.post("/osint-map", response_class=HTMLResponse)
-async def osint_map_check(request: Request, image: UploadFile = File(...)):
-    """Process image for OSINT location mapping."""
-    result = None
-    error = None
-    try:
-        if not image.content_type or not image.content_type.startswith('image/'):
-            error = "Please upload a valid image file."
-        else:
-            image_bytes = await image.read()
-            analyzer = OSINTImageAnalyzer()
-            analysis = await analyzer.analyze_location(image_bytes)
-            result = analysis
-    except Exception as e:
-        error = f"Analysis error: {str(e)}"
-    
-    return templates.TemplateResponse("osint_map_result.html", {
-        "request": request,
-        "result": result,
-        "error": error,
-    })
-
-
-@app.get("/ai-analysis", response_class=HTMLResponse)
-async def ai_analysis_page(request: Request):
-    """Advanced multi-agent AI analysis for deepfake and AI-generated content detection."""
-    return templates.TemplateResponse("ai_analysis.html", {"request": request})
-
-
-@app.post("/ai-analysis", response_class=HTMLResponse)
-async def ai_analysis_check(request: Request, image: UploadFile = File(...)):
-    """Process image through multiple AI agents for comprehensive analysis."""
-    result = None
-    error = None
-    
-    try:
-        if not image.content_type or not image.content_type.startswith('image/'):
-            error = "Please upload a valid image file (JPEG, PNG, etc.)"
-        else:
-            image_bytes = await image.read()
-            
-            if len(image_bytes) > 10 * 1024 * 1024:
-                error = "Image too large. Please upload an image under 10MB."
-            else:
-                analyzer = MultiAgentAnalyzer()
-                analysis_result = await analyzer.analyze(image_bytes)
-                result = analysis_result.to_dict()
-                
-    except Exception as e:
-        error = f"Analysis error: {str(e)}"
-    
-    return templates.TemplateResponse("ai_analysis_result.html", {
-        "request": request,
-        "result": result,
-        "error": error,
-    })
-
-
-@app.post("/ai-analysis/api")
-async def ai_analysis_api(image: UploadFile = File(...)):
-    """API endpoint for AI analysis - returns JSON."""
-    try:
-        if not image.content_type or not image.content_type.startswith('image/'):
-            return JSONResponse(content={"error": "Please upload a valid image file"})
-        
-        image_bytes = await image.read()
-        
-        if len(image_bytes) > 10 * 1024 * 1024:
-            return JSONResponse(content={"error": "Image too large (max 10MB)"})
-        
-        analyzer = MultiAgentAnalyzer()
-        analysis_result = await analyzer.analyze(image_bytes)
-        return JSONResponse(content=analysis_result.to_dict())
-        
-    except Exception as e:
-        return JSONResponse(content={"error": str(e)})
 
 
 if __name__ == "__main__":
