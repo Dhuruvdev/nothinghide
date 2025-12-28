@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}OSINT Image Map - NothingHide{% endblock %}
+{% block description %}Find the location of any image with live map simulation and forensic details.{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    #map { height: 400px; width: 100%; border: 1px solid #000; margin-top: 20px; }
+    .osint-container { max-width: 800px; margin: 0 auto; padding: 20px; }
+    .result-card { border: 1px solid #000; padding: 15px; background: #fff; margin-top: 20px; }
+    .terminal-output { background: #000; color: #0f0; padding: 10px; font-family: 'Courier New', Courier, monospace; font-size: 12px; margin-top: 10px; }
+</style>
+
+<div class="osint-container">
+    <div class="logo">
+        <a href="/"><img src="{{ url_for('static', path='/logo-title.png') }}" alt="NothingHide" class="logo-img"></a>
+    </div>
+    <h2 style="font-size: 16px; margin: 10px 0;">OSINT Image-to-Location Mapper</h2>
+    <p class="tagline">Visual Geolocation & Metadata Forensic Intelligence</p>
+    
+    <div class="privacy-notice">
+        <strong>OSINT Simulation:</strong> Upload a street or house photo to pinpoint its location on the global map.
+    </div>
+    
+    <form action="/osint-map" method="post" enctype="multipart/form-data" id="osintForm">
+        <div class="search-box">
+            <input type="file" name="image" accept="image/*" required id="imageInput" style="width: 100%; padding: 10px; border: 1px solid #000; font-size: 14px;">
+        </div>
+        
+        <div id="imagePreview" style="display: none; margin: 15px auto; max-width: 300px;">
+            <img id="previewImg" src="" alt="Preview" style="max-width: 100%; border: 1px solid #ccc;">
+        </div>
+        
+        <div class="buttons">
+            <button type="submit" class="btn">Geolocate Image</button>
+        </div>
+    </form>
+    
+    <hr class="divider">
+    
+    <div class="help-section">
+        <h3>OSINT Capabilities</h3>
+        <ul>
+            <li><strong>Metadata Extraction:</strong> Pulls GPS coordinates directly from EXIF data.</li>
+            <li><strong>Live Simulation:</strong> Visualizes the identified coordinates on an interactive map.</li>
+            <li><strong>Forensic Details:</strong> Provides accuracy confidence and source analysis.</li>
+        </ul>
+    </div>
+    
+    <a href="/" class="back-link">Back to Home</a>
+</div>
+
+<script>
+document.getElementById('imageInput').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('previewImg').src = e.target.result;
+            document.getElementById('imagePreview').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+{% endblock %}

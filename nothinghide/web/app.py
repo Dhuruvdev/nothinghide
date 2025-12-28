@@ -19,6 +19,7 @@ from fastapi.templating import Jinja2Templates
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from web.ai_agents import MultiAgentAnalyzer
+from nothinghide.osint_analyzer import OSINTImageAnalyzer
 
 from nothinghide.core import check_email, check_password, BreachScanner
 from nothinghide.agent import BreachIntelligenceAgent
@@ -457,6 +458,35 @@ async def username_check(request: Request, username: str = Form(...)):
     return templates.TemplateResponse("username_result.html", {
         "request": request,
         "result": result_data,
+        "error": error,
+    })
+
+
+@app.get("/osint-map", response_class=HTMLResponse)
+async def osint_map_page(request: Request):
+    """OSINT Image-to-Location Map interface."""
+    return templates.TemplateResponse("osint_map.html", {"request": request})
+
+
+@app.post("/osint-map", response_class=HTMLResponse)
+async def osint_map_check(request: Request, image: UploadFile = File(...)):
+    """Process image for OSINT location mapping."""
+    result = None
+    error = None
+    try:
+        if not image.content_type or not image.content_type.startswith('image/'):
+            error = "Please upload a valid image file."
+        else:
+            image_bytes = await image.read()
+            analyzer = OSINTImageAnalyzer()
+            analysis = await analyzer.analyze_location(image_bytes)
+            result = analysis
+    except Exception as e:
+        error = f"Analysis error: {str(e)}"
+    
+    return templates.TemplateResponse("osint_map_result.html", {
+        "request": request,
+        "result": result,
         "error": error,
     })
 

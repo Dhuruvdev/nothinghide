@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Location Result - NothingHide{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<div class="container" style="max-width: 900px;">
+    <div class="logo">
+        <a href="/"><img src="{{ url_for('static', path='/logo-title.png') }}" alt="NothingHide" class="logo-img"></a>
+    </div>
+    
+    <div class="result-header">
+        <h2 style="color: #000;">GEOLOCATION ANALYSIS COMPLETE</h2>
+        <p class="tagline">OSINT Intelligence Report</p>
+    </div>
+
+    {% if error %}
+    <div class="error-box">
+        <p>{{ error }}</p>
+    </div>
+    {% else %}
+    <div class="result-card">
+        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 300px;">
+                <div id="map" style="height: 400px; border: 2px solid #000;"></div>
+            </div>
+            <div style="flex: 1; min-width: 250px;">
+                <h3 style="margin-top: 0;">Intelligence Details</h3>
+                <div class="terminal-output" style="background: #000; color: #0f0; padding: 15px; font-family: monospace; border-radius: 4px;">
+                    <p>> SOURCE: {{ result.source }}</p>
+                    <p>> LATITUDE: {{ result.coords.lat }}</p>
+                    <p>> LONGITUDE: {{ result.coords.lon }}</p>
+                    <p>> ACCURACY: {{ result.accuracy }}</p>
+                    <p>> STATUS: IDENTIFIED</p>
+                    <hr style="border-color: #0f0;">
+                    <p>> {{ result.details }}</p>
+                </div>
+                
+                <div class="buttons" style="margin-top: 20px;">
+                    <a href="https://www.google.com/maps?q={{ result.coords.lat }},{{ result.coords.lon }}" target="_blank" class="btn" style="display: block; text-align: center; text-decoration: none;">View on Google Maps</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="buttons" style="margin-top: 30px;">
+        <a href="/osint-map" class="btn secondary">New Analysis</a>
+        <a href="/" class="btn secondary">Back to Home</a>
+    </div>
+</div>
+
+<script>
+    {% if not error %}
+    const map = L.map('map').setView([{{ result.coords.lat }}, {{ result.coords.lon }}], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    L.marker([{{ result.coords.lat }}, {{ result.coords.lon }}]).addTo(map)
+        .bindPopup('Identified Location')
+        .openPopup();
+    {% endif %}
+</script>
+{% endblock %}
