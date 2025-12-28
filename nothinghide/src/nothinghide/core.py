@@ -132,8 +132,7 @@ class ScanReport:
 def check_email(email: str, timeout: float = 15.0) -> BreachResult:
     """Check if an email address appears in known data breaches.
     
-    This queries public breach databases and returns information about
-    any breaches where this email was found. No data is stored.
+    Uses the advanced multi-source intelligence agent for comprehensive detection.
     
     Args:
         email: Email address to check.
@@ -141,61 +140,40 @@ def check_email(email: str, timeout: float = 15.0) -> BreachResult:
         
     Returns:
         BreachResult with breach information.
-        
-    Raises:
-        ValidationError: If email is invalid.
-        NetworkError: If API request fails.
-        
-    Example:
-        result = check_email("user@example.com")
-        if result.breached:
-            for breach in result.breaches:
-                print(f"Found in {breach['name']}")
     """
-    checker = EmailChecker(timeout=timeout)
-    raw_result = checker.check(email)
+    from .agent import BreachIntelligenceAgent
+    agent = BreachIntelligenceAgent()
+    intel = agent.check_email_sync(email)
     
     return BreachResult(
         email=email,
-        breached=raw_result.get("breached", False),
-        breach_count=raw_result.get("breach_count", 0),
-        breaches=raw_result.get("breaches", []),
-        source=raw_result.get("source", "Unknown"),
+        breached=intel.breached,
+        breach_count=intel.breach_count,
+        breaches=[b.to_dict() for b in intel.breaches],
+        source="Multi-Source Agent",
     )
 
 
 def check_password(password: str, timeout: float = 15.0) -> PasswordResult:
     """Check if a password has been exposed in known data breaches.
     
-    Uses the Have I Been Pwned Pwned Passwords API with k-anonymity.
-    Your password is NEVER transmitted - only the first 5 characters
-    of its SHA-1 hash are sent, and comparison happens locally.
+    Uses the enhanced fuzzy-matching password checker.
     
     Args:
-        password: Password to check (never stored or logged).
+        password: Password to check.
         timeout: Request timeout in seconds.
         
     Returns:
         PasswordResult with exposure information.
-        
-    Raises:
-        ValidationError: If password is empty.
-        NetworkError: If API request fails.
-        
-    Example:
-        result = check_password("mypassword123")
-        if result.exposed:
-            print(f"Password found {result.count} times!")
     """
+    from .password_checker import PasswordChecker
     checker = PasswordChecker(timeout=timeout)
-    raw_result = checker.check_strength(password)
+    raw_result = checker.check(password)
     
     return PasswordResult(
         exposed=raw_result.get("exposed", False),
         count=raw_result.get("count", 0),
-        source=raw_result.get("source", "Have I Been Pwned"),
-        strength=raw_result.get("strength"),
-        feedback=raw_result.get("feedback", []),
+        source="Enhanced Password Checker",
     )
 
 
@@ -364,7 +342,7 @@ class BreachScanner:
         self.password_checker = PasswordChecker(timeout=timeout)
     
     def full_scan(self, email: str, password: str) -> ScanReport:
-        """Perform complete identity scan.
+        """Perform complete identity scan using advanced intelligence agent.
         
         Args:
             email: Email address to check.
@@ -373,37 +351,56 @@ class BreachScanner:
         Returns:
             ScanReport with complete results and recommendations.
         """
-        email_raw = self.email_checker.check(email)
+        # 1. Use advanced agent for email breach intelligence
+        from .agent import BreachIntelligenceAgent
+        agent = BreachIntelligenceAgent()
+        email_intel = agent.get_full_intelligence(email)
+        
+        # 2. Secure password check with fuzzy matching
+        from .password_checker import PasswordChecker
+        pwd_checker = PasswordChecker()
+        password_result_dict = pwd_checker.check(password)
+        
         email_result = BreachResult(
             email=email,
-            breached=email_raw.get("breached", False),
-            breach_count=email_raw.get("breach_count", 0),
-            breaches=email_raw.get("breaches", []),
-            source=email_raw.get("source", "Unknown"),
+            breached=email_intel.get("breached", False),
+            breach_count=email_intel.get("breach_count", 0),
+            breaches=email_intel.get("breaches", []),
+            source="Intelligence Agent",
+            checked_at=datetime.now()
         )
         
-        password_raw = self.password_checker.check_strength(password)
         password_result = PasswordResult(
-            exposed=password_raw.get("exposed", False),
-            count=password_raw.get("count", 0),
-            source=password_raw.get("source", "Have I Been Pwned"),
-            strength=password_raw.get("strength"),
-            feedback=password_raw.get("feedback", []),
+            exposed=password_result_dict.get("exposed", False),
+            count=password_result_dict.get("count", 0),
+            source="Intelligence Agent (Fuzzy)",
+            strength=password_result_dict.get("strength"),
+            feedback=password_result_dict.get("feedback", [])
         )
         
-        risk_level = calculate_risk_level(
-            email_result.breached,
-            password_result.exposed,
-            email_result.breach_count,
-            password_result.count,
-        )
+        # 4. Use advanced risk scoring from intelligence agent
+        risk_score = email_intel.get("risk_score", 0)
+        # Apply password penalty if exposed
+        if password_result.exposed:
+            risk_score = min(100, risk_score + 40)
+            
+        if risk_score >= 80:
+            risk_level = RISK_CRITICAL
+        elif risk_score >= 60:
+            risk_level = RISK_HIGH
+        elif risk_score >= 30:
+            risk_level = RISK_MEDIUM
+        else:
+            risk_level = RISK_LOW
+            
+        # 5. Aggregate recommendations
+        recommendations = email_intel.get("recommendations", [])
+        if password_result.exposed:
+            recommendations.insert(0, "CRITICAL: Your password was found in public breaches. Change it immediately!")
         
-        recommendations = get_recommendations(
-            risk_level,
-            email_result.breached,
-            password_result.exposed,
-        )
-        
+        if not recommendations:
+            recommendations.append("Continue following security best practices.")
+            
         return ScanReport(
             email_result=email_result,
             password_result=password_result,
@@ -461,37 +458,25 @@ class BreachScanner:
         )
     
     def check_email(self, email: str) -> BreachResult:
-        """Check email only.
-        
-        Args:
-            email: Email address to check.
-            
-        Returns:
-            BreachResult with breach information.
-        """
-        raw_result = self.email_checker.check(email)
+        """Check email only using the intelligence agent."""
+        from .agent import BreachIntelligenceAgent
+        agent = BreachIntelligenceAgent()
+        intel = agent.check_email_sync(email)
         return BreachResult(
             email=email,
-            breached=raw_result.get("breached", False),
-            breach_count=raw_result.get("breach_count", 0),
-            breaches=raw_result.get("breaches", []),
-            source=raw_result.get("source", "Unknown"),
+            breached=intel.breached,
+            breach_count=intel.breach_count,
+            breaches=[b.to_dict() for b in intel.breaches],
+            source="Multi-Source Agent",
         )
     
     def check_password(self, password: str) -> PasswordResult:
-        """Check password only.
-        
-        Args:
-            password: Password to check.
-            
-        Returns:
-            PasswordResult with exposure information.
-        """
-        raw_result = self.password_checker.check_strength(password)
+        """Check password only using the enhanced checker."""
+        from .password_checker import PasswordChecker
+        checker = PasswordChecker()
+        raw_result = checker.check(password)
         return PasswordResult(
             exposed=raw_result.get("exposed", False),
             count=raw_result.get("count", 0),
-            source=raw_result.get("source", "Have I Been Pwned"),
-            strength=raw_result.get("strength"),
-            feedback=raw_result.get("feedback", []),
+            source="Enhanced Password Checker",
         )
