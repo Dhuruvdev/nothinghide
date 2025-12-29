@@ -167,57 +167,80 @@ hr.divider {
     justify-content: center;
     width: 140px;
     height: 140px;
-    background: #E0E0E0;
-    border-top: 2px solid #FFFFFF;
-    border-left: 2px solid #FFFFFF;
-    border-bottom: 2px solid #808080;
-    border-right: 2px solid #808080;
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.15);
-    text-decoration: none;
-    color: #000000;
+    background: #E0E0E0 !important;
+    border-top: 2px solid #FFFFFF !important;
+    border-left: 2px solid #FFFFFF !important;
+    border-bottom: 2px solid #808080 !important;
+    border-right: 2px solid #808080 !important;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.15) !important;
+    text-decoration: none !important;
+    color: #000000 !important;
     font-weight: bold;
     text-align: center;
     transition: all 0.05s ease;
-    background-image: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(0,0,0,0.05) 100%);
+    background-image: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(0,0,0,0.05) 100%) !important;
     box-sizing: border-box;
-    /* Ensure icons don't wrap and look weird in the grid */
     overflow: hidden;
 }
 
-/* Specific fix for the screenshot issue: prevent links from collapsing into text-decoration only */
-.app-grid a.app-button {
+.app-button * {
     text-decoration: none !important;
+    color: #000000 !important;
 }
 
-.app-grid a.app-button:hover {
-    background-color: #f0f0f0;
-    text-decoration: none !important;
+.app-button:active {
+    border-top: 2px solid #808080 !important;
+    border-left: 2px solid #808080 !important;
+    border-bottom: 2px solid #FFFFFF !important;
+    border-right: 2px solid #FFFFFF !important;
+    box-shadow: inset 1px 1px 3px rgba(0,0,0,0.2) !important;
+    transform: translate(1px, 1px);
+}
+
+.app-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+    filter: drop-shadow(1px 1px 1px rgba(0,0,0,0.2));
+    pointer-events: none;
+}
+
+.app-label {
+    font-size: 13px;
+    line-height: 1.2;
+    padding: 0 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    pointer-events: none;
 }
 
 @media screen and (max-width: 768px) {
     .app-grid {
-        grid-template-columns: repeat(2, 1fr); /* Force 2 columns on mobile instead of single list if user preferred the grid, OR improve list view */
-        gap: 15px;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 15px !important;
+        display: grid !important;
     }
 
     .app-button {
-        width: 100%;
-        height: 120px;
-        flex-direction: column;
-        padding: 10px;
-        justify-content: center;
+        width: 100% !important;
+        height: 140px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        padding: 10px !important;
+        justify-content: center !important;
     }
 
     .app-icon {
-        font-size: 32px;
-        margin-bottom: 8px;
-        margin-right: 0;
+        font-size: 40px !important;
+        margin-bottom: 12px !important;
+        margin-right: 0 !important;
+        display: block !important;
     }
 
     .app-label {
-        font-size: 12px;
-        padding: 0;
-        white-space: normal;
+        font-size: 13px !important;
+        padding: 0 !important;
+        white-space: normal !important;
+        display: block !important;
     }
 }
 
