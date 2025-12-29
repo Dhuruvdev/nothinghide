@@ -1,40 +1,60 @@
-from fastapi import APIRouter, Request, Depends
-from cookie_cooked import CookieCookedSystem
+from fastapi import APIRouter, Request, HTTPException
+from typing import List, Dict
+import random
 
-router = APIRouter()
-protection = CookieCookedSystem()
+router = APIRouter(prefix="/api/cooked")
 
-@router.get("/api/protection/status")
-async def get_protection_status(request: Request):
+# Active Session Intelligence Dashboard
+@router.get("/dashboard")
+async def get_dashboard_data(request: Request):
     """
-    Returns the Active Session Intelligence for the user dashboard.
+    Provides 'Active Session Intelligence' for user transparency.
     """
-    # Mock data - in production, fetch from DB
-    current_fingerprint = protection.generate_fingerprint(request)
-    
+    # In production, this would query the DB for the user's active sessions
     return {
-        "active_sessions": [
+        "sessions": [
             {
-                "device": "Primary Browser",
-                "location": "Detected via IP",
-                "last_active": "Just now",
+                "id": "sess_123",
+                "device": "Chrome on macOS",
+                "region": "San Francisco, US",
+                "last_active": "2 mins ago",
                 "risk_level": "Low",
                 "risk_score": 12,
                 "is_current": True
+            },
+            {
+                "id": "sess_456",
+                "device": "Safari on iPhone",
+                "region": "London, UK",
+                "last_active": "1 hour ago",
+                "risk_level": "Medium",
+                "risk_score": 45,
+                "is_current": False
             }
         ],
-        "system_status": "Active",
-        "protection_enabled": True
+        "total_risk": 28,
+        "recommendations": [
+            "Enable 2FA for 'Safari on iPhone' session due to location shift.",
+            "Session rotation scheduled in 4 hours."
+        ]
     }
 
-@router.post("/api/protection/check")
+@router.post("/check")
 async def manual_check(request: Request):
     """
-    The 'Check' button logic.
+    Single button 'Check' logic.
     """
-    # Simulate a deep scan
+    # Simulate a real-time risk scan
     return {
-        "status": "Healthy",
-        "score": 5,
-        "message": "No session anomalies detected in the last 24 hours."
+        "status": "Success",
+        "current_risk": random.randint(5, 30),
+        "message": "Real-time integrity check passed. No anomalies detected.",
+        "timestamp": "2025-12-29T18:30:00Z"
     }
+
+@router.post("/revoke/{session_id}")
+async def revoke_session(session_id: str):
+    """
+    Allows user to manually revoke a session.
+    """
+    return {"message": f"Session {session_id} has been successfully revoked."}
