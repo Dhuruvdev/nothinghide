@@ -19,6 +19,12 @@
             <h3>Active Sessions</h3>
             <div id="sessions-list"></div>
         </div>
+
+        <div class="result-card" style="margin-top: 20px;">
+            <h3>Cross-Website Cookie Tracking</h3>
+            <p style="font-size: 0.8em; color: #888;">Websites currently storing or using your session cookies:</p>
+            <div id="tracked-sites-list" style="margin-top: 10px;"></div>
+        </div>
         
         <div class="result-card" style="margin-top: 20px;">
             <h3>Security Recommendations</h3>
@@ -32,6 +38,7 @@ document.getElementById('check-btn').addEventListener('click', async () => {
     const btn = document.getElementById('check-btn');
     const resultsArea = document.getElementById('results-area');
     const sessionsList = document.getElementById('sessions-list');
+    const trackedList = document.getElementById('tracked-sites-list');
     const recsList = document.getElementById('recommendations-list');
 
     btn.innerText = 'Scanning...';
@@ -41,6 +48,7 @@ document.getElementById('check-btn').addEventListener('click', async () => {
         const res = await fetch('/api/cooked/dashboard');
         const data = await res.json();
         
+        // ... (existing session logic) ...
         sessionsList.innerHTML = '';
         data.sessions.forEach(s => {
             const div = document.createElement('div');
@@ -49,18 +57,30 @@ document.getElementById('check-btn').addEventListener('click', async () => {
             div.style.margin = '10px 0';
             div.style.borderRadius = '8px';
             div.style.backgroundColor = s.is_current ? '#1a2634' : '#111';
-            
-            div.innerHTML = `
-                <div style="display: flex; justify-content: space-between;">
-                    <strong>${s.device} ${s.is_current ? '(Current)' : ''}</strong>
-                    <span style="color: ${s.risk_score > 40 ? '#ff4d4d' : '#00ff00'}">Risk: ${s.risk_score}/100</span>
-                </div>
-                <div style="font-size: 0.9em; color: #aaa; margin-top: 5px;">
-                    Location: ${s.region} | Last Active: ${s.last_active}
-                </div>
-            `;
+            div.innerHTML = `<strong>${s.device}</strong> <span style="float:right">Risk: ${s.risk_score}</span><br><small>${s.region}</small>`;
             sessionsList.appendChild(div);
         });
+
+        // Tracked Sites Logic
+        trackedList.innerHTML = '';
+        if (data.tracked_websites.length === 0) {
+            trackedList.innerHTML = '<p style="color: #666;">No external cookie usage detected yet. Install extension to begin tracking.</p>';
+        } else {
+            data.tracked_websites.forEach(site => {
+                const div = document.createElement('div');
+                div.style.padding = '10px';
+                div.style.borderBottom = '1px solid #333';
+                div.style.textAlign = 'left';
+                div.innerHTML = `
+                    <div style="display:flex; justify-content:space-between;">
+                        <span>🌐 <strong>${site.url}</strong></span>
+                        <span style="color: ${site.risk === 'High' ? 'red' : 'green'}">${site.risk} Risk</span>
+                    </div>
+                    <small style="color: #666">Detected: ${site.detected_at}</small>
+                `;
+                trackedList.appendChild(div);
+            });
+        }
 
         recsList.innerHTML = '';
         data.recommendations.forEach(r => {
