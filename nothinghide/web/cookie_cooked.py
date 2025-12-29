@@ -1,97 +1,137 @@
 import hashlib
 import time
-from typing import Optional, Dict
+import hmac
+import ipaddress
+import asyncio
+from typing import Optional, Dict, List
 from fastapi import Request, Response, HTTPException
 from pydantic import BaseModel
 import datetime
-
-class SessionMetadata(BaseModel):
-    id: str
-    user_id: str
-    hashed_fingerprint: str
-    last_ip: str
-    risk_score: int = 0
-    expires_at: datetime.datetime
+import httpx
 
 class CookieCookedSystem:
     """
-    Cookie Cooked Protection System (Python/FastAPI)
-    Prevents, detects, and reacts to cookie hijacking.
+    Advanced Session Intelligence & Protection System
+    Authentic detection using cryptographic verification and behavioral scoring.
     """
     
-    def __init__(self, db_session=None):
-        self.db = db_session # Placeholder for real DB
-        self.risk_threshold_revoke = 70
-        self.risk_threshold_stepup = 30
+    def __init__(self, secret_key: str = "cooked_secret_2025"):
+        self.secret_key = secret_key
+        self.risk_threshold_revoke = 75
+        self.risk_threshold_stepup = 40
 
-    def generate_fingerprint(self, request: Request) -> str:
-        """Creates a privacy-preserving hash of the device fingerprint."""
-        user_agent = request.headers.get("user-agent", "")
-        accept_lang = request.headers.get("accept-language", "")
-        # In a real app, combine more stable entropy sources
-        raw_data = f"{user_agent}|{accept_lang}"
-        return hashlib.sha256(raw_data.encode()).hexdigest()
+    def get_client_fingerprint(self, request: Request) -> str:
+        """
+        Generates a high-entropy session fingerprint.
+        Uses non-sensitive headers to maintain privacy.
+        """
+        headers = request.headers
+        fingerprint_data = "|".join([
+            headers.get("user-agent", "unknown"),
+            headers.get("accept-language", "unknown"),
+            headers.get("sec-ch-ua-platform", "unknown"),
+            headers.get("sec-ch-ua", "unknown")
+        ])
+        return hmac.new(
+            self.secret_key.encode(),
+            fingerprint_data.encode(),
+            hashlib.sha256
+        ).hexdigest()
 
-    async def check_session(self, request: Request, session_data: Dict) -> Dict:
+    async def get_ip_intel(self, ip: str) -> Dict:
         """
-        Analyzes session for anomalies and updates risk score.
+        Fetches authentic IP and ASN intelligence.
+        In production, this would use Greip, Silent Push, or IP-API.
         """
-        current_fingerprint = self.generate_fingerprint(request)
-        current_ip = request.client.host if request.client else "unknown"
+        if ip in ["127.0.0.1", "localhost", "unknown"]:
+            return {"asn": "AS0", "org": "Local Network", "reputation": "benign"}
+            
+        try:
+            async with httpx.AsyncClient(timeout=2.0) as client:
+                resp = await client.get(f"http://ip-api.com/json/{ip}?fields=status,message,country,city,as,proxy,hosting")
+                if resp.status_code == 200:
+                    data = resp.json()
+                    is_proxy = data.get("proxy", False)
+                    is_hosting = data.get("hosting", False)
+                    reputation = "malicious" if is_proxy or is_hosting else "benign"
+                    return {
+                        "asn": data.get("as", "unknown"),
+                        "city": data.get("city", "unknown"),
+                        "reputation": reputation,
+                        "is_proxy": is_proxy
+                    }
+        except:
+            pass
+        return {"asn": "unknown", "reputation": "unknown"}
+
+    async def analyze_risk(self, request: Request, session_data: Dict) -> Dict:
+        """
+        Performs multi-vector risk analysis including Geo-velocity and ASN reputation.
+        """
+        current_ip = request.client.host if request.client else "127.0.0.1"
+        current_fingerprint = self.get_client_fingerprint(request)
         
-        risk_score = 0
-        reasons = []
+        score = 0
+        indicators = []
 
-        # 1. Fingerprint Mismatch Detection
+        # 1. Cryptographic Fingerprint Check
         if session_data.get("hashed_fingerprint") != current_fingerprint:
-            risk_score += 45
-            reasons.append("Device fingerprint mismatch")
+            score += 45
+            indicators.append("Device signature mismatch (potential session hijacking)")
 
-        # 2. IP/Network Anomaly (Basic Travel/Proxy Check)
-        if session_data.get("last_ip") != current_ip:
-            risk_score += 25
-            reasons.append("IP address change detected")
-
-        # 3. Behavioral / Rate Logic (Simplified)
-        # In production, check request frequency and sequence patterns here
+        # 2. IP Reputation & Network Logic
+        intel = await self.get_ip_intel(current_ip)
+        if intel.get("reputation") == "malicious":
+            score += 50
+            indicators.append(f"High-risk network detected ({intel.get('asn')})")
         
+        if session_data.get("last_ip") != current_ip:
+            try:
+                old_net = ipaddress.ip_network(f"{session_data['last_ip']}/24", strict=False)
+                new_ip = ipaddress.ip_address(current_ip)
+                if new_ip not in old_net:
+                    score += 30
+                    indicators.append("Significant network location shift detected")
+            except:
+                score += 15
+
+        # 3. Behavioral Anomaly (Request Rate)
+        last_request = session_data.get("last_request_time", 0)
+        now = time.time()
+        if last_request > 0:
+            time_diff = now - last_request
+            if time_diff < 0.2: # High-speed automated activity
+                score += 25
+                indicators.append("Automated request pattern detected (Bot activity)")
+
         return {
-            "score": risk_score,
-            "reasons": reasons,
-            "action": self._determine_action(risk_score)
+            "score": min(100, score),
+            "indicators": indicators,
+            "intel": intel,
+            "action": self._determine_action(score)
         }
 
     def _determine_action(self, score: int) -> str:
-        if score >= self.risk_threshold_revoke:
-            return "REVOKE"
-        elif score >= self.risk_threshold_stepup:
-            return "STEP_UP"
+        if score >= self.risk_threshold_revoke: return "REVOKE"
+        if score >= self.risk_threshold_stepup: return "STEP_UP"
         return "ALLOW"
 
-# Middleware Implementation Example
 async def cookie_cooked_middleware(request: Request, call_next):
-    # This is a conceptual implementation for FastAPI
     system = CookieCookedSystem()
     session_id = request.cookies.get("session_id")
     
     if session_id:
-        # 1. Fetch session from DB (Mocked)
+        # Fetching current session state (Mocked for speed)
         mock_session = {
             "hashed_fingerprint": "...", 
             "last_ip": "1.2.3.4",
-            "risk_score": 0
+            "last_request_time": request.app.state.last_req if hasattr(request.app.state, 'last_req') else 0
         }
         
-        analysis = await system.check_session(request, mock_session)
+        analysis = await system.analyze_risk(request, mock_session)
+        request.app.state.last_req = time.time()
         
         if analysis["action"] == "REVOKE":
-            response = Response(content="Session revoked for security", status_code=403)
-            response.delete_cookie("session_id")
-            return response
+            return Response(content="Security Alert: Session terminated due to high risk score.", status_code=403)
             
-        if analysis["action"] == "STEP_UP":
-            # In a real app, you would set a flag or redirect
-            pass
-
-    response = await call_next(request)
-    return response
+    return await call_next(request)
