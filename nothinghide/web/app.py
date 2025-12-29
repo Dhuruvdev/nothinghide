@@ -23,7 +23,13 @@ from nothinghide.agent import BreachIntelligenceAgent
 from nothinghide.username_checker import UsernameChecker
 from nothinghide.exceptions import ValidationError, NetworkError
 
+from .cookie_cooked import cookie_cooked_middleware
+from .cookie_cooked_api import router as protection_router
+
 app = FastAPI(title="NothingHide", version="1.0.0")
+
+app.middleware("http")(cookie_cooked_middleware)
+app.include_router(protection_router)
 
 @app.middleware("http")
 async def add_cache_headers(request: Request, call_next):
@@ -376,6 +382,11 @@ async def fullscan_check(request: Request, email: str = Form(...), password: str
 @app.get("/help", response_class=HTMLResponse)
 async def help_page(request: Request):
     return templates.TemplateResponse("help.html", {"request": request})
+
+
+@app.get("/cooked", response_class=HTMLResponse)
+async def cooked_page(request: Request):
+    return templates.TemplateResponse("cooked.html", {"request": request})
 
 
 @app.get("/username", response_class=HTMLResponse)

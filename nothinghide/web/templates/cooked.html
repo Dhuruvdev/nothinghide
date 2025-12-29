@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Cookie Cooked - Active Session Intelligence{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="logo">
+        <a href="/"><img src="{{ url_for('static', path='/logo-title.png') }}" alt="NothingHide" class="logo-img"></a>
+    </div>
+    <h1>Cookie Cooked Intelligence</h1>
+    <p class="tagline">Risk-based session anomaly detection and zero-trust protection.</p>
+
+    <div style="margin: 20px 0; text-align: center;">
+        <button id="check-btn" class="btn" style="padding: 15px 30px; font-size: 1.2em;">Check Session Security</button>
+    </div>
+
+    <div id="results-area" style="display: none; margin-top: 30px;">
+        <div class="result-card">
+            <h3>Active Sessions</h3>
+            <div id="sessions-list"></div>
+        </div>
+        
+        <div class="result-card" style="margin-top: 20px;">
+            <h3>Security Recommendations</h3>
+            <ul id="recommendations-list" style="text-align: left; display: inline-block;"></ul>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('check-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('check-btn');
+    const resultsArea = document.getElementById('results-area');
+    const sessionsList = document.getElementById('sessions-list');
+    const recsList = document.getElementById('recommendations-list');
+
+    btn.innerText = 'Scanning...';
+    btn.disabled = true;
+
+    try {
+        const res = await fetch('/api/cooked/dashboard');
+        const data = await res.json();
+        
+        sessionsList.innerHTML = '';
+        data.sessions.forEach(s => {
+            const div = document.createElement('div');
+            div.style.padding = '15px';
+            div.style.border = '1px solid #444';
+            div.style.margin = '10px 0';
+            div.style.borderRadius = '8px';
+            div.style.backgroundColor = s.is_current ? '#1a2634' : '#111';
+            
+            div.innerHTML = `
+                <div style="display: flex; justify-content: space-between;">
+                    <strong>${s.device} ${s.is_current ? '(Current)' : ''}</strong>
+                    <span style="color: ${s.risk_score > 40 ? '#ff4d4d' : '#00ff00'}">Risk: ${s.risk_score}/100</span>
+                </div>
+                <div style="font-size: 0.9em; color: #aaa; margin-top: 5px;">
+                    Location: ${s.region} | Last Active: ${s.last_active}
+                </div>
+            `;
+            sessionsList.appendChild(div);
+        });
+
+        recsList.innerHTML = '';
+        data.recommendations.forEach(r => {
+            const li = document.createElement('li');
+            li.innerText = r;
+            recsList.appendChild(li);
+        });
+
+        resultsArea.style.display = 'block';
+    } finally {
+        btn.innerText = 'Check Session Security';
+        btn.disabled = false;
+    }
+});
+</script>
+{% endblock %}
