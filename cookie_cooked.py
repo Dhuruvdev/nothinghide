@@ -37,7 +37,7 @@ class CookieCookedSystem:
         Analyzes session for anomalies and updates risk score.
         """
         current_fingerprint = self.generate_fingerprint(request)
-        current_ip = request.client.host
+        current_ip = request.client.host if request.client else "unknown"
         
         risk_score = 0
         reasons = []
@@ -90,7 +90,8 @@ async def cookie_cooked_middleware(request: Request, call_next):
             return response
             
         if analysis["action"] == "STEP_UP":
-            request.state.needs_auth_verification = True
+            # In a real app, you would set a flag or redirect
+            pass
 
     response = await call_next(request)
     return response
