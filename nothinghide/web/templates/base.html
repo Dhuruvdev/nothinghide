@@ -134,6 +134,99 @@
         }
     }
     </script>
+    <style>
+        /* HARD-LOCKED APP GRID SYSTEM - INLINE TO PREVENT CSS CACHE ISSUES */
+        .app-grid-fixed {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            justify-content: center !important;
+            gap: 20px !important;
+            margin: 30px auto !important;
+            padding: 10px !important;
+            max-width: 600px !important;
+        }
+
+        .app-button-fixed {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 140px !important;
+            height: 140px !important;
+            background-color: #E0E0E0 !important;
+            border-top: 2px solid #FFFFFF !important;
+            border-left: 2px solid #FFFFFF !important;
+            border-bottom: 2px solid #808080 !important;
+            border-right: 2px solid #808080 !important;
+            box-shadow: 4px 4px 8px rgba(0,0,0,0.25) !important;
+            text-decoration: none !important;
+            color: #000000 !important;
+            font-weight: bold !important;
+            text-align: center !important;
+            background-image: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(0,0,0,0.05) 100%) !important;
+            box-sizing: border-box !important;
+            margin: 0 !important;
+        }
+
+        .app-button-fixed:active {
+            border-top: 2px solid #808080 !important;
+            border-left: 2px solid #808080 !important;
+            border-bottom: 2px solid #FFFFFF !important;
+            border-right: 2px solid #FFFFFF !important;
+            box-shadow: inset 3px 3px 6px rgba(0,0,0,0.35) !important;
+            transform: translate(1px, 1px) !important;
+        }
+
+        .app-icon-fixed {
+            font-size: 42px !important;
+            margin-bottom: 12px !important;
+            display: block !important;
+            line-height: 1 !important;
+            color: #000000 !important;
+            text-decoration: none !important;
+        }
+
+        .app-label-fixed {
+            font-size: 11px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            display: block !important;
+            margin: 0 !important;
+            padding: 0 5px !important;
+            color: #000000 !important;
+            text-decoration: none !important;
+            line-height: 1.2 !important;
+        }
+
+        @media screen and (max-width: 768px) {
+            .app-grid-fixed {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 15px !important;
+                max-width: 100% !important;
+            }
+            .app-button-fixed {
+                width: 100% !important;
+                height: 140px !important;
+            }
+        }
+
+        @media screen and (max-width: 350px) {
+            .app-grid-fixed {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        /* KILL LEGACY LISTS FORCED */
+        .menu-list, ul.menu-list, .menu-list li {
+            display: none !important;
+            height: 0 !important;
+            overflow: hidden !important;
+            visibility: hidden !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+    </style>
 </head>
 <body>
     <div id="loading-overlay" class="loading-overlay" style="display: none;">
