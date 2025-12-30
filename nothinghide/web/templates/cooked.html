@@ -46,11 +46,18 @@
 <script>
 // Automatically check for extension on load
 window.addEventListener('load', () => {
+    // Check if we're running as an extension popup or if the extension has injected its marker
+    const isExtensionActive = () => {
+        return window.COOKED_EXTENSION_ACTIVE === true || 
+               document.documentElement.getAttribute('data-cooked-extension-installed') === 'true' ||
+               (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id);
+    };
+
     setTimeout(() => {
-        // We check if the extension has injected a global marker or responded to a ping
-        const extensionInstalled = window.COOKED_EXTENSION_ACTIVE === true;
-        if (!extensionInstalled) {
+        if (!isExtensionActive()) {
             document.getElementById('extension-popup').style.display = 'block';
+        } else {
+            console.log("Cookie Cooked Extension detected and active.");
         }
     }, 1000);
 });
