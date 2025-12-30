@@ -1,30 +1,20 @@
 {% extends "base.html" %}
 
-{% block title %}NothingHide - Free Breach Exposure Check{% endblock %}
-{% block description %}Check if your email or password has been exposed in data breaches. Free, secure breach detection using k-anonymity protection.{% endblock %}
+{% block title %}NothingHide - Breach Exposure Intelligence{% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="logo">
         <a href="/"><img src="{{ url_for('static', path='/logo-title.png') }}" alt="NothingHide" class="logo-img"></a>
     </div>
-    <p class="tagline">Search the web for breaches using NothingHide!</p>
     
-    <form action="/check" method="post" data-loading="true">
-        <div class="search-box">
-            <input type="text" name="query" placeholder="Enter email or password to check..." required>
-        </div>
-        <div class="buttons">
-            <button type="submit" class="btn">Check Breaches</button>
-        </div>
-    </form>
-    
-    <hr class="divider">
-    
+    <h1>Identity Intelligence</h1>
+    <p class="tagline">The most advanced data breach reconnaissance engine.</p>
+
     <div class="app-grid-fixed">
         <a href="/email" class="app-button-fixed">
-            <span class="app-icon-fixed">✉️</span>
-            <span class="app-label-fixed">Email Breach Check</span>
+            <span class="app-icon-fixed">📧</span>
+            <span class="app-label-fixed">Email Breach</span>
         </a>
         <a href="/password" class="app-button-fixed">
             <span class="app-icon-fixed">🔑</span>
@@ -34,18 +24,29 @@
             <span class="app-icon-fixed">👤</span>
             <span class="app-label-fixed">Username OSINT</span>
         </a>
-        <a href="/fullscan" class="app-button-fixed">
-            <span class="app-icon-fixed">🔍</span>
-            <span class="app-label-fixed">Full Scan</span>
-        </a>
         <a href="/cooked" class="app-button-fixed">
             <span class="app-icon-fixed">🍪</span>
             <span class="app-label-fixed">Cookie Cooked</span>
         </a>
-        <a href="/help" class="app-button-fixed">
-            <span class="app-icon-fixed">❓</span>
-            <span class="app-label-fixed">Help</span>
+        <a href="/fullscan" class="app-button-fixed">
+            <span class="app-icon-fixed">🛡️</span>
+            <span class="app-label-fixed">Identity Scan</span>
         </a>
+        <a href="/help" class="app-button-fixed">
+            <span class="app-icon-fixed">📚</span>
+            <span class="app-label-fixed">Documentation</span>
+        </a>
+    </div>
+
+    <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 12px; text-align: left;">
+        <h3 style="margin-top: 0; font-size: 1.1em; color: #333;">🚀 Quick Start Guide</h3>
+        <p style="font-size: 0.9em; color: #666; line-height: 1.5;">
+            NothingHide is designed for professionals. To get the most out of the system, we recommend installing the **Cookie Cooked** protection module immediately.
+        </p>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <a href="/cooked" class="btn" style="background: #000; color: #fff; border: none; padding: 12px 20px; font-weight: bold;">Setup Protection</a>
+            <a href="/help" class="btn" style="padding: 12px 20px;">View Docs</a>
+        </div>
     </div>
 </div>
 {% endblock %}
