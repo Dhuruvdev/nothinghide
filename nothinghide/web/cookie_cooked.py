@@ -3,6 +3,7 @@ import time
 import hmac
 import ipaddress
 import asyncio
+import os
 from typing import Optional, Dict, List
 from fastapi import Request, Response, HTTPException
 from pydantic import BaseModel
@@ -15,8 +16,8 @@ class CookieCookedSystem:
     Authentic detection using cryptographic verification and behavioral scoring.
     """
     
-    def __init__(self, secret_key: str = "cooked_secret_2025"):
-        self.secret_key = secret_key
+    def __init__(self, secret_key: Optional[str] = None):
+        self.secret_key = secret_key or os.environ.get("COOKED_SECRET_KEY", "cooked_secret_2025")
         self.risk_threshold_revoke = 75
         self.risk_threshold_stepup = 40
 

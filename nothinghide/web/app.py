@@ -52,6 +52,10 @@ def is_email(query: str) -> bool:
     return bool(re.match(email_pattern, query.strip()))
 
 
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
