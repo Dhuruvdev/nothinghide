@@ -112,6 +112,12 @@ class CookieCookedSystem:
             score += 80
             indicators.append("Automated browser environment detected")
 
+        # 5. Cookie Consent Pattern Analysis
+        # Detect high-risk 'Accept All' behavioral patterns often used in automated harvesting
+        if session_data.get("cookie_consent_behavior") == "aggressive_accept":
+            score += 25
+            indicators.append("Aggressive cookie acceptance pattern (Risk: Data harvesting)")
+
         return {
             "score": min(100, score),
             "indicators": indicators,

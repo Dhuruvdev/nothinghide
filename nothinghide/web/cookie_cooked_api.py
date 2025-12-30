@@ -17,16 +17,22 @@ async def import_session_state(request: Request):
     Analyzes the current request state to populate the tracking database.
     """
     # Authentic extraction of cross-domain session indicators from the current request
-    # This populates TRACKED_SITES with the current domain's intelligence
     site = request.url.hostname
+    
+    # Analyze headers for 'Accept All' patterns often used in tracking consent
+    cookie_header = request.headers.get("cookie", "")
+    consent_behavior = "standard"
+    if "consent=true" in cookie_header.lower() or "gdpr=1" in cookie_header.lower():
+        consent_behavior = "aggressive_accept"
+
     if site and site not in [s['url'] for s in TRACKED_SITES]:
         TRACKED_SITES.append({
             "url": site,
             "detected_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "risk": "Low" # Local sessions are verified as low risk
+            "risk": "Low"
         })
     
-    # We also add standard high-risk tracking endpoints discovered via header analysis
+    # ... rest of logic
     common_trackers = ["google-analytics.com", "doubleclick.net"]
     for tracker in common_trackers:
         if tracker not in [s['url'] for s in TRACKED_SITES]:
@@ -36,7 +42,7 @@ async def import_session_state(request: Request):
                 "risk": "High"
             })
             
-    return {"status": "success", "message": "Browser state analysis complete"}
+    return {"status": "success", "message": "Browser state analysis complete", "consent_profile": consent_behavior}
 
 @router.post("/track")
 async def track_cookie_usage(data: Dict):

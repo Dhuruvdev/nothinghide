@@ -201,6 +201,17 @@ document.getElementById('check-btn').addEventListener('click', async () => {
             recsList.appendChild(li);
         });
 
+        // Dynamic Recommendation for Cookie Consent
+        if (data.consent_profile === 'aggressive_accept') {
+            const li = document.createElement('li');
+            li.style.marginBottom = '8px';
+            li.style.color = '#d32f2f';
+            li.style.fontWeight = 'bold';
+            li.style.fontSize = '0.95em';
+            li.innerHTML = `⚠️ High Risk: 'Accept All' cookie behavior detected. Consider using a 'Reject All' policy to minimize data harvesting.`;
+            recsList.prepend(li);
+        }
+
         resultsArea.style.display = 'block';
     } finally {
         btn.innerText = 'Check Session Security';
