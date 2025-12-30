@@ -10,14 +10,21 @@
     <h1>Cookie Cooked Intelligence</h1>
     <p class="tagline">Risk-based session anomaly detection and zero-trust protection.</p>
 
-    <!-- Extension Install Popup -->
-    <div id="extension-popup" style="display: none; position: fixed; top: 20px; right: 20px; background: #fffbe6; border: 1px solid #ffe58f; padding: 15px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 10000; max-width: 300px; text-align: left;">
+    <!-- Extension Install Instructions -->
+    <div id="extension-popup" style="display: none; position: fixed; top: 20px; right: 20px; background: #fffbe6; border: 1px solid #ffe58f; padding: 20px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 10000; max-width: 350px; text-align: left;">
         <div style="display: flex; justify-content: space-between; align-items: start;">
-            <strong style="color: #856404;">Extension Required</strong>
-            <button onclick="document.getElementById('extension-popup').style.display='none'" style="border:none; background:none; cursor:pointer; font-size: 18px;">&times;</button>
+            <strong style="color: #856404; font-size: 1.1em;">🛡️ Action Required: Install Extension</strong>
+            <button onclick="document.getElementById('extension-popup').style.display='none'" style="border:none; background:none; cursor:pointer; font-size: 20px; line-height: 1;">&times;</button>
         </div>
-        <p style="font-size: 0.9em; margin: 10px 0; color: #856404;">To enable real-time cross-website cookie tracking, please install the Cookie Cooked browser extension.</p>
-        <button class="btn" style="width: 100%; margin: 0; padding: 8px;" onclick="window.open('/static/extension.zip')">Download Extension</button>
+        <p style="font-size: 0.9em; margin: 12px 0; color: #856404; line-height: 1.4;">
+            For security, browser extensions must be installed manually. <strong>Follow these 3 quick steps:</strong>
+        </p>
+        <ol style="font-size: 0.85em; color: #856404; padding-left: 20px; margin: 10px 0;">
+            <li>Download and <strong>unzip</strong> the protection package.</li>
+            <li>Go to <code>chrome://extensions</code> and enable <strong>"Developer mode"</strong>.</li>
+            <li>Click <strong>"Load unpacked"</strong> and select the unzipped folder.</li>
+        </ol>
+        <button class="btn" style="width: 100%; margin-top: 10px; padding: 10px; font-weight: bold; background: #856404; color: white; border: none;" onclick="window.open('/static/extension.zip')">1. Download Package</button>
     </div>
 
     <div style="margin: 20px 0; text-align: center;">
