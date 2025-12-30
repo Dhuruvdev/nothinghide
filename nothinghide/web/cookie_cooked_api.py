@@ -45,24 +45,6 @@ async def get_dashboard_data(request: Request):
     
     # If empty, add some authentic intelligence indicators
     display_sites = TRACKED_SITES
-    if not display_sites:
-        display_sites = [
-            {
-                "url": "analytics.google.com",
-                "detected_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "risk": "Low"
-            },
-            {
-                "url": "doubleclick.net",
-                "detected_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "risk": "High"
-            },
-            {
-                "url": "facebook.com",
-                "detected_at": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "risk": "Low"
-            }
-        ]
     
     return {
         "sessions": [
