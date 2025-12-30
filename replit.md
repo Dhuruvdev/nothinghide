@@ -172,8 +172,20 @@ Access the web interface at port 5000:
 - **Risk Assessment**: Calculates overall identity exposure score (0-100)
 - **Recommendations**: Provides actionable security advice
 
+## Standalone Installation
+
+For standalone deployment, run the included setup script:
+```bash
+bash nothinghide/standalone/install.sh
+```
+
+This script handles dependency installation, extension packaging, and server startup in one command.
+
 ## Recent Changes
 
+- **Dec 2024**: Integrated "Cookie Cooked" advanced session protection with browser extension.
+- **Dec 2024**: Implemented 2025-standard risk analysis (Headless detection, timing heuristics).
+- **Dec 2024**: Added standalone installation script and unified identity intelligence UI.
 - **Dec 2024**: Added Username OSINT with 60+ platform reconnaissance
 - **Dec 2024**: Added identity risk scoring and weakness detection
 - **Dec 2024**: Added Advanced Agent System with multi-source intelligence
