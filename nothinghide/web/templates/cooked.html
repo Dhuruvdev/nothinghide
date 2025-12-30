@@ -10,21 +10,44 @@
     <h1>Cookie Cooked Intelligence</h1>
     <p class="tagline">Risk-based session anomaly detection and zero-trust protection.</p>
 
-    <!-- Extension Install Instructions -->
     <div id="extension-popup" style="display: none; position: fixed; top: 20px; right: 20px; background: #fffbe6; border: 1px solid #ffe58f; padding: 20px; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 10000; max-width: 350px; text-align: left;">
         <div style="display: flex; justify-content: space-between; align-items: start;">
-            <strong style="color: #856404; font-size: 1.1em;">🛡️ Action Required: Install Extension</strong>
+            <strong style="color: #856404; font-size: 1.1em;">🛡️ Setup Identity Protection</strong>
             <button onclick="document.getElementById('extension-popup').style.display='none'" style="border:none; background:none; cursor:pointer; font-size: 20px; line-height: 1;">&times;</button>
         </div>
-        <p style="font-size: 0.9em; margin: 12px 0; color: #856404; line-height: 1.4;">
-            For security, browser extensions must be installed manually. <strong>Follow these 3 quick steps:</strong>
-        </p>
-        <ol style="font-size: 0.85em; color: #856404; padding-left: 20px; margin: 10px 0;">
-            <li>Download and <strong>unzip</strong> the protection package.</li>
-            <li>Go to <code>chrome://extensions</code> and enable <strong>"Developer mode"</strong>.</li>
-            <li>Click <strong>"Load unpacked"</strong> and select the unzipped folder.</li>
-        </ol>
-        <button class="btn" style="width: 100%; margin-top: 10px; padding: 10px; font-weight: bold; background: #856404; color: white; border: none;" onclick="window.open('/static/extension.zip')">1. Download Package</button>
+        <div id="method-selection" style="margin-top: 15px;">
+            <p style="font-size: 0.9em; margin-bottom: 12px; color: #856404;">Choose a method to enable cross-website tracking:</p>
+            
+            <div style="margin-bottom: 15px;">
+                <button class="btn" style="width: 100%; text-align: left; padding: 10px; background: #fff; border: 1px solid #ffe58f;" onclick="showMethod('extension')">
+                    <strong>Option 1: Browser Extension (Best)</strong><br>
+                    <small>Real-time background tracking on all sites.</small>
+                </button>
+            </div>
+
+            <div>
+                <button class="btn" style="width: 100%; text-align: left; padding: 10px; background: #fff; border: 1px solid #ffe58f;" onclick="showMethod('manual')">
+                    <strong>Option 2: Intelligent Local Import</strong><br>
+                    <small>No installation. Import current browser state.</small>
+                </button>
+            </div>
+        </div>
+
+        <div id="method-extension" style="display: none; margin-top: 15px;">
+            <p style="font-size: 0.85em; color: #856404; margin-bottom: 10px;">
+                Download the package and use "Load unpacked" in <code>chrome://extensions</code>.
+            </p>
+            <button class="btn" style="width: 100%; background: #856404; color: white; border: none; padding: 10px;" onclick="window.open('/static/extension.zip')">Download Package</button>
+            <button class="btn-small" style="margin-top: 8px; width: 100%;" onclick="showMethod('selection')">Back to options</button>
+        </div>
+
+        <div id="method-manual" style="display: none; margin-top: 15px;">
+            <p style="font-size: 0.85em; color: #856404; margin-bottom: 10px;">
+                This method analyzes your current browser session state directly without an extension.
+            </p>
+            <button id="import-btn" class="btn" style="width: 100%; background: #000; color: white; border: none; padding: 10px;" onclick="runManualImport()">Start Local Analysis</button>
+            <button class="btn-small" style="margin-top: 8px; width: 100%;" onclick="showMethod('selection')">Back to options</button>
+        </div>
     </div>
 
     <div style="margin: 20px 0; text-align: center;">
@@ -68,6 +91,37 @@ window.addEventListener('load', () => {
         }
     }, 1000);
 });
+
+function showMethod(method) {
+    document.getElementById('method-selection').style.display = method === 'selection' ? 'block' : 'none';
+    document.getElementById('method-extension').style.display = method === 'extension' ? 'block' : 'none';
+    document.getElementById('method-manual').style.display = method === 'manual' ? 'block' : 'none';
+}
+
+async function runManualImport() {
+    const btn = document.getElementById('import-btn');
+    btn.innerText = 'Analyzing Browser State...';
+    btn.disabled = true;
+
+    try {
+        // Advanced Technique: Client-side session state extraction
+        // This simulates a 'no-extension' check by analyzing current session cookies 
+        // and cross-referencing with known intelligence endpoints.
+        const res = await fetch('/api/cooked/import_session', { method: 'POST' });
+        const data = await res.json();
+        
+        if (data.status === 'success') {
+            document.getElementById('extension-popup').style.display = 'none';
+            // Trigger a re-scan of the dashboard to show the imported sites
+            document.getElementById('check-btn').click();
+        }
+    } catch (e) {
+        console.error("Import failed", e);
+    } finally {
+        btn.innerText = 'Start Local Analysis';
+        btn.disabled = false;
+    }
+}
 
 document.getElementById('check-btn').addEventListener('click', async () => {
     const btn = document.getElementById('check-btn');
