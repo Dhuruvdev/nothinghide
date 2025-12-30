@@ -66,7 +66,8 @@ class CookieCookedSystem:
 
     async def analyze_risk(self, request: Request, session_data: Dict) -> Dict:
         """
-        Performs multi-vector risk analysis including Geo-velocity and ASN reputation.
+        Performs multi-vector risk analysis including Geo-velocity, ASN reputation,
+        and device-bound session binding indicators.
         """
         current_ip = request.client.host if request.client else "127.0.0.1"
         current_fingerprint = self.get_client_fingerprint(request)
@@ -76,13 +77,13 @@ class CookieCookedSystem:
 
         # 1. Cryptographic Fingerprint Check
         if session_data.get("hashed_fingerprint") != current_fingerprint:
-            score += 45
+            score += 55  # Increased weight for device mismatch
             indicators.append("Device signature mismatch (potential session hijacking)")
 
         # 2. IP Reputation & Network Logic
         intel = await self.get_ip_intel(current_ip)
         if intel.get("reputation") == "malicious":
-            score += 50
+            score += 60
             indicators.append(f"High-risk network detected ({intel.get('asn')})")
         
         if session_data.get("last_ip") != current_ip:
@@ -90,19 +91,26 @@ class CookieCookedSystem:
                 old_net = ipaddress.ip_network(f"{session_data['last_ip']}/24", strict=False)
                 new_ip = ipaddress.ip_address(current_ip)
                 if new_ip not in old_net:
-                    score += 30
+                    score += 40 # Impossible travel / large network jump
                     indicators.append("Significant network location shift detected")
             except:
-                score += 15
+                score += 20
 
-        # 3. Behavioral Anomaly (Request Rate)
+        # 3. Behavioral Anomaly (Request Rate & Timing)
         last_request = session_data.get("last_request_time", 0)
         now = time.time()
         if last_request > 0:
             time_diff = now - last_request
-            if time_diff < 0.2: # High-speed automated activity
-                score += 25
-                indicators.append("Automated request pattern detected (Bot activity)")
+            if time_diff < 0.1: # Tighter threshold for automated tools
+                score += 35
+                indicators.append("Sub-second automated request pattern (Infostealer behavior)")
+
+        # 4. Browser Environment Integrity
+        # Detect Headless or modified environments
+        ua = request.headers.get("user-agent", "").lower()
+        if "headless" in ua or "selenium" in ua or "puppeteer" in ua:
+            score += 80
+            indicators.append("Automated browser environment detected")
 
         return {
             "score": min(100, score),

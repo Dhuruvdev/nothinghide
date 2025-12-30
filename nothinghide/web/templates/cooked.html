@@ -89,6 +89,12 @@ document.getElementById('check-btn').addEventListener('click', async () => {
                 <div style="font-size: 0.9em; color: #666; margin-top: 8px;">
                     📍 ${s.region} • 🕒 ${s.last_active}
                 </div>
+                ${s.indicators && s.indicators.length > 0 ? `
+                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed #eee;">
+                    <div style="font-size: 0.8em; font-weight: bold; color: #d32f2f; margin-bottom: 5px;">THREAT INDICATORS:</div>
+                    ${s.indicators.map(ind => `<div style="font-size: 0.85em; color: #666; margin-bottom: 2px;">• ${ind}</div>`).join('')}
+                </div>
+                ` : ''}
             `;
             sessionsList.appendChild(div);
         });
