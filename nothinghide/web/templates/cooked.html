@@ -32,20 +32,20 @@
     </div>
 
     <div id="results-area" style="display: none; margin-top: 30px;">
-        <div class="result-card" style="background: #ffffff; border: 1px solid #e0e0e0; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-            <h3 style="margin-top: 0; color: #333; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">Active Sessions</h3>
+        <div class="result-card" style="background: #ffffff; border: 1px solid #e0e0e0; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px;">
+            <h3 style="margin-top: 0; color: #333; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; font-size: 1.1em;">Active Sessions</h3>
             <div id="sessions-list"></div>
         </div>
 
-        <div class="result-card" style="margin-top: 20px; background: #ffffff; border: 1px solid #e0e0e0; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-            <h3 style="margin-top: 0; color: #333; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">Cross-Website Cookie Tracking</h3>
-            <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">Websites currently storing or using your session cookies:</p>
+        <div class="result-card" style="margin-top: 20px; background: #ffffff; border: 1px solid #e0e0e0; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px;">
+            <h3 style="margin-top: 0; color: #333; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; font-size: 1.1em;">Cross-Website Cookie Tracking</h3>
+            <p style="font-size: 0.85em; color: #666; margin-bottom: 15px;">Websites currently storing or using your session cookies:</p>
             <div id="tracked-sites-list"></div>
         </div>
         
-        <div class="result-card" style="margin-top: 20px; background: #ffffff; border: 1px solid #e0e0e0; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-            <h3 style="margin-top: 0; color: #333; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px;">Security Recommendations</h3>
-            <ul id="recommendations-list" style="text-align: left; display: inline-block; padding-left: 20px; margin: 0;"></ul>
+        <div class="result-card" style="margin-top: 20px; background: #ffffff; border: 1px solid #e0e0e0; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px;">
+            <h3 style="margin-top: 0; color: #333; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; font-size: 1.1em;">Security Recommendations</h3>
+            <ul id="recommendations-list" style="text-align: left; display: block; padding-left: 15px; margin: 0; list-style-type: none;"></ul>
         </div>
     </div>
 </div>
@@ -96,9 +96,9 @@ document.getElementById('check-btn').addEventListener('click', async () => {
             div.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)';
             
             div.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <strong style="font-size: 1.1em;">${s.device} ${s.is_current ? '<span style="background:#e3f2fd; color:#1976d2; padding:2px 8px; border-radius:12px; font-size:0.7em; margin-left:8px;">CURRENT</span>' : ''}</strong>
-                    <span style="font-weight:bold; color: ${s.risk_score > 40 ? '#d32f2f' : '#388e3c'}; background: ${s.risk_score > 40 ? '#ffebee' : '#e8f5e9'}; padding:4px 12px; border-radius:16px;">Risk: ${s.risk_score}/100</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                    <strong style="font-size: 1.1em; word-break: break-all; flex: 1;">${s.device} ${s.is_current ? '<span style="background:#e3f2fd; color:#1976d2; padding:2px 8px; border-radius:12px; font-size:0.7em; margin-left:8px; white-space: nowrap;">CURRENT</span>' : ''}</strong>
+                    <span style="font-weight:bold; color: ${s.risk_score > 40 ? '#d32f2f' : '#388e3c'}; background: ${s.risk_score > 40 ? '#ffebee' : '#e8f5e9'}; padding:4px 12px; border-radius:16px; white-space: nowrap;">Risk: ${s.risk_score}/100</span>
                 </div>
                 <div style="font-size: 0.9em; color: #666; margin-top: 8px;">
                     📍 ${s.region} • 🕒 ${s.last_active}
