@@ -76,9 +76,10 @@
                 </div>
                 
                 <div style="display: flex; align-items: center; gap: 15px; padding: 5px 0;">
-                    <div id="beat-circle" style="width: 50px; height: 50px; background: #fff; border: 2px solid #000; position: relative; cursor: pointer; transition: all 0.1s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 4px 4px 0px #000;">
+                    <div id="beat-circle" style="width: 50px; height: 50px; background: #fff; border: 2px solid #000; position: relative; cursor: pointer; transition: all 0.1s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 4px 4px 0px #000; overflow: hidden;">
                         <div id="beat-ring" style="position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px; border: 2px solid #000; opacity: 0; transition: opacity 0.1s;"></div>
-                        <div id="beat-loader" style="width: 20px; height: 20px; background: url('/static/loading.gif') no-repeat center; background-size: contain;"></div>
+                        <div id="beat-loader" style="width: 100%; height: 100%; background: #fff url('/static/loading.gif') no-repeat center; background-size: cover; position: absolute; top: 0; left: 0;"></div>
+                        <div style="width: 8px; height: 8px; background: #000; border-radius: 1px; position: relative; z-index: 2;"></div>
                     </div>
                     
                     <div style="flex-grow: 1;">
