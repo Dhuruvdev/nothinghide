@@ -1,4 +1,4 @@
-modules = ["python-3.11", "web", "bash", "nodejs-20"]
+modules = ["python-3.11", "web", "nodejs-20", "bash"]
 [agent]
 expertMode = true
 integrations = ["javascript_object_storage:2.0.0", "python_openrouter_ai_integrations:1.0.0"]
