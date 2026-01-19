@@ -60,13 +60,17 @@
 
     <script src="{{ url_for('static', path='/ncaptcha.js') }}"></script>
     <script>
-        window.onload = () => {
-            initBeatTap('captcha-container', (verified) => {
-                if (verified) {
-                    console.log('Captcha verified');
-                }
-            });
-        };
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof initBeatTap === 'function') {
+                initBeatTap('captcha-container', (verified) => {
+                    if (verified) {
+                        console.log('Captcha verified');
+                    }
+                });
+            } else {
+                console.error('initBeatTap not loaded');
+            }
+        });
     </script>
 </div>
 {% endblock %}
