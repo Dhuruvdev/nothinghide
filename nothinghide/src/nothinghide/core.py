@@ -1,21 +1,4 @@
-"""Core API for NothingHide library.
-
-This module provides the main public API for checking email and
-password exposure in data breaches.
-
-Example:
-    from nothinghide import check_email, check_password
-    
-    # Check email
-    result = check_email("user@example.com")
-    if result.breached:
-        print(f"Found in {result.breach_count} breaches!")
-    
-    # Check password
-    result = check_password("mypassword123")
-    if result.exposed:
-        print(f"Seen {result.count} times in breaches!")
-"""
+"""Core logic."""
 
 import asyncio
 from dataclasses import dataclass, field
@@ -30,16 +13,7 @@ from .exceptions import NothingHideError, ValidationError, NetworkError
 
 @dataclass
 class BreachResult:
-    """Result of an email breach check.
-    
-    Attributes:
-        email: The email address that was checked.
-        breached: Whether the email was found in breaches.
-        breach_count: Number of breaches found.
-        breaches: List of breach details.
-        source: API source used for the check.
-        checked_at: When the check was performed.
-    """
+    """Check result."""
     email: str
     breached: bool
     breach_count: int = 0
@@ -52,7 +26,6 @@ class BreachResult:
             self.checked_at = datetime.now()
     
     def to_dict(self) -> Dict[str, Any]:
-        """Convert result to dictionary."""
         return {
             "email": self.email,
             "breached": self.breached,
@@ -65,18 +38,10 @@ class BreachResult:
 
 @dataclass
 class PasswordResult:
-    """Result of a password exposure check.
-    
-    Attributes:
-        exposed: Whether the password was found in breaches.
-        count: Number of times the password appeared.
-        source: API source used for the check.
-        strength: Password strength assessment.
-        checked_at: When the check was performed.
-    """
+    """Password check result."""
     exposed: bool
     count: int = 0
-    source: str = "Have I Been Pwned"
+    source: str = "HIBP"
     strength: Optional[str] = None
     feedback: List[str] = field(default_factory=list)
     checked_at: Optional[datetime] = None
@@ -86,7 +51,6 @@ class PasswordResult:
             self.checked_at = datetime.now()
     
     def to_dict(self) -> Dict[str, Any]:
-        """Convert result to dictionary."""
         return {
             "exposed": self.exposed,
             "count": self.count,
@@ -99,15 +63,7 @@ class PasswordResult:
 
 @dataclass
 class ScanReport:
-    """Complete identity scan report.
-    
-    Attributes:
-        email_result: Email breach check result.
-        password_result: Password exposure result.
-        risk_level: Computed risk level.
-        recommendations: List of security recommendations.
-        scanned_at: When the scan was performed.
-    """
+    """Identity report."""
     email_result: BreachResult
     password_result: PasswordResult
     risk_level: str
@@ -119,7 +75,6 @@ class ScanReport:
             self.scanned_at = datetime.now()
     
     def to_dict(self) -> Dict[str, Any]:
-        """Convert report to dictionary."""
         return {
             "email_result": self.email_result.to_dict(),
             "password_result": self.password_result.to_dict(),
@@ -130,17 +85,7 @@ class ScanReport:
 
 
 def check_email(email: str, timeout: float = 15.0) -> BreachResult:
-    """Check if an email address appears in known data breaches.
-    
-    Uses the advanced multi-source intelligence agent for comprehensive detection.
-    
-    Args:
-        email: Email address to check.
-        timeout: Request timeout in seconds.
-        
-    Returns:
-        BreachResult with breach information.
-    """
+    """Check email."""
     from .agent import BreachIntelligenceAgent
     agent = BreachIntelligenceAgent()
     intel = agent.check_email_sync(email)
@@ -150,22 +95,12 @@ def check_email(email: str, timeout: float = 15.0) -> BreachResult:
         breached=intel.breached,
         breach_count=intel.breach_count,
         breaches=[b.to_dict() for b in intel.breaches],
-        source="Multi-Source Agent",
+        source="Public records",
     )
 
 
 def check_password(password: str, timeout: float = 15.0) -> PasswordResult:
-    """Check if a password has been exposed in known data breaches.
-    
-    Uses the enhanced fuzzy-matching password checker.
-    
-    Args:
-        password: Password to check.
-        timeout: Request timeout in seconds.
-        
-    Returns:
-        PasswordResult with exposure information.
-    """
+    """Check password."""
     from .password_checker import PasswordChecker
     checker = PasswordChecker(timeout=timeout)
     raw_result = checker.check(password)
@@ -173,7 +108,7 @@ def check_password(password: str, timeout: float = 15.0) -> PasswordResult:
     return PasswordResult(
         exposed=raw_result.get("exposed", False),
         count=raw_result.get("count", 0),
-        source="Enhanced Password Checker",
+        source="HIBP",
     )
 
 

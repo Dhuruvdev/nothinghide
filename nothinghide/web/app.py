@@ -1,7 +1,5 @@
-"""NothingHide Web Interface - FastAPI Application.
-
-A retro-styled web interface for checking email and password exposure
-using public breach databases.
+"""NothingHide Web Interface.
+A retro-styled interface for checking email and password exposure.
 """
 
 import os
@@ -19,7 +17,6 @@ from fastapi.templating import Jinja2Templates
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from nothinghide.core import check_email, check_password, BreachScanner
-from nothinghide.agent import BreachIntelligenceAgent
 from nothinghide.username_checker import UsernameChecker
 from nothinghide.exceptions import ValidationError, NetworkError
 
@@ -47,7 +44,7 @@ templates = Jinja2Templates(directory=BASE_DIR / "templates")
 import re
 
 def is_email(query: str) -> bool:
-    """Check if the query looks like an email address."""
+    """Basic email validation."""
     email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return bool(re.match(email_pattern, query.strip()))
 
@@ -63,7 +60,7 @@ async def home(request: Request):
 
 @app.post("/check", response_class=HTMLResponse)
 async def unified_check(request: Request, query: str = Form(...)):
-    """Unified check endpoint - detects if input is email or password and routes accordingly."""
+    """Main check endpoint."""
     query = query.strip()
     
     if is_email(query):
@@ -71,15 +68,13 @@ async def unified_check(request: Request, query: str = Form(...)):
         error = None
         
         try:
-            agent = BreachIntelligenceAgent()
-            result = await agent.check_email(query)
+            scanner = BreachScanner()
+            result = scanner.check_email(query)
             
             breaches = []
             if result.breaches:
                 for b in result.breaches:
-                    if hasattr(b, 'to_dict'):
-                        breaches.append(b.to_dict())
-                    elif isinstance(b, dict):
+                    if isinstance(b, dict):
                         breaches.append(b)
             
             result_data = {
@@ -87,9 +82,6 @@ async def unified_check(request: Request, query: str = Form(...)):
                 "breached": result.breached,
                 "breach_count": result.breach_count,
                 "breaches": breaches[:15],
-                "risk_score": getattr(result, 'risk_score', 0),
-                "sources_succeeded": getattr(result, 'sources_succeeded', []),
-                "sources_failed": getattr(result, 'sources_failed', []),
                 "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             }
         except ValidationError as e:
@@ -188,15 +180,13 @@ async def email_check(request: Request, email: str = Form(...)):
     error = None
     
     try:
-        agent = BreachIntelligenceAgent()
-        result = await agent.check_email(email)
+        scanner = BreachScanner()
+        result = scanner.check_email(email)
         
         breaches = []
         if result.breaches:
             for b in result.breaches:
-                if hasattr(b, 'to_dict'):
-                    breaches.append(b.to_dict())
-                elif isinstance(b, dict):
+                if isinstance(b, dict):
                     breaches.append(b)
         
         result_data = {

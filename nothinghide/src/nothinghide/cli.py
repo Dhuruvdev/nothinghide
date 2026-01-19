@@ -109,11 +109,11 @@ def version_callback(value: bool):
 
 
 def do_email_check() -> None:
-    """Perform email breach check interactively using advanced agent."""
+    """Check email for exposure."""
     import time
     from datetime import datetime
     
-    render_command_header(console, "Email Breach Check", "Multi-source intelligence scan")
+    render_command_header(console, "Email Breach Check", "Public database scan")
     
     console.print("  Enter email address:", style=WHITE)
     console.print("  >> ", style=WHITE, end="")
@@ -133,114 +133,50 @@ def do_email_check() -> None:
         console.print(f"  TARGET: {email_address}", style=f"bold {WHITE}")
         console.print()
         
-        sources = [
-            ("LeakCheck", "7B+ breach records"),
-            ("HackCheck", "Public breach database"), 
-            ("XposedOrNot", "Breach exposure API"),
-            ("XposedOrNot Analytics", "Detailed analytics"),
-            ("EmailRep", "Email reputation"),
-            ("DeXpose", "Exposure detection")
-        ]
-        
-        console.print("  INTELLIGENCE AGENT v1.0", style=f"bold {WHITE}")
-        console.print("  -----------------------", style=GRAY)
-        console.print()
-        console.print("  Initializing multi-source intelligence gathering...", style=GRAY)
-        console.print()
-        
-        for name, desc in sources:
-            console.print(f"  [+] {name:<25} {desc}", style=GRAY)
-            time.sleep(0.08)
-        
-        console.print()
-        console.print("  PARALLEL SCAN INITIATED", style=f"bold {WHITE}")
-        console.print("  -----------------------", style=GRAY)
+        console.print("  Initializing database scan...", style=GRAY)
         console.print()
         
         start_time = time.time()
-        agent = BreachIntelligenceAgent()
+        scanner = BreachScanner()
         
-        with console.status("  Querying all sources simultaneously...", spinner="dots"):
-            result = agent.check_email_sync(email_address)
+        with console.status("  Scanning public records...", spinner="dots"):
+            result = scanner.check_email(email_address)
         
         elapsed = time.time() - start_time
         
-        sources_queried = getattr(result, 'sources_queried', [])
-        sources_succeeded = getattr(result, 'sources_succeeded', [])
-        sources_failed = getattr(result, 'sources_failed', [])
-        risk_score = getattr(result, 'risk_score', 0.0)
-        avg_confidence = getattr(result, 'average_confidence', 0.0)
-        
-        console.print("  Source Status:", style=WHITE)
-        for source in sources_succeeded:
-            console.print(f"    [OK] {source}", style=WHITE)
-        for source in sources_failed:
-            console.print(f"    [--] {source}", style=GRAY)
-        
-        console.print()
         console.print(f"  Scan completed in {elapsed:.2f}s", style=GRAY)
-        console.print(f"  Sources responded: {len(sources_succeeded)}/{len(sources_queried)}", style=GRAY)
         console.print()
         
-        console.print("  THREAT INTELLIGENCE REPORT", style=f"bold {WHITE}")
-        console.print("  --------------------------", style=GRAY)
+        console.print("  EXPOSURE REPORT", style=f"bold {WHITE}")
+        console.print("  ---------------", style=GRAY)
         console.print()
         
         if result.breached:
-            if risk_score >= 70:
-                threat_level = "CRITICAL"
-            elif risk_score >= 50:
-                threat_level = "HIGH"
-            elif risk_score >= 30:
-                threat_level = "MEDIUM"
-            else:
-                threat_level = "LOW"
-            
-            console.print(f"  EXPOSURE STATUS: COMPROMISED", style=f"bold {WHITE}")
-            console.print(f"  THREAT LEVEL: {threat_level}", style=f"bold {WHITE}")
-            console.print(f"  RISK SCORE: {risk_score:.0f}/100", style=WHITE)
-            console.print(f"  CONFIDENCE: {avg_confidence:.0%}", style=GRAY)
+            console.print(f"  STATUS: COMPROMISED", style=f"bold {WHITE}")
             console.print(f"  BREACHES FOUND: {result.breach_count}", style=WHITE)
             console.print()
             
             if result.breaches:
-                console.print("  BREACH INTELLIGENCE", style=f"bold {WHITE}")
-                console.print("  -------------------", style=GRAY)
+                console.print("  BREACH DETAILS", style=f"bold {WHITE}")
+                console.print("  --------------", style=GRAY)
                 console.print()
                 
                 breach_dicts = []
                 for b in result.breaches:
-                    if hasattr(b, 'to_dict'):
-                        breach_dicts.append(b.to_dict())
-                    elif isinstance(b, dict):
+                    if isinstance(b, dict):
                         breach_dicts.append(b)
-                
-                current_year = datetime.now().year
                 
                 for i, breach in enumerate(breach_dicts[:15], 1):
                     name = breach.get('name', 'Unknown')
                     date = breach.get('date', 'Unknown')
-                    year = breach.get('year')
                     data = breach.get('data_classes', [])
-                    records = breach.get('records_exposed')
-                    confidence = breach.get('confidence', 0)
-                    sources_list = breach.get('sources', [])
                     
-                    is_recent = year and (current_year - year <= 2)
-                    severity = "[!]" if is_recent else "[*]"
-                    
-                    console.print(f"  {severity} {name}", style=f"bold {WHITE}")
+                    console.print(f"  [*] {name}", style=f"bold {WHITE}")
                     console.print(f"      Date: {date or 'Unknown'}", style=GRAY)
                     
                     if data:
                         data_str = ', '.join(str(d) for d in data[:5])
                         console.print(f"      Exposed Data: {data_str}", style=GRAY)
-                    
-                    if records:
-                        console.print(f"      Records: {records:,}", style=GRAY)
-                    
-                    if sources_list:
-                        console.print(f"      Verified by: {', '.join(sources_list)}", style=GRAY)
                     
                     console.print()
                 
@@ -248,57 +184,20 @@ def do_email_check() -> None:
                     console.print(f"  ... and {len(breach_dicts) - 15} additional breaches", style=GRAY)
                     console.print()
             
-            console.print("  THREAT INDICATORS", style=f"bold {WHITE}")
-            console.print("  -----------------", style=GRAY)
-            
-            breach_list = []
-            for b in result.breaches:
-                if hasattr(b, 'to_dict'):
-                    breach_list.append(b.to_dict())
-                elif isinstance(b, dict):
-                    breach_list.append(b)
-            
-            password_exposed = any(
-                'password' in str(b.get('data_classes', [])).lower()
-                for b in breach_list
-            )
-            
-            if password_exposed:
-                console.print("  [!!] PASSWORD DATA EXPOSED - IMMEDIATE ACTION REQUIRED", style=WHITE)
-            
-            if result.breach_count > 5:
-                console.print(f"  [!] HIGH EXPOSURE - Found in {result.breach_count} breaches", style=WHITE)
-            
-            now_year = datetime.now().year
-            recent_count = sum(1 for b in breach_list if b.get('year') and now_year - b.get('year', 0) <= 2)
-            if recent_count > 0:
-                console.print(f"  [!] RECENT ACTIVITY - {recent_count} breach(es) in last 2 years", style=WHITE)
-            
-            console.print()
             console.print("  RECOMMENDED ACTIONS", style=f"bold {WHITE}")
             console.print("  -------------------", style=GRAY)
-            console.print("  1. Change all passwords associated with this email", style=WHITE)
-            console.print("  2. Enable two-factor authentication (2FA)", style=WHITE)
-            console.print("  3. Use a password manager for unique passwords", style=WHITE)
-            console.print("  4. Monitor accounts for suspicious activity", style=WHITE)
-            if password_exposed:
-                console.print("  5. CHECK ALL ACCOUNTS - Password was directly exposed", style=WHITE)
-            if risk_score >= 50:
-                console.print("  6. Consider credit monitoring services", style=WHITE)
+            console.print("  1. Change all passwords for this email", style=WHITE)
+            console.print("  2. Enable 2FA where possible", style=WHITE)
         else:
-            console.print("  EXPOSURE STATUS: CLEAR", style=f"bold {WHITE}")
-            console.print("  THREAT LEVEL: NONE", style=WHITE)
-            console.print("  RISK SCORE: 0/100", style=WHITE)
+            console.print("  STATUS: CLEAR", style=f"bold {WHITE}")
             console.print()
-            console.print("  No breach records found in queried databases.", style=GRAY)
-            console.print("  Continue practicing good security hygiene.", style=GRAY)
+            console.print("  No records found.", style=GRAY)
         
         console.print()
         console.print("  SCAN METADATA", style=f"bold {WHITE}")
         console.print("  -------------", style=GRAY)
         console.print(f"  Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", style=GRAY)
-        console.print(f"  Sources: {', '.join(sources_succeeded) if sources_succeeded else 'None'}", style=GRAY)
-        console.print(f"  Protocol: Multi-source parallel intelligence", style=GRAY)
+        console.print(f"  Source: Public breach databases", style=GRAY)
         console.print()
         
     except ValidationError as e:
@@ -339,18 +238,17 @@ def do_password_check() -> None:
     
     try:
         console.print()
-        console.print("  PASSWORD INTELLIGENCE ANALYSIS", style=f"bold {WHITE}")
-        console.print("  ------------------------------", style=GRAY)
+        console.print("  PASSWORD ANALYSIS", style=f"bold {WHITE}")
+        console.print("  -----------------", style=GRAY)
         console.print()
         
         sha1_hash = hashlib.sha1(password.encode()).hexdigest().upper()
         prefix = sha1_hash[:5]
         
-        console.print("  [+] Computing SHA-1 hash...", style=GRAY)
+        console.print("  [+] Computing hash prefix...", style=GRAY)
         time.sleep(0.15)
-        console.print(f"      Hash prefix: {prefix}*****", style=GRAY)
         
-        console.print("  [+] Analyzing password strength...", style=GRAY)
+        console.print("  [+] Analyzing strength...", style=GRAY)
         time.sleep(0.15)
         
         strength_score = 0
