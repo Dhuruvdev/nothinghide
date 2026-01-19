@@ -99,18 +99,23 @@
             ncRipple.style.transform = 'translateX(0)';
 
             try {
-                // Polling for security engine with a longer timeout
-                let attempts = 0;
-                while (typeof window.getNCaptchaPayload !== 'function' && attempts < 30) {
-                    await new Promise(r => setTimeout(r, 100));
-                    attempts++;
+                // Ensure the security script is truly ready
+                let payload;
+                try {
+                    payload = window.getNCaptchaPayload();
+                } catch (e) {
+                    console.warn('NCaptcha: Payload collector not ready, polling...');
+                    let attempts = 0;
+                    while (typeof window.getNCaptchaPayload !== 'function' && attempts < 30) {
+                        await new Promise(r => setTimeout(r, 100));
+                        attempts++;
+                    }
+                    if (typeof window.getNCaptchaPayload !== 'function') {
+                        throw new Error('Security engine failed to initialize');
+                    }
+                    payload = window.getNCaptchaPayload();
                 }
 
-                if (typeof window.getNCaptchaPayload !== 'function') {
-                    throw new Error('Security engine failed to initialize');
-                }
-
-                const payload = window.getNCaptchaPayload();
                 const response = await fetch('/security/check-risk', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -128,27 +133,29 @@
                     ncChallenge.style.display = 'block';
                     ncLabel.innerText = 'CHALLENGE REQ';
                     
-                    // Direct initialization without heavy polling if possible
-                    if (typeof window.initBeatTap === 'function') {
-                        window.initBeatTap('beat-tap-target', (success) => {
-                            if (success) completeVerification(data);
-                        });
-                    } else {
-                        // Fallback polling
-                        let bAttempts = 0;
-                        const bInterval = setInterval(() => {
-                            if (typeof window.initBeatTap === 'function') {
-                                clearInterval(bInterval);
-                                window.initBeatTap('beat-tap-target', (success) => {
-                                    if (success) completeVerification(data);
-                                });
-                            } else if (bAttempts > 20) {
-                                clearInterval(bInterval);
-                                resetWidget('Challenge engine failed to initialize');
-                            }
-                            bAttempts++;
-                        }, 100);
-                    }
+                    // Force a re-init check for the challenge engine
+                    const setupChallenge = () => {
+                        if (typeof window.initBeatTap === 'function') {
+                            window.initBeatTap('beat-tap-target', (success) => {
+                                if (success) completeVerification(data);
+                            });
+                        } else {
+                            let bAttempts = 0;
+                            const bInterval = setInterval(() => {
+                                if (typeof window.initBeatTap === 'function') {
+                                    clearInterval(bInterval);
+                                    window.initBeatTap('beat-tap-target', (success) => {
+                                        if (success) completeVerification(data);
+                                    });
+                                } else if (bAttempts > 30) {
+                                    clearInterval(bInterval);
+                                    resetWidget('Challenge engine failed to initialize');
+                                }
+                                bAttempts++;
+                            }, 100);
+                        }
+                    };
+                    setupChallenge();
                 }
             } catch (err) {
                 resetWidget(err.message);

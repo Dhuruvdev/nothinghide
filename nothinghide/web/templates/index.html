@@ -61,25 +61,29 @@
     <script src="{{ url_for('static', path='/ncaptcha.js') }}?v={{ range(1, 99999) | random }}"></script>
     <script>
         (function() {
+            let initCount = 0;
             function init() {
-                if (typeof window.initBeatTap === 'function') {
-                    console.log('NCaptcha: initializing...');
+                const container = document.getElementById('captcha-container');
+                if (!container) return;
+
+                if (typeof window.initBeatTap === 'function' && typeof window.getNCaptchaPayload === 'function') {
+                    console.log('NCaptcha: Engine confirmed. Initializing widget...');
                     window.initBeatTap('captcha-container', (verified) => {
                         if (verified) {
-                            console.log('NCaptcha: verified');
+                            console.log('NCaptcha: Identity Verified.');
                         }
                     });
                 } else {
-                    console.warn('NCaptcha: initBeatTap not found, retrying...');
-                    setTimeout(init, 300);
+                    initCount++;
+                    if (initCount < 50) {
+                        setTimeout(init, 100);
+                    } else {
+                        console.error('NCaptcha: Critical failure - engine timeout.');
+                    }
                 }
             }
-            // Ensure the container is ready and script is loaded
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', init);
-            } else {
-                init();
-            }
+            // Start polling as soon as script tag is parsed
+            init();
         })();
     </script>
 </div>
