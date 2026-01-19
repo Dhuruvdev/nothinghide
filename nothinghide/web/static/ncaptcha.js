@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('paste', () => securityData.paste_detected = true);
     window.addEventListener('blur', () => securityData.focus_lost_count++);
 
-    // Fingerprinting
+    // Advanced Fingerprinting
     const getFingerprint = () => {
         const canvas = document.createElement('canvas');
         const gl = canvas.getContext('webgl');
@@ -23,7 +23,11 @@ document.addEventListener('DOMContentLoaded', () => {
             screen: `${window.screen.width}x${window.screen.height}`,
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             user_agent: navigator.userAgent,
-            webgl_renderer: debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'none'
+            webdriver: navigator.webdriver || false,
+            incognito: !window.indexedDB,
+            webgl_renderer: debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'none',
+            languages: navigator.languages,
+            platform: navigator.platform
         };
     };
 

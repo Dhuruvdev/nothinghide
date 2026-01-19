@@ -37,8 +37,8 @@ class ChallengePayload(SecurityPayload):
 
 @app.post("/security/check-risk")
 async def check_risk(payload: SecurityPayload):
-    risk = NCaptcha.calculate_risk(payload.biometrics, payload.fingerprint)
-    return {"risk": risk}
+    analysis = NCaptcha.calculate_risk(payload.biometrics, payload.fingerprint)
+    return analysis
 
 @app.post("/security/verify-challenge")
 async def verify_challenge(payload: ChallengePayload):

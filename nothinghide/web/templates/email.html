@@ -192,11 +192,6 @@
     <p class="tagline">Email Breach Check - Multi-source intelligence scan</p>
     
     <form id="email-form">
-        <div class="honeypot">
-            <input type="text" name="extra_info" tabindex="-1" autocomplete="off">
-            <button type="button" class="btn">Verify</button>
-        </div>
-        <div id="captcha-container"></div>
         <div class="search-box">
             <input type="email" name="email" id="email-input" placeholder="Enter email address..." required>
         </div>
@@ -238,36 +233,7 @@ document.getElementById('email-form').addEventListener('submit', async function(
     const resultsSection = document.getElementById('results-section');
     const submitBtn = document.getElementById('submit-btn');
     
-    // Risk-based security check
-    const securityPayload = window.getNCaptchaPayload();
-    const riskResponse = await fetch('/security/check-risk', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(securityPayload)
-    });
-    const riskData = await riskResponse.json();
-
-    if (riskData.risk === 'HIGH' || riskData.risk === 'MEDIUM') {
-        return new Promise((resolve) => {
-            initBeatTap('captcha-container', async (success) => {
-                if (success) {
-                    const challengeResponse = await fetch('/security/verify-challenge', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ ...securityPayload, challenge: 'beat-tap' })
-                    });
-                    const challengeData = await challengeResponse.json();
-                    if (challengeData.token) {
-                        window.nCaptchaToken = challengeData.token;
-                        document.getElementById('captcha-container').innerHTML = '';
-                        proceedWithEmailCheck();
-                    }
-                }
-            });
-        });
-    } else {
-        proceedWithEmailCheck();
-    }
+    proceedWithEmailCheck();
 
     async function proceedWithEmailCheck() {
         loadingSection.style.display = 'block';
@@ -285,9 +251,6 @@ document.getElementById('email-form').addEventListener('submit', async function(
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Accept': 'application/json'
             };
-            if (window.nCaptchaToken) {
-                headers['X-NCaptcha-Token'] = window.nCaptchaToken;
-            }
 
             const response = await fetch('/email', {
                 method: 'POST',

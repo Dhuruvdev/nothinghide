@@ -40,27 +40,48 @@ class NCaptcha:
             return None
 
     @staticmethod
-    def calculate_risk(biometrics: Dict[str, Any], fingerprint: Dict[str, Any]) -> str:
+    def calculate_risk(biometrics: Dict[str, Any], fingerprint: Dict[str, Any]) -> Dict[str, Any]:
         score = 0
+        signals = []
         
-        # 1. Behavior checks
-        if biometrics.get("mouse_moves", 0) < 5: score += 20
-        if biometrics.get("scroll_events", 0) < 2: score += 10
-        if biometrics.get("paste_detected", False): score += 30
-        if biometrics.get("hesitation_time", 0) < 0.5: score += 15
-        if biometrics.get("focus_lost_count", 0) > 3: score += 20
+        # 1. Advanced Timing Analysis
+        hesitation = biometrics.get("hesitation_time", 0)
+        if hesitation < 0.3: 
+            score += 25
+            signals.append("impossible_timing")
+            
+        # 2. Behavioral Velocity & Jitter
+        mouse_moves = biometrics.get("mouse_moves", 0)
+        if mouse_moves > 0 and mouse_moves < 10:
+            score += 15
+            signals.append("low_entropy_movement")
+            
+        # 3. Environment Integrity
+        ua = fingerprint.get("user_agent", "").lower()
+        if any(bot in ua for bot in ["headless", "selenium", "puppeteer", "playwright"]):
+            score += 80
+            signals.append("automation_framework_detected")
+            
+        if fingerprint.get("webdriver", False):
+            score += 70
+            signals.append("webdriver_active")
+
+        # 4. Consistency Checks
+        if fingerprint.get("timezone_mismatch", False):
+            score += 30
+            signals.append("network_location_inconsistency")
+
+        # Result mapping
+        risk_level = "LOW"
+        if score >= 65: risk_level = "HIGH"
+        elif score >= 35: risk_level = "MEDIUM"
         
-        # 2. Fingerprint checks
-        if fingerprint.get("timezone_mismatch", False): score += 25
-        if "headless" in fingerprint.get("user_agent", "").lower(): score += 60
-        if not fingerprint.get("webgl_renderer") or fingerprint.get("webgl_renderer") == "none": score += 25
-        
-        # 3. Security Org advanced checks
-        if fingerprint.get("incognito", False): score += 15
-        
-        if score >= 60: return "HIGH"
-        if score >= 35: return "MEDIUM"
-        return "LOW"
+        return {
+            "risk": risk_level,
+            "score": score,
+            "signals": signals,
+            "ts": time.time()
+        }
 
 class SecurityMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
