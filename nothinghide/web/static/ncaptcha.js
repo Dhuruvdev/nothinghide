@@ -136,11 +136,13 @@
             if (taps.length === 3) {
                 clearInterval(flashInterval);
                 const avgDist = taps.reduce((a, b) => a + b) / 3;
-                if (avgDist < 400) {
+                if (avgDist < 450) {
                     status.innerText = "IDENTITY VERIFIED";
                     status.style.color = "#000";
                     circle.style.borderColor = "#000";
-                    onComplete(true);
+                    setTimeout(() => {
+                        onComplete(true);
+                    }, 500);
                 } else {
                     status.innerText = "SYNC FAILED. REBOOTING...";
                     status.style.color = "#ff0000";

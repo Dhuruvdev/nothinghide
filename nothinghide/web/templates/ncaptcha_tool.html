@@ -128,19 +128,26 @@
                     ncChallenge.style.display = 'block';
                     ncLabel.innerText = 'CHALLENGE REQ';
                     
-                    // Poll for initBeatTap as well
-                    let bAttempts = 0;
-                    while (typeof window.initBeatTap !== 'function' && bAttempts < 20) {
-                        await new Promise(r => setTimeout(r, 100));
-                        bAttempts++;
-                    }
-
+                    // Direct initialization without heavy polling if possible
                     if (typeof window.initBeatTap === 'function') {
                         window.initBeatTap('beat-tap-target', (success) => {
                             if (success) completeVerification(data);
                         });
                     } else {
-                        throw new Error('Challenge engine failed to initialize');
+                        // Fallback polling
+                        let bAttempts = 0;
+                        const bInterval = setInterval(() => {
+                            if (typeof window.initBeatTap === 'function') {
+                                clearInterval(bInterval);
+                                window.initBeatTap('beat-tap-target', (success) => {
+                                    if (success) completeVerification(data);
+                                });
+                            } else if (bAttempts > 20) {
+                                clearInterval(bInterval);
+                                resetWidget('Challenge engine failed to initialize');
+                            }
+                            bAttempts++;
+                        }, 100);
                     }
                 }
             } catch (err) {
@@ -151,6 +158,11 @@
         async function completeVerification(analysis) {
             try {
                 const payload = window.getNCaptchaPayload();
+                
+                // Show loading state in results while syncing
+                tokenDisplay.style.display = 'block';
+                analysisContent.innerHTML = '<div style="padding: 10px; font-weight: bold;">[ SYNCING WITH SECURITY ORG... ]</div>';
+                
                 const response = await fetch('/security/verify-challenge', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -167,22 +179,37 @@
                 ncBox.style.cursor = 'default';
                 
                 tokenVal.innerText = data.token;
-                tokenDisplay.style.display = 'block';
                 
                 // Show analysis
-                let signalsHtml = '<ul style="margin:0; padding-left:15px; color:#555;">';
+                let signalsHtml = '<div style="font-family: \'Space Mono\', monospace; border-top: 2px solid #000; padding-top: 15px; margin-top: 10px;">';
+                signalsHtml += `<div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; background: #000; color: #fff; padding: 4px 8px;"><span>SECURITY STATUS</span><span>${analysis.risk || 'VERIFIED'}</span></div>`;
+                
                 if (analysis.signals && analysis.signals.length > 0) {
                     analysis.signals.forEach(s => {
-                        signalsHtml += `<li>Signal detected: <strong>${s.replace(/_/g, ' ')}</strong></li>`;
+                        signalsHtml += `<div style="font-size: 11px; margin-bottom: 4px;">• SIGNAL: <span style="font-weight: bold;">${s.toUpperCase().replace(/_/g, ' ')}</span></div>`;
                     });
                 } else {
-                    signalsHtml += '<li>Human behavioral signature confirmed.</li>';
+                    signalsHtml += '<div style="font-size: 11px; margin-bottom: 4px;">• BEHAVIORAL SIGNATURE: <span style="font-weight: bold;">CLEAN</span></div>';
                 }
-                signalsHtml += `<li>Risk Score: <strong>${analysis.score}/100</strong></li>`;
-                signalsHtml += '</ul>';
+                
+                signalsHtml += `<div style="font-size: 11px; margin-bottom: 4px;">• RISK SCORE: <span style="font-weight: bold;">${analysis.score || 0}/100</span></div>`;
+                signalsHtml += `<div style="font-size: 11px; margin-bottom: 4px;">• CONFIDENCE: <span style="font-weight: bold;">${(analysis.confidence * 100 || 98).toFixed(1)}%</span></div>`;
+                
+                if (analysis.ai_analysis) {
+                    signalsHtml += `<div style="margin-top: 15px; padding: 10px; border: 1px dashed #000; font-size: 11px; background: #f9f9f9;">${analysis.ai_analysis}</div>`;
+                }
+                
+                signalsHtml += '</div>';
                 analysisContent.innerHTML = signalsHtml;
 
                 isProcessing = false;
+                
+                // Scroll to results
+                window.scrollTo({
+                    top: tokenDisplay.offsetTop - 50,
+                    behavior: 'smooth'
+                });
+
             } catch (err) {
                 resetWidget(err.message);
             }
