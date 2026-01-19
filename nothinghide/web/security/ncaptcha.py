@@ -3,9 +3,12 @@ import json
 import hashlib
 import hmac
 import os
+import logging
 from typing import Dict, Any, Optional
 from fastapi import Request, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
+
+logger = logging.getLogger(__name__)
 
 SECRET_KEY = os.getenv("SECURITY_SECRET_KEY", "nothinghide-super-secret-key-1337")
 
