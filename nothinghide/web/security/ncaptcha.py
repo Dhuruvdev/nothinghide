@@ -44,45 +44,42 @@ class NCaptcha:
 
     @staticmethod
     def calculate_risk(biometrics: Dict[str, Any], fingerprint: Dict[str, Any]) -> Dict[str, Any]:
-        score = 0
-        signals = []
+        from .ai_risk import analyze_risk_with_ai
         
-        # 1. Advanced Timing Analysis
+        # Combined analysis: Heuristics + Nvidia AI Model
+        ai_result = analyze_risk_with_ai(biometrics, fingerprint)
+        
+        score = ai_result.get("score", 0)
+        signals = [ai_result.get("reasoning", "AI verification")]
+        
+        # Layer 2: Hard-coded heuristics for immediate detection
         hesitation = biometrics.get("hesitation_time", 0)
         if hesitation < 0.3: 
-            score += 25
+            score = max(score, 75)
             signals.append("impossible_timing")
             
-        # 2. Behavioral Velocity & Jitter
-        mouse_moves = biometrics.get("mouse_moves", 0)
-        if mouse_moves > 0 and mouse_moves < 10:
-            score += 15
-            signals.append("low_entropy_movement")
-            
-        # 3. Environment Integrity
         ua = fingerprint.get("user_agent", "").lower()
         if any(bot in ua for bot in ["headless", "selenium", "puppeteer", "playwright"]):
-            score += 80
+            score = 100
             signals.append("automation_framework_detected")
             
         if fingerprint.get("webdriver", False):
-            score += 70
+            score = max(score, 70)
             signals.append("webdriver_active")
 
-        # 4. Consistency Checks
         if fingerprint.get("timezone_mismatch", False):
-            score += 30
+            score = max(score, 30)
             signals.append("network_location_inconsistency")
 
-        # Result mapping
-        risk_level = "LOW"
-        if score >= 65: risk_level = "HIGH"
-        elif score >= 35: risk_level = "MEDIUM"
+        risk_level = ai_result.get("risk", "LOW")
+        if score >= 80: risk_level = "HIGH"
+        elif score >= 50: risk_level = "MEDIUM"
         
         return {
             "risk": risk_level,
             "score": score,
             "signals": signals,
+            "model": "nvidia/nemotron-70b",
             "ts": time.time()
         }
 
