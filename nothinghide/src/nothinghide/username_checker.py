@@ -484,10 +484,64 @@ class UsernameChecker:
         username: str,
         accounts_found: int,
         categories: Dict[str, int],
-        username_analysis: Dict[str, Any]
+        username_analysis: Dict[str, Any],
+        platforms: List[PlatformResult] = None
     ) -> IdentityRisk:
-        """Calculate identity exposure risk."""
+        """Calculate identity exposure risk using advanced 2026 intelligence chain."""
         score = 0
+        factors = []
+        recommendations = []
+        
+        # Collection Layer Analysis
+        if accounts_found > 15:
+            score += 40
+            factors.append("Massive digital footprint (>15 accounts found)")
+        elif accounts_found > 5:
+            score += 20
+            factors.append("Moderate digital footprint")
+            
+        # Category Correlation (Collection -> Analysis)
+        if categories.get("Financial", 0) > 0:
+            score += 30
+            factors.append("Exposure in Financial platforms - High targeting risk")
+        if categories.get("Professional", 0) > 0:
+            score += 15
+            factors.append("Professional profile linkage detected")
+            
+        # Analysis Layer (Pattern Recognition)
+        if username_analysis.get("patterns"):
+            for pattern in username_analysis["patterns"]:
+                if "real_name" in pattern:
+                    score += 25
+                    factors.append("PII Leak: Username likely based on legal identity")
+                if "birth_year" in pattern:
+                    score += 20
+                    factors.append("PII Leak: Possible birth year/age exposure")
+                    
+        # Knowledge Extraction Layer (Cross-Platform Linkage)
+        linkage_points = 0
+        if platforms:
+            avatars = [p.profile.avatar_url for p in platforms if p.profile and p.profile.avatar_url]
+            if len(set(avatars)) < len(avatars) and len(avatars) > 1:
+                score += 15
+                factors.append("Identity Convergence: Identical avatars used across platforms")
+                linkage_points += 1
+                
+        # Risk Extraction
+        level = "LOW"
+        if score >= 80:
+            level = "CRITICAL"
+            recommendations.append("Immediate: De-link professional and financial accounts")
+            recommendations.append("Use non-PII based aliases for social media")
+        elif score >= 50:
+            level = "HIGH"
+            recommendations.append("High risk of de-anonymization")
+            recommendations.append("Enable 2FA on all identified accounts")
+        elif score >= 30:
+            level = "MODERATE"
+            recommendations.append("Monitor account activity for targeted phishing")
+            
+        return IdentityRisk(level=level, score=min(100, score), factors=factors, recommendations=recommendations)
         factors = []
         recommendations = []
         

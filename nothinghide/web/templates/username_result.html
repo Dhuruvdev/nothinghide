@@ -15,6 +15,56 @@
     </div>
     {% elif result %}
     
+    <div class="result-box" style="border: 2px solid #000; padding: 0; overflow: hidden; background: #fff; box-shadow: 4px 4px 0 #000; margin-bottom: 30px;">
+        <div style="background: #000; color: #fff; padding: 10px 15px; font-weight: bold; text-transform: uppercase; font-size: 12px; display: flex; justify-content: space-between;">
+            <span>Intelligence Chain Graph</span>
+            <span>OSINT v2026.1</span>
+        </div>
+        <div style="padding: 20px; display: flex; flex-direction: column; gap: 20px; font-family: 'Space Mono', monospace;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #ccc; padding-bottom: 15px;">
+                <div style="text-align: center; flex: 1;">
+                    <div style="font-size: 10px; color: #666;">COLLECTION</div>
+                    <div style="font-size: 20px; font-weight: bold;">{{ result.total_platforms_checked }}</div>
+                    <div style="font-size: 9px;">SOURCES</div>
+                </div>
+                <div style="font-size: 20px;">➔</div>
+                <div style="text-align: center; flex: 1;">
+                    <div style="font-size: 10px; color: #666;">ANALYSIS</div>
+                    <div style="font-size: 20px; font-weight: bold;">{{ result.accounts_found }}</div>
+                    <div style="font-size: 9px;">HITS</div>
+                </div>
+                <div style="font-size: 20px;">➔</div>
+                <div style="text-align: center; flex: 1;">
+                    <div style="font-size: 10px; color: #666;">EXTRACTION</div>
+                    <div style="font-size: 20px; font-weight: bold;">{{ result.identity_risk.level }}</div>
+                    <div style="font-size: 9px;">RISK</div>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div style="border: 1px solid #000; padding: 10px;">
+                    <div style="font-size: 10px; font-weight: bold; border-bottom: 1px solid #000; margin-bottom: 8px;">BEHAVIORAL SIGNALS</div>
+                    {% for cat, count in result.categories.items() %}
+                    <div style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 3px;">
+                        <span>{{ cat.upper() }}</span>
+                        <span>{{ count }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div style="border: 1px solid #000; padding: 10px;">
+                    <div style="font-size: 10px; font-weight: bold; border-bottom: 1px solid #000; margin-bottom: 8px;">PII LEAKAGE</div>
+                    {% if result.identity_risk.factors %}
+                        {% for factor in result.identity_risk.factors[:4] %}
+                        <div style="font-size: 9px; margin-bottom: 3px; color: #cc0000;">• {{ factor.upper() }}</div>
+                        {% endfor %}
+                    {% else %}
+                        <div style="font-size: 9px; color: #666;">NO SIGNIFICANT LEAKS</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="result-box">
         <h2>Scan Summary: {{ result.username }}</h2>
         
