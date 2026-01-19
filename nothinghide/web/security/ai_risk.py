@@ -33,17 +33,33 @@ def analyze_risk_with_ai(biometrics: dict, fingerprint: dict) -> dict:
         
     model = "nvidia/llama-3.1-nemotron-70b-instruct"
     
-    prompt = f"""
-    Analyze the following browser security signals and determine the risk level (LOW, MEDIUM, HIGH).
+    # Advanced 2026 Detection Heuristics
+    entropy = biometrics.get("entropy", {})
+    variance = entropy.get("velocity_variance", 0)
     
-    Biometrics: {biometrics}
-    Fingerprint: {fingerprint}
+    prompt = f"""
+    Analyze the following 2026-standard security signals for bot-like behavioral patterns.
+    
+    Biometrics Data:
+    - Mouse Velocity Variance (Entropy): {variance}
+    - Total Mouse Movements: {biometrics.get("mouse_moves")}
+    - Teleportation Detected: {biometrics.get("teleport_detected")}
+    - Reaction Time: {biometrics.get("hesitation_time")}s
+    
+    Fingerprint Data:
+    - Webdriver Flag: {fingerprint.get("webdriver")}
+    - Hardware Concurrency: {fingerprint.get("hardware_concurrency")}
+    - Platform: {fingerprint.get("platform")}
+    
+    Instruction: 
+    Evaluate if this is an automated agent or a human user. 
+    Low entropy (< 1.5) + high movements + webdriver true = HIGH risk.
     
     Respond in JSON format with:
     {{
         "risk": "LOW|MEDIUM|HIGH",
         "score": 0-100,
-        "reasoning": "brief explanation"
+        "reasoning": "brief explaination"
     }}
     """
     
@@ -54,7 +70,19 @@ def analyze_risk_with_ai(biometrics: dict, fingerprint: dict) -> dict:
             response_format={"type": "json_object"}
         )
         import json
-        return json.loads(response.choices[0].message.content)
+        result = json.loads(response.choices[0].message.content)
+        
+        # 2026 Semantic Hybrid Analysis: 
+        # Combine AI reasoning with entropy verification
+        entropy = biometrics.get("entropy", {})
+        variance = entropy.get("velocity_variance", 0)
+        
+        if variance < 1.0 and result.get("risk") == "LOW":
+             # Downgrade risk if AI is unsure but entropy is unnaturally low
+             result["risk"] = "MEDIUM"
+             result["reasoning"] += " (Low behavioral entropy detected)"
+             
+        return result
     except Exception as e:
         # Fallback if AI fails
         return {"risk": "LOW", "score": 0, "reasoning": "AI Analysis Unavailable"}

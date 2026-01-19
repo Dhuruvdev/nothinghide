@@ -8,24 +8,32 @@
         start_time: Date.now(),
         focus_lost_count: 0,
         teleport_detected: false,
-        clicks: 0
+        clicks: 0,
+        entropy: {
+            jitter: [],
+            velocity_variance: 0
+        }
     };
 
     let lastX, lastY, lastTime;
 
     document.addEventListener('mousemove', (e) => {
         securityData.mouse_moves++;
+        const now = Date.now();
         if (lastX !== undefined) {
             const dx = e.clientX - lastX;
             const dy = e.clientY - lastY;
-            const dt = Date.now() - lastTime || 1;
-            const speed = Math.sqrt(dx*dx + dy*dy) / dt;
-            // Human speed limit check
-            if (speed > 15) securityData.teleport_detected = true;
+            const dt = now - lastTime || 1;
+            const velocity = Math.sqrt(dx*dx + dy*dy) / dt;
+            
+            securityData.entropy.jitter.push(velocity);
+            if (securityData.entropy.jitter.length > 50) securityData.entropy.jitter.shift();
+            
+            if (velocity > 25) securityData.teleport_detected = true;
         }
         lastX = e.clientX;
         lastY = e.clientY;
-        lastTime = Date.now();
+        lastTime = now;
     });
 
     document.addEventListener('scroll', () => securityData.scroll_events++);
@@ -37,6 +45,11 @@
     window.getNCaptchaPayload = () => {
         securityData.hesitation_time = (Date.now() - securityData.start_time) / 1000;
         
+        if (securityData.entropy.jitter.length > 10) {
+            const mean = securityData.entropy.jitter.reduce((a, b) => a + b) / securityData.entropy.jitter.length;
+            securityData.entropy.velocity_variance = securityData.entropy.jitter.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / securityData.entropy.jitter.length;
+        }
+
         const canvas = document.createElement('canvas');
         const gl = canvas.getContext('webgl');
         const debugInfo = gl ? gl.getExtension('WEBGL_debug_renderer_info') : null;
@@ -47,12 +60,14 @@
                 screen: `${window.screen.width}x${window.screen.height}`,
                 timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                 user_agent: navigator.userAgent,
-                webdriver: navigator.webdriver || false,
+                webdriver: navigator.webdriver || (navigator.languages === undefined) || !!window.cdc_adoQtmx08zj3jaxu_Array,
                 incognito: !window.indexedDB,
                 webgl_renderer: debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'none',
                 platform: navigator.platform,
                 memory: navigator.deviceMemory || 'unknown',
-                languages: navigator.languages
+                hardware_concurrency: navigator.hardwareConcurrency || 'unknown',
+                languages: navigator.languages,
+                touch_support: ('ontouchstart' in window) || (navigator.maxTouchPoints > 0)
             }
         };
     };
