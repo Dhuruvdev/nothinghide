@@ -42,8 +42,13 @@ async def check_risk(payload: SecurityPayload):
 
 @app.post("/security/verify-challenge")
 async def verify_challenge(payload: ChallengePayload):
+    # Standard verified token
     token = NCaptcha.generate_token({"risk": "LOW", "verified": True})
     return {"token": token}
+
+@app.get("/ncaptcha", response_class=HTMLResponse)
+async def ncaptcha_page(request: Request):
+    return templates.TemplateResponse("ncaptcha_tool.html", {"request": request})
 
 app.middleware("http")(cookie_cooked_middleware)
 app.include_router(protection_router)

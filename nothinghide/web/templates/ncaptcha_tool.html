@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}NCaptcha - Advanced Behavioral Verification{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="logo">
+        <a href="/"><img src="{{ url_for('static', path='/logo-title.png') }}" alt="NothingHide" class="logo-img"></a>
+    </div>
+    
+    <div class="org-banner" style="background: #000; color: #fff; padding: 10px; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px;">
+        Next-Gen Bot Protection | NCaptcha
+    </div>
+
+    <h1>NCaptcha Widget</h1>
+    <p class="tagline">Risk-based behavioral verification system.</p>
+
+    <div class="result-box" style="max-width: 400px; margin: 20px auto;">
+        <div id="ncaptcha-widget-container">
+            <div id="nc-main-box" style="border: 1px solid #d3d3d3; background: #f9f9f9; padding: 12px; display: flex; align-items: center; gap: 12px; border-radius: 3px; cursor: pointer; transition: all 0.2s;">
+                <div id="nc-check" style="width: 24px; height: 24px; border: 2px solid #c1c1c1; background: #fff; border-radius: 2px; display: flex; align-items: center; justify-content: center;">
+                    <div id="nc-spinner" style="display: none; width: 14px; height: 14px; border: 2px solid #4d90fe; border-top-color: transparent; border-radius: 50%; animation: nc-spin 0.8s linear infinite;"></div>
+                    <div id="nc-check-mark" style="display: none; color: #00aa00; font-size: 18px;">✓</div>
+                </div>
+                <div style="flex-grow: 1; text-align: left; font-size: 14px; color: #333;">I'm a human</div>
+                <div style="text-align: right;">
+                    <img src="{{ url_for('static', path='/favicon.png') }}" style="height: 24px; opacity: 0.6;">
+                    <div style="font-size: 8px; color: #999; text-transform: uppercase;">NCaptcha</div>
+                </div>
+            </div>
+
+            <!-- Challenge Overlay -->
+            <div id="nc-challenge" style="display: none; margin-top: 15px; border: 1px solid #ccc; background: #fff; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                <div id="beat-tap-target"></div>
+                <div style="margin-top: 10px; font-size: 11px; color: #666; border-top: 1px solid #eee; padding-top: 8px;">
+                    Protected by NCaptcha Security
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="nc-token-display" style="display: none; margin-top: 20px;">
+        <div class="privacy-notice">
+            Verification Successful. Token generated.
+        </div>
+        <code id="token-val" style="display: block; word-break: break-all; font-size: 10px; background: #eee; padding: 10px; margin-top: 10px; border: 1px solid #ccc;"></code>
+    </div>
+
+    <div class="help-section">
+        <h3>How it works</h3>
+        <p>NCaptcha analyzes passive signals like mouse movement, scroll behavior, and device fingerprinting to calculate a risk score. If the score is suspicious, a "Beat Tap" rhythmic challenge is presented.</p>
+    </div>
+
+    <a href="/" class="back-link">Return to Portal</a>
+</div>
+
+<style>
+    @keyframes nc-spin { to { transform: rotate(3600deg); } }
+    #nc-main-box:hover { border-color: #b2b2b2; box-shadow: 0 0 4px rgba(0,0,0,0.1); }
+</style>
+
+<script>
+    const ncBox = document.getElementById('nc-main-box');
+    const ncCheck = document.getElementById('nc-check');
+    const ncSpinner = document.getElementById('nc-spinner');
+    const ncCheckMark = document.getElementById('nc-check-mark');
+    const ncChallenge = document.getElementById('nc-challenge');
+    const tokenDisplay = document.getElementById('nc-token-display');
+    const tokenVal = document.getElementById('token-val');
+
+    ncBox.onclick = async () => {
+        if (ncCheckMark.style.display === 'block') return;
+
+        ncSpinner.style.display = 'block';
+        ncCheck.style.borderColor = '#4d90fe';
+
+        // 1. Check risk
+        const payload = window.getNCaptchaPayload();
+        const response = await fetch('/security/check-risk', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+
+        if (data.risk === 'LOW') {
+            completeVerification();
+        } else {
+            ncSpinner.style.display = 'none';
+            ncChallenge.style.display = 'block';
+            initBeatTap('beat-tap-target', (success) => {
+                if (success) completeVerification();
+            });
+        }
+    };
+
+    async function completeVerification() {
+        const payload = window.getNCaptchaPayload();
+        const response = await fetch('/security/verify-challenge', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...payload, challenge: 'beat-tap' })
+        });
+        const data = await response.json();
+        
+        ncSpinner.style.display = 'none';
+        ncCheckMark.style.display = 'block';
+        ncChallenge.style.display = 'none';
+        ncBox.style.background = '#f0fff0';
+        ncBox.style.borderColor = '#00aa00';
+        
+        tokenVal.innerText = data.token;
+        tokenDisplay.style.display = 'block';
+    }
+</script>
+{% endblock %}
