@@ -55,6 +55,13 @@ class NCaptcha:
         score = ai_result.get("score", 0)
         signals = [ai_result.get("reasoning", "AI verification")]
         
+        # 2026 Entropy Signal
+        entropy = biometrics.get("entropy", {})
+        variance = entropy.get("velocity_variance", 100)
+        if variance < 2.5 and biometrics.get("mouse_moves", 0) > 10:
+            signals.append("low_behavioral_entropy")
+            score = max(score, 40)
+
         # Layer 2: Hard-coded heuristics for immediate detection
         hesitation = biometrics.get("hesitation_time", 0)
         if hesitation < 0.3: 
@@ -70,9 +77,9 @@ class NCaptcha:
             score = max(score, 70)
             signals.append("webdriver_active")
 
-        if fingerprint.get("timezone_mismatch", False):
-            score = max(score, 30)
-            signals.append("network_location_inconsistency")
+        if biometrics.get("teleport_detected"):
+            signals.append("impossible_movement_speed")
+            score = max(score, 50)
 
         risk_level = ai_result.get("risk", "LOW")
         if score >= 80: risk_level = "HIGH"

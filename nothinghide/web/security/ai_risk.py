@@ -85,4 +85,5 @@ def analyze_risk_with_ai(biometrics: dict, fingerprint: dict) -> dict:
         return result
     except Exception as e:
         # Fallback if AI fails
+        print(f"AI Risk analysis failed: {str(e)}")
         return {"risk": "LOW", "score": 0, "reasoning": "AI Analysis Unavailable"}
