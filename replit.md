@@ -1,8 +1,13 @@
-# NothingHide CLI
+# NothingHide Security Org
 
-## Overview
+## Mission
+NothingHide is an elite Security Intelligence Organization dedicated to providing comprehensive identity protection and breach detection services. Our mission is to democratize high-level security intelligence through transparent, privacy-first technologies.
 
-NothingHide is a professional, pip-installable Python library for breach detection with advanced real-time capabilities. It features an intelligent multi-source agent system that queries 6+ breach databases in parallel with automatic failover, rate limiting, and data correlation.
+## Security Architecture
+- **NCaptcha**: Advanced risk-based behavior verification and bot protection.
+- **Identity Intelligence**: Multi-source breach correlation and risk scoring.
+- **OSINT Engine**: 60+ platform reconnaissance for personal identity exposure.
+- **Dark Web Protection**: Automated monitoring of credential leaks (Standard API).
 
 ## Key Features
 

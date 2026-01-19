@@ -48,14 +48,18 @@ class NCaptcha:
         if biometrics.get("scroll_events", 0) < 2: score += 10
         if biometrics.get("paste_detected", False): score += 30
         if biometrics.get("hesitation_time", 0) < 0.5: score += 15
+        if biometrics.get("focus_lost_count", 0) > 3: score += 20
         
         # 2. Fingerprint checks
         if fingerprint.get("timezone_mismatch", False): score += 25
-        if "headless" in fingerprint.get("user_agent", "").lower(): score += 50
-        if not fingerprint.get("webgl_renderer"): score += 20
+        if "headless" in fingerprint.get("user_agent", "").lower(): score += 60
+        if not fingerprint.get("webgl_renderer") or fingerprint.get("webgl_renderer") == "none": score += 25
+        
+        # 3. Security Org advanced checks
+        if fingerprint.get("incognito", False): score += 15
         
         if score >= 60: return "HIGH"
-        if score >= 30: return "MEDIUM"
+        if score >= 35: return "MEDIUM"
         return "LOW"
 
 class SecurityMiddleware(BaseHTTPMiddleware):
