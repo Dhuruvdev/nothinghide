@@ -7,12 +7,15 @@ import sys
 import hashlib
 from pathlib import Path
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Dict, Any
 
-from fastapi import FastAPI, Request, Form, UploadFile, File
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Request, Form, UploadFile, File, Header
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
+
+from .security.engine import SecurityEngine
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -24,6 +27,23 @@ from .cookie_cooked import cookie_cooked_middleware
 from .cookie_cooked_api import router as protection_router
 
 app = FastAPI(title="NothingHide", version="1.0.0")
+
+class SecurityPayload(BaseModel):
+    biometrics: Dict[str, Any]
+    fingerprint: Dict[str, Any]
+
+class ChallengePayload(SecurityPayload):
+    challenge: str
+
+@app.post("/security/check-risk")
+async def check_risk(payload: SecurityPayload):
+    risk = SecurityEngine.calculate_risk(payload.biometrics, payload.fingerprint)
+    return {"risk": risk}
+
+@app.post("/security/verify-challenge")
+async def verify_challenge(payload: ChallengePayload):
+    token = SecurityEngine.generate_token({"risk": "LOW", "verified": True})
+    return {"token": token}
 
 app.middleware("http")(cookie_cooked_middleware)
 app.include_router(protection_router)

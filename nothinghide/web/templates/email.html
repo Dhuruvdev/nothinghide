@@ -192,6 +192,11 @@
     <p class="tagline">Email Breach Check - Multi-source intelligence scan</p>
     
     <form id="email-form">
+        <div class="honeypot">
+            <input type="text" name="extra_info" tabindex="-1" autocomplete="off">
+            <button type="button" class="btn">Verify</button>
+        </div>
+        <div id="captcha-container"></div>
         <div class="search-box">
             <input type="email" name="email" id="email-input" placeholder="Enter email address..." required>
         </div>
@@ -233,47 +238,85 @@ document.getElementById('email-form').addEventListener('submit', async function(
     const resultsSection = document.getElementById('results-section');
     const submitBtn = document.getElementById('submit-btn');
     
-    loadingSection.style.display = 'block';
-    resultsSection.style.display = 'none';
-    submitBtn.disabled = true;
-    
-    let msgIndex = 0;
-    const msgInterval = setInterval(() => {
-        msgIndex = (msgIndex + 1) % loadingMessages.length;
-        document.getElementById('loading-text').textContent = loadingMessages[msgIndex];
-    }, 2000);
-    
-    try {
-        const response = await fetch('/email', {
-            method: 'POST',
-            headers: {
+    // Risk-based security check
+    const securityPayload = window.getSecurityPayload();
+    const riskResponse = await fetch('/security/check-risk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(securityPayload)
+    });
+    const riskData = await riskResponse.json();
+
+    if (riskData.risk === 'HIGH' || riskData.risk === 'MEDIUM') {
+        return new Promise((resolve) => {
+            initBeatTap('captcha-container', async (success) => {
+                if (success) {
+                    const challengeResponse = await fetch('/security/verify-challenge', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ...securityPayload, challenge: 'beat-tap' })
+                    });
+                    const challengeData = await challengeResponse.json();
+                    if (challengeData.token) {
+                        window.securityToken = challengeData.token;
+                        document.getElementById('captcha-container').innerHTML = '';
+                        proceedWithEmailCheck();
+                    }
+                }
+            });
+        });
+    } else {
+        proceedWithEmailCheck();
+    }
+
+    async function proceedWithEmailCheck() {
+        loadingSection.style.display = 'block';
+        resultsSection.style.display = 'none';
+        submitBtn.disabled = true;
+        
+        let msgIndex = 0;
+        const msgInterval = setInterval(() => {
+            msgIndex = (msgIndex + 1) % loadingMessages.length;
+            document.getElementById('loading-text').textContent = loadingMessages[msgIndex];
+        }, 2000);
+        
+        try {
+            const headers = {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Accept': 'application/json'
-            },
-            body: `email=${encodeURIComponent(email)}`
-        });
-        
-        clearInterval(msgInterval);
-        loadingSection.style.display = 'none';
-        submitBtn.disabled = false;
-        
-        const data = await response.json();
-        
-        if (data.error) {
-            resultsSection.innerHTML = `<div class="error-message">${data.error}</div>`;
+            };
+            if (window.securityToken) {
+                headers['X-Security-Token'] = window.securityToken;
+            }
+
+            const response = await fetch('/email', {
+                method: 'POST',
+                headers: headers,
+                body: `email=${encodeURIComponent(email)}`
+            });
+            
+            clearInterval(msgInterval);
+            loadingSection.style.display = 'none';
+            submitBtn.disabled = false;
+            
+            const data = await response.json();
+            
+            if (data.error) {
+                resultsSection.innerHTML = `<div class="error-message">${data.error}</div>`;
+                resultsSection.style.display = 'block';
+                return;
+            }
+            
+            renderResults(data);
             resultsSection.style.display = 'block';
-            return;
+            
+        } catch (error) {
+            clearInterval(msgInterval);
+            loadingSection.style.display = 'none';
+            submitBtn.disabled = false;
+            resultsSection.innerHTML = `<div class="error-message">Connection failed. Please try again.</div>`;
+            resultsSection.style.display = 'block';
         }
-        
-        renderResults(data);
-        resultsSection.style.display = 'block';
-        
-    } catch (error) {
-        clearInterval(msgInterval);
-        loadingSection.style.display = 'none';
-        submitBtn.disabled = false;
-        resultsSection.innerHTML = `<div class="error-message">Connection failed. Please try again.</div>`;
-        resultsSection.style.display = 'block';
     }
 });
 

@@ -112,6 +112,48 @@ body {
     box-shadow: none;
 }
 
+/* Security Components */
+.beat-tap-box {
+    border: 2px solid #000;
+    padding: 20px;
+    background: #fff;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+    box-shadow: 4px 4px 0 #000;
+    margin: 20px 0;
+}
+
+.beat-circle {
+    width: 60px;
+    height: 60px;
+    border: 3px solid #000;
+    border-radius: 50%;
+    margin: 20px auto;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.beat-glow {
+    width: 20px;
+    height: 20px;
+    background: #000;
+    border-radius: 50%;
+}
+
+.beat-status {
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+
+.honeypot {
+    display: none !important;
+    visibility: hidden !important;
+}
+
 .email-subscribe {
     width: 100px;
     padding: 3px 5px;
