@@ -49,7 +49,6 @@ class NCaptcha:
             # Combined analysis: Heuristics + Nvidia AI Model
             ai_result = analyze_risk_with_ai(biometrics, fingerprint)
         except Exception as e:
-            logger.error(f"AI Risk analysis failed: {e}")
             ai_result = {"risk": "LOW", "score": 0, "reasoning": "AI Fallback"}
         
         score = ai_result.get("score", 0)
