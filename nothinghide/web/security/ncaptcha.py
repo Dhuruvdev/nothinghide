@@ -9,7 +9,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 SECRET_KEY = os.getenv("SECURITY_SECRET_KEY", "nothinghide-super-secret-key-1337")
 
-class SecurityEngine:
+class NCaptcha:
     """Advanced security engine for anti-bot and anti-DDoS protection."""
     
     @staticmethod

@@ -15,7 +15,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
-from .security.engine import SecurityEngine
+from .security.ncaptcha import NCaptcha
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -37,12 +37,12 @@ class ChallengePayload(SecurityPayload):
 
 @app.post("/security/check-risk")
 async def check_risk(payload: SecurityPayload):
-    risk = SecurityEngine.calculate_risk(payload.biometrics, payload.fingerprint)
+    risk = NCaptcha.calculate_risk(payload.biometrics, payload.fingerprint)
     return {"risk": risk}
 
 @app.post("/security/verify-challenge")
 async def verify_challenge(payload: ChallengePayload):
-    token = SecurityEngine.generate_token({"risk": "LOW", "verified": True})
+    token = NCaptcha.generate_token({"risk": "LOW", "verified": True})
     return {"token": token}
 
 app.middleware("http")(cookie_cooked_middleware)

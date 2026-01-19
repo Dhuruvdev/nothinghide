@@ -239,7 +239,7 @@ document.getElementById('email-form').addEventListener('submit', async function(
     const submitBtn = document.getElementById('submit-btn');
     
     // Risk-based security check
-    const securityPayload = window.getSecurityPayload();
+    const securityPayload = window.getNCaptchaPayload();
     const riskResponse = await fetch('/security/check-risk', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -258,7 +258,7 @@ document.getElementById('email-form').addEventListener('submit', async function(
                     });
                     const challengeData = await challengeResponse.json();
                     if (challengeData.token) {
-                        window.securityToken = challengeData.token;
+                        window.nCaptchaToken = challengeData.token;
                         document.getElementById('captcha-container').innerHTML = '';
                         proceedWithEmailCheck();
                     }
@@ -285,8 +285,8 @@ document.getElementById('email-form').addEventListener('submit', async function(
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Accept': 'application/json'
             };
-            if (window.securityToken) {
-                headers['X-Security-Token'] = window.securityToken;
+            if (window.nCaptchaToken) {
+                headers['X-NCaptcha-Token'] = window.nCaptchaToken;
             }
 
             const response = await fetch('/email', {

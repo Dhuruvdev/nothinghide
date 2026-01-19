@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Global security collector
-    window.getSecurityPayload = () => {
+    window.getNCaptchaPayload = () => {
         securityData.hesitation_time = (Date.now() - securityData.start_time) / 1000;
         return {
             biometrics: securityData,
