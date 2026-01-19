@@ -61,24 +61,30 @@
         if (!container) return;
         
         container.innerHTML = `
-            <div class="captcha-widget" style="background: #ffffff; border: 1px solid #dfe1e5; padding: 20px; text-align: center; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); max-width: 300px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-                <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-                    <img src="/static/captcha-icon.png" style="width: 40px; height: 40px; margin-right: 12px; object-fit: contain;">
-                    <div style="text-align: left;">
-                        <div style="font-size: 14px; color: #202124; font-weight: 600;">Secure Verification</div>
-                        <div style="font-size: 11px; color: #5f6368;">Powered by NothingHide AI</div>
+            <div class="captcha-widget" style="background: #ffffff; border: 1px solid #000000; padding: 15px; text-align: left; border-radius: 4px; box-shadow: none; max-width: 350px; margin: 0 auto; font-family: 'Space Mono', monospace; border-left: 4px solid #000000;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                    <div style="display: flex; align-items: center;">
+                        <img src="/static/captcha-icon.png" style="width: 24px; height: 24px; margin-right: 10px; object-fit: contain; filter: grayscale(1);">
+                        <div style="font-size: 12px; color: #000; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">Security Verification</div>
+                    </div>
+                    <div style="font-size: 9px; color: #666; font-style: italic;">v4.2.0-secure</div>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 15px; padding: 5px 0;">
+                    <div id="beat-circle" style="width: 50px; height: 50px; background: #fff; border: 2px solid #000; border-radius: 4px; position: relative; cursor: pointer; transition: all 0.1s; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <div id="beat-ring" style="position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px; border: 2px solid #000; border-radius: 4px; opacity: 0; transition: opacity 0.1s;"></div>
+                        <div style="width: 8px; height: 8px; background: #000; border-radius: 1px;"></div>
+                    </div>
+                    
+                    <div style="flex-grow: 1;">
+                        <div style="font-size: 11px; color: #000; margin-bottom: 4px; font-weight: bold;">RHYTHM SENSOR</div>
+                        <div id="beat-status" style="font-size: 10px; color: #666; text-transform: uppercase;">TAP IN SYNC WITH PULSE</div>
                     </div>
                 </div>
-                <div style="font-size: 13px; color: #3c4043; margin-bottom: 20px; line-height: 1.4;">
-                    Rhythm Challenge: Tap the circle when the blue ring flashes.
-                </div>
-                <div id="beat-circle" style="width: 80px; height: 80px; background: #fff; border: 1px solid #dadce0; border-radius: 50%; margin: 0 auto; position: relative; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                    <div id="beat-ring" style="position: absolute; top: -8px; left: -8px; right: -8px; bottom: -8px; border: 4px solid #4d90fe; border-radius: 50%; opacity: 0; transition: opacity 0.1s ease-in-out;"></div>
-                    <div style="width: 14px; height: 14px; background: #4d90fe; border-radius: 50%; box-shadow: 0 0 10px rgba(77, 144, 254, 0.4);"></div>
-                </div>
-                <div id="beat-status" style="margin-top: 20px; font-size: 11px; color: #70757a; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Waiting for rhythm...</div>
-                <div style="margin-top: 15px; border-top: 1px solid #f1f3f4; padding-top: 10px; display: flex; align-items: center; justify-content: center;">
-                    <span style="font-size: 10px; color: #9aa0a6;">Advanced Human Verification v4.2</span>
+                
+                <div style="margin-top: 15px; display: flex; align-items: center; justify-content: space-between; font-size: 9px; color: #999; border-top: 1px solid #f1f1f1; padding-top: 8px;">
+                    <span>NOTHINGHIDE INTELLIGENCE</span>
+                    <span style="color: #000; font-weight: bold;">[ ENCRYPTED ]</span>
                 </div>
             </div>
         `;
@@ -92,7 +98,7 @@
 
         const flash = () => {
             ring.style.opacity = '1';
-            setTimeout(() => { ring.style.opacity = '0'; }, 150);
+            setTimeout(() => { ring.style.opacity = '0'; }, 100);
         };
 
         flashInterval = setInterval(flash, 1500);
@@ -105,32 +111,30 @@
             const distToFlash = Math.min(cyclePos, 1500 - cyclePos);
             
             taps.push(distToFlash);
-            circle.style.transform = 'scale(0.92)';
-            circle.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1)';
+            circle.style.backgroundColor = '#000';
             setTimeout(() => { 
-                circle.style.transform = 'scale(1)'; 
-                circle.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
-            }, 100);
+                circle.style.backgroundColor = '#fff';
+            }, 50);
 
-            if (taps.length === 1) status.innerText = "First tap recorded...";
-            if (taps.length === 2) status.innerText = "Keep the rhythm...";
+            if (taps.length === 1) status.innerText = "CAPTURING PULSE [1/3]";
+            if (taps.length === 2) status.innerText = "CAPTURING PULSE [2/3]";
             if (taps.length === 3) {
                 clearInterval(flashInterval);
                 const avgDist = taps.reduce((a, b) => a + b) / 3;
-                if (avgDist < 350) {
-                    status.innerText = "Verification Successful";
-                    status.style.color = "#1a73e8";
-                    circle.style.borderColor = "#1a73e8";
+                if (avgDist < 400) {
+                    status.innerText = "IDENTITY VERIFIED";
+                    status.style.color = "#000";
+                    circle.style.borderColor = "#000";
                     onComplete(true);
                 } else {
-                    status.innerText = "Rhythm mismatch. Retrying...";
-                    status.style.color = "#d93025";
+                    status.innerText = "SYNC FAILED. REBOOTING...";
+                    status.style.color = "#ff0000";
                     taps = [];
                     setTimeout(() => {
-                        status.style.color = "#70757a";
+                        status.style.color = "#666";
                         flashInterval = setInterval(flash, 1500);
-                        status.innerText = "Try again...";
-                    }, 1200);
+                        status.innerText = "READY FOR SYNC";
+                    }, 1000);
                 }
             }
         };

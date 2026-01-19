@@ -56,21 +56,28 @@
             <a href="/help" class="btn" style="padding: 12px 20px;">View Docs</a>
         </div>
     </div>
-    <div id="captcha-container" style="margin: 30px auto; max-width: 300px;"></div>
+    <div id="captcha-container" style="margin: 30px auto; max-width: 300px; min-height: 100px;"></div>
 
     <script src="{{ url_for('static', path='/ncaptcha.js') }}"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof initBeatTap === 'function') {
-                initBeatTap('captcha-container', (verified) => {
-                    if (verified) {
-                        console.log('Captcha verified');
-                    }
-                });
-            } else {
-                console.error('initBeatTap not loaded');
+        (function() {
+            function init() {
+                if (typeof initBeatTap === 'function') {
+                    initBeatTap('captcha-container', (verified) => {
+                        if (verified) {
+                            console.log('Captcha verified');
+                        }
+                    });
+                } else {
+                    setTimeout(init, 100);
+                }
             }
-        });
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        })();
     </script>
 </div>
 {% endblock %}
