@@ -56,5 +56,17 @@
             <a href="/help" class="btn" style="padding: 12px 20px;">View Docs</a>
         </div>
     </div>
+    <div id="captcha-container" style="margin: 30px auto; max-width: 300px;"></div>
+
+    <script src="{{ url_for('static', path='/ncaptcha.js') }}"></script>
+    <script>
+        window.onload = () => {
+            initBeatTap('captcha-container', (verified) => {
+                if (verified) {
+                    console.log('Captcha verified');
+                }
+            });
+        };
+    </script>
 </div>
 {% endblock %}
