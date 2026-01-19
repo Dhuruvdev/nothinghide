@@ -71,8 +71,8 @@
                 </div>
                 
                 <div style="display: flex; align-items: center; gap: 15px; padding: 5px 0;">
-                    <div id="beat-circle" style="width: 50px; height: 50px; background: #fff; border: 2px solid #000; border-radius: 4px; position: relative; cursor: pointer; transition: all 0.1s; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <div id="beat-ring" style="position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px; border: 2px solid #000; border-radius: 4px; opacity: 0; transition: opacity 0.1s;"></div>
+                    <div id="beat-circle" style="width: 50px; height: 50px; background: #fff; border: 2px solid #000; position: relative; cursor: pointer; transition: all 0.1s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 4px 4px 0px #000;">
+                        <div id="beat-ring" style="position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px; border: 2px solid #000; opacity: 0; transition: opacity 0.1s;"></div>
                         <div style="width: 8px; height: 8px; background: #000; border-radius: 1px;"></div>
                     </div>
                     
@@ -112,8 +112,12 @@
             
             taps.push(distToFlash);
             circle.style.backgroundColor = '#000';
+            circle.style.transform = 'translate(2px, 2px)';
+            circle.style.boxShadow = '2px 2px 0px #000';
             setTimeout(() => { 
                 circle.style.backgroundColor = '#fff';
+                circle.style.transform = 'translate(0, 0)';
+                circle.style.boxShadow = '4px 4px 0px #000';
             }, 50);
 
             if (taps.length === 1) status.innerText = "CAPTURING PULSE [1/3]";
