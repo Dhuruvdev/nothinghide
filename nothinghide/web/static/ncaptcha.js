@@ -1,4 +1,5 @@
 (function() {
+    console.log('NCaptcha: Core engine loading...');
     const securityData = {
         mouse_moves: 0,
         scroll_events: 0,
@@ -57,11 +58,15 @@
     };
 
     window.initBeatTap = (containerId, onComplete) => {
+        console.log('NCaptcha: initBeatTap called for', containerId);
         const container = document.getElementById(containerId);
-        if (!container) return;
+        if (!container) {
+            console.error('NCaptcha: Container not found:', containerId);
+            return;
+        }
         
         container.innerHTML = `
-            <div class="captcha-widget" style="background: #ffffff; border: 1px solid #000000; padding: 15px; text-align: left; border-radius: 4px; box-shadow: none; max-width: 350px; margin: 0 auto; font-family: 'Space Mono', monospace; border-left: 4px solid #000000;">
+            <div class="captcha-widget" style="background: #ffffff; border: 1px solid #000000; padding: 15px; text-align: left; border-radius: 0; box-shadow: none; max-width: 350px; margin: 0 auto; font-family: 'Space Mono', monospace; border-left: 4px solid #000000; position: relative; z-index: 1000;">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
                     <div style="display: flex; align-items: center;">
                         <img src="/static/captcha-icon.png" style="width: 24px; height: 24px; margin-right: 10px; object-fit: contain; filter: grayscale(1);">
@@ -73,7 +78,7 @@
                 <div style="display: flex; align-items: center; gap: 15px; padding: 5px 0;">
                     <div id="beat-circle" style="width: 50px; height: 50px; background: #fff; border: 2px solid #000; position: relative; cursor: pointer; transition: all 0.1s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 4px 4px 0px #000;">
                         <div id="beat-ring" style="position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px; border: 2px solid #000; opacity: 0; transition: opacity 0.1s;"></div>
-                        <div style="width: 8px; height: 8px; background: #000; border-radius: 1px;"></div>
+                        <div id="beat-loader" style="width: 20px; height: 20px; background: url('/static/loading.gif') no-repeat center; background-size: contain;"></div>
                     </div>
                     
                     <div style="flex-grow: 1;">
@@ -90,6 +95,7 @@
         `;
 
         const ring = container.querySelector('#beat-ring');
+        const loader = container.querySelector('#beat-loader');
         const status = container.querySelector('#beat-status');
         const circle = container.querySelector('#beat-circle');
         let taps = [];
@@ -97,14 +103,18 @@
         let flashInterval;
 
         const flash = () => {
-            ring.style.opacity = '1';
-            setTimeout(() => { ring.style.opacity = '0'; }, 100);
+            if (ring) {
+                ring.style.opacity = '1';
+                setTimeout(() => { if(ring) ring.style.opacity = '0'; }, 100);
+            }
         };
 
         flashInterval = setInterval(flash, 1500);
 
         circle.onclick = (e) => {
             e.stopPropagation();
+            if (loader) loader.style.display = 'none';
+            
             const now = Date.now();
             const elapsedSinceStart = now - startTime;
             const cyclePos = elapsedSinceStart % 1500;
@@ -143,4 +153,5 @@
             }
         };
     };
+    console.log('NCaptcha: Core engine ready.');
 })();

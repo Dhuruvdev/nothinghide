@@ -21,7 +21,7 @@
                 <div id="nc-ripple" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(77, 144, 254, 0.05); transform: translateX(-100%); transition: transform 0.6s ease;"></div>
                 
                 <div id="nc-check" style="width: 28px; height: 28px; border: 2px solid #000; background: #fff; border-radius: 0; display: flex; align-items: center; justify-content: center; position: relative; z-index: 1; transition: border-color 0.3s; box-shadow: 2px 2px 0 #000;">
-                    <div id="nc-spinner" style="display: none; width: 16px; height: 16px; border: 2px solid #000; border-top-color: transparent; border-radius: 50%; animation: nc-spin 0.6s linear infinite;"></div>
+                    <div id="nc-spinner" style="display: none; width: 100%; height: 100%; background: url('/static/loading.gif') no-repeat center; background-size: 20px;"></div>
                     <div id="nc-check-mark" style="display: none; color: #000; font-size: 22px; line-height: 1; font-weight: bold;">✓</div>
                 </div>
                 
@@ -99,8 +99,15 @@
             ncRipple.style.transform = 'translateX(0)';
 
             try {
+                // Polling for security engine with a longer timeout
+                let attempts = 0;
+                while (typeof window.getNCaptchaPayload !== 'function' && attempts < 20) {
+                    await new Promise(r => setTimeout(r, 200));
+                    attempts++;
+                }
+
                 if (typeof window.getNCaptchaPayload !== 'function') {
-                    throw new Error('Security engine not loaded');
+                    throw new Error('Security engine failed to initialize');
                 }
 
                 const payload = window.getNCaptchaPayload();
@@ -120,13 +127,16 @@
                     ncSpinner.style.display = 'none';
                     ncChallenge.style.display = 'block';
                     ncLabel.innerText = 'CHALLENGE REQ';
-                    window.initBeatTap('beat-tap-target', (success) => {
-                        if (success) completeVerification(data);
-                    });
+                    if (typeof window.initBeatTap === 'function') {
+                        window.initBeatTap('beat-tap-target', (success) => {
+                            if (success) completeVerification(data);
+                        });
+                    } else {
+                        throw new Error('Challenge engine failed to initialize');
+                    }
                 }
             } catch (err) {
-                console.error(err);
-                resetWidget();
+                resetWidget(err.message);
             }
         };
 
@@ -166,19 +176,18 @@
 
                 isProcessing = false;
             } catch (err) {
-                console.error(err);
-                resetWidget();
+                resetWidget(err.message);
             }
         }
 
-        function resetWidget() {
+        function resetWidget(errorMessage) {
             isProcessing = false;
             ncSpinner.style.display = 'none';
             ncCheckMark.style.display = 'none';
-            ncCheck.style.borderColor = '#c1c1c1';
-            ncLabel.innerText = 'Verify you are human';
+            ncCheck.style.borderColor = '#000';
+            ncLabel.innerText = 'VERIFY IDENTITY';
             ncRipple.style.transform = 'translateX(-100%)';
-            alert('Verification encountered an issue. Please try again.');
+            console.error('NCaptcha Error:', errorMessage);
         }
     });
 </script>

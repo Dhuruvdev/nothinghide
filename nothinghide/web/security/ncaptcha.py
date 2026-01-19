@@ -44,10 +44,13 @@ class NCaptcha:
 
     @staticmethod
     def calculate_risk(biometrics: Dict[str, Any], fingerprint: Dict[str, Any]) -> Dict[str, Any]:
-        from .ai_risk import analyze_risk_with_ai
-        
-        # Combined analysis: Heuristics + Nvidia AI Model
-        ai_result = analyze_risk_with_ai(biometrics, fingerprint)
+        try:
+            from .ai_risk import analyze_risk_with_ai
+            # Combined analysis: Heuristics + Nvidia AI Model
+            ai_result = analyze_risk_with_ai(biometrics, fingerprint)
+        except Exception as e:
+            logger.error(f"AI Risk analysis failed: {e}")
+            ai_result = {"risk": "LOW", "score": 0, "reasoning": "AI Fallback"}
         
         score = ai_result.get("score", 0)
         signals = [ai_result.get("reasoning", "AI verification")]

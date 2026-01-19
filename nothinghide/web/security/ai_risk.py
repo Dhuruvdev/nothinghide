@@ -5,12 +5,16 @@ from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_excep
 AI_INTEGRATIONS_OPENROUTER_API_KEY = os.environ.get("AI_INTEGRATIONS_OPENROUTER_API_KEY")
 AI_INTEGRATIONS_OPENROUTER_BASE_URL = os.environ.get("AI_INTEGRATIONS_OPENROUTER_BASE_URL")
 
-# Using Replit's AI Integrations with OpenRouter
-# This provides access to advanced models including Nvidia Nemotron
-client = OpenAI(
-    api_key=AI_INTEGRATIONS_OPENROUTER_API_KEY,
-    base_url=AI_INTEGRATIONS_OPENROUTER_BASE_URL
-)
+# This is using Replit's AI Integrations service, which provides OpenRouter-compatible API access without requiring your own OpenRouter API key.
+# We initialize the client inside the risk check function to handle environment changes gracefully.
+
+def get_ai_client():
+    if not AI_INTEGRATIONS_OPENROUTER_BASE_URL:
+        return None
+    return OpenAI(
+        api_key=AI_INTEGRATIONS_OPENROUTER_API_KEY or "dummy",
+        base_url=AI_INTEGRATIONS_OPENROUTER_BASE_URL
+    )
 
 def is_rate_limit_error(exception: BaseException) -> bool:
     return "429" in str(exception) or "RATELIMIT_EXCEEDED" in str(exception)
@@ -23,6 +27,10 @@ def is_rate_limit_error(exception: BaseException) -> bool:
 )
 def analyze_risk_with_ai(biometrics: dict, fingerprint: dict) -> dict:
     """Uses Nvidia's Nemotron model to analyze bot-like behavioral patterns."""
+    client = get_ai_client()
+    if not client:
+        return {"risk": "LOW", "score": 0, "reasoning": "AI Engine Offline"}
+        
     model = "nvidia/llama-3.1-nemotron-70b-instruct"
     
     prompt = f"""

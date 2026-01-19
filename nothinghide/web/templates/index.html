@@ -56,22 +56,25 @@
             <a href="/help" class="btn" style="padding: 12px 20px;">View Docs</a>
         </div>
     </div>
-    <div id="captcha-container" style="margin: 30px auto; max-width: 300px; min-height: 100px;"></div>
+    <div id="captcha-container" style="margin: 30px auto; max-width: 350px; min-height: 100px;"></div>
 
-    <script src="{{ url_for('static', path='/ncaptcha.js') }}"></script>
+    <script src="{{ url_for('static', path='/ncaptcha.js') }}?v={{ range(1, 99999) | random }}"></script>
     <script>
         (function() {
             function init() {
-                if (typeof initBeatTap === 'function') {
-                    initBeatTap('captcha-container', (verified) => {
+                if (typeof window.initBeatTap === 'function') {
+                    console.log('NCaptcha: initializing...');
+                    window.initBeatTap('captcha-container', (verified) => {
                         if (verified) {
-                            console.log('Captcha verified');
+                            console.log('NCaptcha: verified');
                         }
                     });
                 } else {
-                    setTimeout(init, 100);
+                    console.warn('NCaptcha: initBeatTap not found, retrying...');
+                    setTimeout(init, 300);
                 }
             }
+            // Ensure the container is ready and script is loaded
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', init);
             } else {
