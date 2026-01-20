@@ -519,14 +519,20 @@ class UsernameChecker:
                     factors.append("PII Leak: Possible birth year/age exposure")
                     
         # Knowledge Extraction Layer (Cross-Platform Linkage)
-        linkage_points = 0
         if platforms:
             avatars = [p.profile.avatar_url for p in platforms if p.profile and p.profile.avatar_url]
             if len(set(avatars)) < len(avatars) and len(avatars) > 1:
                 score += 15
                 factors.append("Identity Convergence: Identical avatars used across platforms")
-                linkage_points += 1
                 
+            # Recursive extraction logic (simulated for 2026 standard)
+            bios = [p.profile.bio for p in platforms if p.profile and p.profile.bio]
+            for bio in bios:
+                if bio and re.search(r'[\w\.-]+@[\w\.-]+\.\w+', bio):
+                    score += 20
+                    factors.append("Recursive Data Leak: Email found in profile bio")
+                    break
+
         # Risk Extraction
         level = "LOW"
         if score >= 80:
@@ -542,140 +548,45 @@ class UsernameChecker:
             recommendations.append("Monitor account activity for targeted phishing")
             
         return IdentityRisk(level=level, score=min(100, score), factors=factors, recommendations=recommendations)
-        factors = []
-        recommendations = []
-        
-        if accounts_found >= 20:
-            score += 40
-            factors.append(f"High exposure: {accounts_found} accounts found across platforms")
-        elif accounts_found >= 10:
-            score += 25
-            factors.append(f"Moderate exposure: {accounts_found} accounts found")
-        elif accounts_found >= 5:
-            score += 15
-            factors.append(f"Low-moderate exposure: {accounts_found} accounts found")
-        else:
-            score += 5
-            factors.append(f"Limited exposure: {accounts_found} accounts found")
-        
-        if categories.get("Financial", 0) > 0:
-            score += 20
-            factors.append("Financial accounts detected - high value target")
-            recommendations.append("Enable 2FA on all financial platforms immediately")
-        
-        if categories.get("Professional", 0) >= 2:
-            score += 15
-            factors.append("Multiple professional profiles - identity correlation possible")
-            recommendations.append("Review information consistency across professional profiles")
-        
-        social_count = categories.get("Social", 0)
-        if social_count >= 5:
-            score += 15
-            factors.append(f"Extensive social media presence ({social_count} platforms)")
-            recommendations.append("Audit social media privacy settings")
-        
-        if categories.get("Development", 0) >= 3:
-            score += 10
-            factors.append("Developer footprint detected - code/project exposure risk")
-            recommendations.append("Check for exposed API keys or credentials in public repos")
-        
-        for weakness in username_analysis.get("weaknesses", []):
-            score += 5
-            factors.append(f"Username weakness: {weakness}")
-        
-        if "possible_real_name" in username_analysis.get("patterns", []):
-            score += 15
-            factors.append("Username appears to contain real name")
-            recommendations.append("Consider using pseudonyms for non-professional accounts")
-        
-        if categories.get("Link", 0) > 0:
-            score += 10
-            factors.append("Link aggregator detected - consolidated attack surface")
-            recommendations.append("Review what information is linked and visible")
-        
-        score = min(100, score)
-        
-        if score >= 70:
-            level = "CRITICAL"
-            recommendations.insert(0, "URGENT: Significant identity exposure detected")
-            recommendations.append("Consider username segmentation across platforms")
-            recommendations.append("Perform a comprehensive privacy audit")
-        elif score >= 50:
-            level = "HIGH"
-            recommendations.append("Review and update privacy settings across all platforms")
-            recommendations.append("Enable 2FA on all accounts using this username")
-        elif score >= 30:
-            level = "MODERATE"
-            recommendations.append("Consider varying usernames for different platform types")
-        else:
-            level = "LOW"
-            recommendations.append("Current exposure is minimal - maintain good practices")
-        
-        return IdentityRisk(
-            level=level,
-            score=score,
-            factors=factors,
-            recommendations=recommendations,
-        )
-    
+
     async def check_username(self, username: str) -> UsernameResult:
-        """Perform comprehensive username OSINT scan."""
+        """Perform complete username OSINT scan."""
         username = self.validate_username(username)
         username_analysis = self.analyze_username(username)
         
-        semaphore = asyncio.Semaphore(self.max_concurrent)
+        platforms_to_check = PLATFORMS
+        results = []
         
-        async def bounded_check(client, platform):
-            async with semaphore:
-                return await self.check_platform(client, username, platform)
-        
-        async with httpx.AsyncClient(headers=self.headers) as client:
-            tasks = [bounded_check(client, p) for p in PLATFORMS]
-            results = await asyncio.gather(*tasks, return_exceptions=True)
-        
-        platforms = []
-        for result in results:
-            if isinstance(result, PlatformResult):
-                platforms.append(result)
-        
-        found_platforms = [p for p in platforms if p.exists]
-        accounts_found = len(found_platforms)
-        
+        async with httpx.AsyncClient(headers=self.headers, verify=False) as client:
+            tasks = [self.check_platform(client, username, p) for p in platforms_to_check]
+            results = await asyncio.gather(*tasks)
+            
+        accounts_found = sum(1 for r in results if r.exists)
         categories = {}
-        for p in found_platforms:
-            cat = p.category
-            categories[cat] = categories.get(cat, 0) + 1
-        
+        for r in results:
+            if r.exists:
+                categories[r.category] = categories.get(r.category, 0) + 1
+                
         identity_risk = self.calculate_identity_risk(
-            username, accounts_found, categories, username_analysis
+            username, 
+            accounts_found, 
+            categories, 
+            username_analysis,
+            results
         )
-        
-        platforms.sort(key=lambda x: (not x.exists, x.platform))
         
         return UsernameResult(
             username=username,
-            total_platforms_checked=len(PLATFORMS),
+            total_platforms_checked=len(platforms_to_check),
             accounts_found=accounts_found,
-            platforms=platforms,
+            platforms=results,
             categories=categories,
             identity_risk=identity_risk,
             username_analysis=username_analysis,
         )
-    
-    def check_username_sync(self, username: str) -> UsernameResult:
-        """Synchronous wrapper for check_username."""
-        return asyncio.run(self.check_username(username))
 
 
-async def check_username(username: str, timeout: float = 8.0) -> UsernameResult:
-    """Check username across multiple platforms.
-    
-    Args:
-        username: Username to check.
-        timeout: Request timeout per platform.
-        
-    Returns:
-        UsernameResult with comprehensive findings.
-    """
-    checker = UsernameChecker(timeout=timeout)
+async def check_username(username: str) -> UsernameResult:
+    """Main entry point for checking a username."""
+    checker = UsernameChecker()
     return await checker.check_username(username)
