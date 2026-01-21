@@ -37,40 +37,34 @@ class ChallengePayload(SecurityPayload):
 
 @app.post("/security/check-risk")
 async def check_risk(payload: SecurityPayload):
-    # Enhanced 2026 behavioral analysis
     biometrics = payload.biometrics
     fingerprint = payload.fingerprint
     
     signals = []
-    entropy = biometrics.get("entropy", {})
-    variance = entropy.get("velocity_variance", 100)
-    
-    # Force challenge for demo if no movement
-    if biometrics.get("mouse_moves", 0) < 5:
-        signals.append("static_session_detected")
+    # 2026 Detection: Behavioral Entropy (Velocity Variance)
+    # Bots often have perfectly smooth or perfectly linear movements (variance ~0)
+    # Humans have natural micro-jitter (variance > 2.0)
+    v = biometrics.get("variance", 0)
+    if v < 1.5 and biometrics.get("count", 0) > 10:
+        signals.append("impossible_smoothness_detected")
+        
+    if not biometrics.get("integrity"):
+        signals.append("environment_integrity_violation")
+        
+    if biometrics.get("duration", 0) < 0.2:
+        signals.append("impossible_interaction_speed")
 
-    # 2026 Detection Layer: Velocity Variance
-    if variance < 2.0 and biometrics.get("mouse_moves", 0) > 15:
-        signals.append("low_behavioral_entropy")
-        
-    if biometrics.get("teleport_detected"):
-        signals.append("impossible_movement_speed")
-        
-    if fingerprint.get("webdriver"):
-        signals.append("automation_framework_detected")
-        
-    # Hybrid Risk Scoring
-    score = len(signals) * 35
+    score = len(signals) * 30
     risk = "LOW"
-    if score >= 35 or not signals: # Force challenge if no signals for demo
-        risk = "MEDIUM"
-    if score >= 70: risk = "HIGH"
-    
+    # Force challenge if any suspicion or for demo
+    if score > 0 or biometrics.get("count", 0) < 5:
+        risk = "HIGH"
+        
     return {
         "risk": risk,
         "score": score,
         "signals": signals,
-        "confidence": 0.98
+        "ts": datetime.now().isoformat()
     }
 
 @app.post("/security/verify-challenge")

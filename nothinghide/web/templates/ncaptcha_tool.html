@@ -1,239 +1,99 @@
 {% extends "base.html" %}
 
-{% block title %}NCaptcha - Advanced Behavioral Verification{% endblock %}
+{% block title %}NCaptcha - Industry Standard Verification{% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="logo">
         <a href="/"><img src="{{ url_for('static', path='/logo-title.png') }}" alt="NothingHide" class="logo-img"></a>
     </div>
-    
-    <div class="org-banner" style="background: #000; color: #fff; padding: 10px; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px;">
-        Next-Gen Bot Protection | NCaptcha
-    </div>
 
-    <h1>NCaptcha Widget</h1>
-    <p class="tagline">Risk-based behavioral verification system.</p>
+    <h1>NCaptcha Verification</h1>
+    <p class="tagline">Next-generation bot protection and identity verification.</p>
 
-    <div class="result-box" style="max-width: 420px; margin: 30px auto; border: none; background: transparent; padding: 0;">
-        <div id="ncaptcha-widget-container">
-            <div id="nc-main-box" style="border: 1px solid #dcdcdc; background: #fff; padding: 12px 16px; display: flex; align-items: center; gap: 14px; border-radius: 4px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 1px 3px rgba(0,0,0,0.08); position: relative; overflow: hidden; height: 74px; box-sizing: border-box;">
-                <div id="nc-ripple" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(77, 144, 254, 0.05); transform: translateX(-100%); transition: transform 0.6s ease;"></div>
-                
-                <div id="nc-check" style="width: 28px; height: 28px; border: 2px solid #000; background: #fff; border-radius: 0; display: flex; align-items: center; justify-content: center; position: relative; z-index: 1; transition: border-color 0.3s; box-shadow: 2px 2px 0 #000; overflow: hidden;">
-                    <div id="nc-spinner" style="display: none; width: 100%; height: 100%; background: #fff url('/static/loading.gif') no-repeat center; background-size: cover;"></div>
-                    <div id="nc-check-mark" style="display: none; color: #000; font-size: 22px; line-height: 1; font-weight: bold;">✓</div>
-                </div>
-                
-                <div id="nc-label" style="flex-grow: 1; text-align: left; font-size: 13px; color: #000; font-family: 'Space Mono', monospace; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; position: relative; z-index: 1;">VERIFY IDENTITY</div>
-                
-                <div style="text-align: right; position: relative; z-index: 1; min-width: 60px;">
-                    <img src="/static/captcha-icon.png" id="nc-logo" style="height: 28px; width: auto; opacity: 1; object-fit: contain; transition: all 0.3s;">
-                    <div style="font-size: 9px; color: #000; text-transform: uppercase; font-weight: 700; margin-top: 2px; letter-spacing: 0.5px;">NCaptcha</div>
-                </div>
+    <div style="max-width: 320px; margin: 50px auto; background: #fff; border: 1px solid #dcdcdc; border-radius: 3px; padding: 10px; display: flex; align-items: center; justify-content: space-between; font-family: sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div id="nc-trigger" style="width: 28px; height: 28px; border: 2px solid #c1c1c1; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: border-color 0.2s;">
+                <div id="nc-loader" style="display: none; width: 18px; height: 18px; border: 2px solid #2196f3; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                <div id="nc-done" style="display: none; color: #00aa00; font-size: 20px; font-weight: bold;">✓</div>
             </div>
-
-            <div id="nc-challenge" style="display: none; margin-top: 15px; border: 1px solid #000; background: #fff; padding: 0; border-radius: 4px; box-shadow: none; animation: nc-slide-up 0.4s ease;">
-                <div id="beat-tap-target"></div>
-                <div style="margin-top: 0; font-size: 11px; color: #5f6368; border-top: 1px solid #eee; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; background: #fafafa;">
-                    <span style="font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase; font-size: 9px;">NothingHide Security Org</span>
-                    <a href="/help" style="color: #000; text-decoration: underline; font-size: 9px;">DOCS</a>
-                </div>
-            </div>
+            <div style="font-size: 14px; color: #000; font-weight: 400;">I am human</div>
+        </div>
+        <div style="text-align: center;">
+            <img src="/static/captcha-icon.png" style="height: 30px; opacity: 0.8;">
+            <div style="font-size: 8px; color: #666; font-weight: bold; margin-top: 2px;">NCaptcha</div>
         </div>
     </div>
 
-    <div id="nc-token-display" style="display: none; margin-top: 25px; animation: nc-slide-up 0.5s ease;">
-        <div style="background: #e6f4ea; border: 1px solid #34a853; padding: 15px; border-radius: 8px; text-align: left;">
-            <div style="color: #137333; font-weight: bold; font-size: 14px; margin-bottom: 5px;">Verification Successful</div>
-            <p style="color: #137333; font-size: 12px; margin: 0;">A secure session token has been generated and signed by the Security Org.</p>
-        </div>
-        <div style="margin-top: 15px; text-align: left;">
-            <div style="font-size: 11px; color: #70757a; font-weight: bold; text-transform: uppercase; margin-bottom: 5px;">Secure Token (JWT-Style)</div>
-            <code id="token-val" style="display: block; word-break: break-all; font-size: 10px; background: #f8f9fa; padding: 12px; border: 1px solid #dadce0; border-radius: 4px; font-family: monospace; color: #3c4043;"></code>
-        </div>
-        
-        <div id="security-analysis" style="margin-top: 15px; text-align: left; background: #fdfdfd; border: 1px solid #eee; padding: 15px; border-radius: 8px;">
-            <div style="font-size: 11px; color: #70757a; font-weight: bold; text-transform: uppercase; margin-bottom: 10px;">Security Intelligence Analysis</div>
-            <div id="analysis-content" style="font-size: 12px; line-height: 1.6;"></div>
-        </div>
+    <div id="challenge-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+        <div id="challenge-target"></div>
     </div>
 
-    <div class="help-section" style="margin-top: 40px;">
-        <h3>Professional Protection</h3>
-        <p>NCaptcha uses real-world cybersecurity heuristics. It monitors behavioral entropy, micro-jitter in cursor movement, and hardware-level environment integrity. This is the same technology used to protect high-value banking and enterprise portals.</p>
+    <div id="nc-results" style="display: none; max-width: 500px; margin: 30px auto; text-align: left; background: #f9f9f9; border: 1px solid #eee; padding: 20px;">
+        <h3 style="margin-top: 0; border-bottom: 2px solid #000; padding-bottom: 5px;">VERIFICATION ANALYSIS</h3>
+        <pre id="analysis-raw" style="font-size: 11px; white-space: pre-wrap; word-break: break-all;"></pre>
     </div>
-
-    <a href="/" class="back-link">Return to Portal</a>
 </div>
 
 <style>
-    @keyframes nc-spin { to { transform: rotate(360deg); } }
-    @keyframes nc-slide-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    #nc-main-box:hover { border-color: #2196f3; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    #nc-main-box { border-radius: 2px; border: 1px solid #dcdcdc; }
-    #nc-check { border-radius: 2px; border-color: #dcdcdc; box-shadow: none; width: 24px; height: 24px; }
-    #nc-label { font-family: Roboto, -apple-system, sans-serif; font-weight: 400; text-transform: none; font-size: 14px; letter-spacing: normal; }
-    #nc-check-mark { color: #00aa00; font-size: 18px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #nc-trigger:hover { border-color: #2196f3; }
 </style>
 
-    <script src="{{ url_for('static', path='/ncaptcha.js') }}"></script>
-    <script>
+<script src="{{ url_for('static', path='/ncaptcha.js') }}"></script>
+<script>
     document.addEventListener('DOMContentLoaded', () => {
-        const ncBox = document.getElementById('nc-main-box');
-        const ncCheck = document.getElementById('nc-check');
-        const ncSpinner = document.getElementById('nc-spinner');
-        const ncCheckMark = document.getElementById('nc-check-mark');
-        const ncChallenge = document.getElementById('nc-challenge');
-        const ncLabel = document.getElementById('nc-label');
-        const ncRipple = document.getElementById('nc-ripple');
-        const tokenDisplay = document.getElementById('nc-token-display');
-        const tokenVal = document.getElementById('token-val');
-        const analysisContent = document.getElementById('analysis-content');
-        
-        let isProcessing = false;
+        const trigger = document.getElementById('nc-trigger');
+        const loader = document.getElementById('nc-loader');
+        const done = document.getElementById('nc-done');
+        const modal = document.getElementById('challenge-modal');
+        const results = document.getElementById('nc-results');
+        const analysisRaw = document.getElementById('analysis-raw');
 
-        ncBox.onclick = async () => {
-            if (isProcessing || ncCheckMark.style.display === 'block') return;
+        trigger.onclick = async () => {
+            if (done.style.display === 'block') return;
+
+            trigger.style.borderColor = '#2196f3';
+            loader.style.display = 'block';
+
+            const payload = window.NCaptchaCore.getPayload();
             
-            isProcessing = true;
-            ncLabel.innerText = 'PROBING...';
-            ncSpinner.style.display = 'block';
-            ncCheck.style.borderColor = '#000';
-            ncRipple.style.transform = 'translateX(0)';
-
             try {
-                // Ensure the security script is truly ready
-                let payload;
-                try {
-                    payload = window.getNCaptchaPayload();
-                } catch (e) {
-                    console.warn('NCaptcha: Payload collector not ready, polling...');
-                    let attempts = 0;
-                    while (typeof window.getNCaptchaPayload !== 'function' && attempts < 30) {
-                        await new Promise(r => setTimeout(r, 100));
-                        attempts++;
-                    }
-                    if (typeof window.getNCaptchaPayload !== 'function') {
-                        throw new Error('Security engine failed to initialize');
-                    }
-                    payload = window.getNCaptchaPayload();
-                }
-
-                const response = await fetch('/security/check-risk', {
+                const res = await fetch('/security/check-risk', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(payload)
                 });
-                
-                if (!response.ok) throw new Error('Verification failed');
-                
-                const data = await response.json();
+                const data = await res.json();
 
                 if (data.risk === 'LOW') {
-                    setTimeout(() => completeVerification(data), 800);
+                    finish(data);
                 } else {
-                    ncSpinner.style.display = 'none';
-                    ncChallenge.style.display = 'block';
-                    ncLabel.innerText = 'CHALLENGE REQ';
-                    
-                    // Force a re-init check for the challenge engine
-                    const setupChallenge = () => {
-                        if (typeof window.initInteractiveChallenge === 'function') {
-                            window.initInteractiveChallenge('beat-tap-target', 'image_grid', (success) => {
-                                if (success) completeVerification(data);
-                            });
-                        } else {
-                            let bAttempts = 0;
-                            const bInterval = setInterval(() => {
-                                if (typeof window.initInteractiveChallenge === 'function') {
-                                    clearInterval(bInterval);
-                                    window.initInteractiveChallenge('beat-tap-target', 'image_grid', (success) => {
-                                        if (success) completeVerification(data);
-                                    });
-                                } else if (bAttempts > 30) {
-                                    clearInterval(bInterval);
-                                    resetWidget('Challenge engine failed to initialize');
-                                }
-                                bAttempts++;
-                            }, 100);
+                    loader.style.display = 'none';
+                    modal.style.display = 'flex';
+                    window.NCaptchaCore.renderChallenge('challenge-target', (success) => {
+                        if (success) {
+                            modal.style.display = 'none';
+                            finish(data);
                         }
-                    };
-                    setupChallenge();
+                    });
                 }
-            } catch (err) {
-                resetWidget(err.message);
+            } catch (e) {
+                console.error(e);
+                loader.style.display = 'none';
             }
         };
 
-        async function completeVerification(analysis) {
-            try {
-                const payload = window.getNCaptchaPayload();
-                
-                // Show loading state in results while syncing
-                tokenDisplay.style.display = 'block';
-                analysisContent.innerHTML = '<div style="padding: 10px; font-weight: bold;">[ SYNCING WITH SECURITY ORG... ]</div>';
-                
-                const response = await fetch('/security/verify-challenge', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ ...payload, challenge: 'verified' })
-                });
-                const data = await response.json();
-                
-                ncSpinner.style.display = 'none';
-                ncCheckMark.style.display = 'block';
-                ncChallenge.style.display = 'none';
-                ncLabel.innerText = 'SECURE';
-                ncBox.style.background = '#fff';
-                ncBox.style.borderColor = '#000';
-                ncBox.style.cursor = 'default';
-                
-                tokenVal.innerText = data.token;
-                
-                // Show analysis
-                let signalsHtml = '<div style="font-family: \'Space Mono\', monospace; border-top: 2px solid #000; padding-top: 15px; margin-top: 10px;">';
-                signalsHtml += `<div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: bold; background: #000; color: #fff; padding: 4px 8px;"><span>SECURITY STATUS</span><span>${analysis.risk || 'VERIFIED'}</span></div>`;
-                
-                if (analysis.signals && analysis.signals.length > 0) {
-                    analysis.signals.forEach(s => {
-                        signalsHtml += `<div style="font-size: 11px; margin-bottom: 4px;">• SIGNAL: <span style="font-weight: bold;">${s.toUpperCase().replace(/_/g, ' ')}</span></div>`;
-                    });
-                } else {
-                    signalsHtml += '<div style="font-size: 11px; margin-bottom: 4px;">• BEHAVIORAL SIGNATURE: <span style="font-weight: bold;">CLEAN</span></div>';
-                }
-                
-                signalsHtml += `<div style="font-size: 11px; margin-bottom: 4px;">• RISK SCORE: <span style="font-weight: bold;">${analysis.score || 0}/100</span></div>`;
-                signalsHtml += `<div style="font-size: 11px; margin-bottom: 4px;">• CONFIDENCE: <span style="font-weight: bold;">${(analysis.confidence * 100 || 98).toFixed(1)}%</span></div>`;
-                
-                if (analysis.ai_analysis) {
-                    signalsHtml += `<div style="margin-top: 15px; padding: 10px; border: 1px dashed #000; font-size: 11px; background: #f9f9f9;">${analysis.ai_analysis}</div>`;
-                }
-                
-                signalsHtml += '</div>';
-                analysisContent.innerHTML = signalsHtml;
-
-                isProcessing = false;
-                
-                // Scroll to results
-                window.scrollTo({
-                    top: tokenDisplay.offsetTop - 50,
-                    behavior: 'smooth'
-                });
-
-            } catch (err) {
-                resetWidget(err.message);
-            }
+        function finish(data) {
+            loader.style.display = 'none';
+            done.style.display = 'block';
+            trigger.style.borderColor = 'transparent';
+            results.style.display = 'block';
+            analysisRaw.innerText = JSON.stringify(data, null, 2);
         }
-
-        function resetWidget(errorMessage) {
-            isProcessing = false;
-            ncSpinner.style.display = 'none';
-            ncCheckMark.style.display = 'none';
-            ncCheck.style.borderColor = '#000';
-            ncLabel.innerText = 'VERIFY IDENTITY';
-            ncRipple.style.transform = 'translateX(-100%)';
-            console.error('NCaptcha Error:', errorMessage);
+        
+        modal.onclick = (e) => {
+            if (e.target === modal) modal.style.display = 'none';
         }
     });
 </script>
