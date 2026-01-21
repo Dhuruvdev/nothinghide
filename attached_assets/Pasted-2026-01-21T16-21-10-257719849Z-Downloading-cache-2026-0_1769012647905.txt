@@ -1,0 +1,93 @@
+2026-01-21T16:21:10.257719849Z ==> Downloading cache...
+2026-01-21T16:21:10.30716967Z ==> Cloning from https://github.com/Dhuruvdev/nothinghide
+2026-01-21T16:21:18.60474338Z ==> Checking out commit c6fbf657070eaab0b5851f1cb7886e2be7007e85 in branch main
+2026-01-21T16:21:20.659670432Z ==> Downloaded 74MB in 8s. Extraction took 1s.
+2026-01-21T16:21:25.215870013Z ==> Installing Python version 3.13.4...
+2026-01-21T16:21:36.729317664Z ==> Using Python version 3.13.4 (default)
+2026-01-21T16:21:36.754416726Z ==> Docs on specifying a Python version: https://render.com/docs/python-version
+2026-01-21T16:21:40.151034667Z ==> Using Poetry version 2.1.3 (default)
+2026-01-21T16:21:40.19895292Z ==> Docs on specifying a Poetry version: https://render.com/docs/poetry-version
+2026-01-21T16:21:40.281810942Z ==> Using uv version 0.7.12 (default)
+2026-01-21T16:21:40.281825622Z ==> Docs on specifying a uv version: https://render.com/docs/uv-version
+2026-01-21T16:21:40.339153202Z ==> Running build command 'uv sync --frozen && uv cache prune --ci'...
+2026-01-21T16:21:40.470751413Z    Building nothinghide @ file:///opt/render/project/src
+2026-01-21T16:21:40.505617898Z Downloading openai (1.0MiB)
+2026-01-21T16:21:40.516840306Z Downloading pydantic-core (2.0MiB)
+2026-01-21T16:21:40.517002793Z Downloading pygments (1.2MiB)
+2026-01-21T16:21:40.588959731Z  Downloading pydantic-core
+2026-01-21T16:21:40.674569424Z  Downloading pygments
+2026-01-21T16:21:40.760037741Z  Downloading openai
+2026-01-21T16:21:41.668868261Z       Built nothinghide @ file:///opt/render/project/src
+2026-01-21T16:21:41.671209404Z Prepared 43 packages in 1.21s
+2026-01-21T16:21:42.074982755Z Installed 43 packages in 403ms
+2026-01-21T16:21:43.826262272Z Bytecode compiled 2588 files in 1.75s
+2026-01-21T16:21:43.826290574Z  + aiofiles==25.1.0
+2026-01-21T16:21:43.826311754Z  + annotated-doc==0.0.4
+2026-01-21T16:21:43.826330885Z  + annotated-types==0.7.0
+2026-01-21T16:21:43.826367447Z  + anyio==4.12.1
+2026-01-21T16:21:43.826395088Z  + certifi==2026.1.4
+2026-01-21T16:21:43.826404159Z  + click==8.3.1
+2026-01-21T16:21:43.82643469Z  + colorama==0.4.6
+2026-01-21T16:21:43.826453031Z  + distro==1.9.0
+2026-01-21T16:21:43.826479592Z  + dnspython==2.8.0
+2026-01-21T16:21:43.826513683Z  + email-validator==2.3.0
+2026-01-21T16:21:43.826532064Z  + fastapi==0.128.0
+2026-01-21T16:21:43.826554855Z  + h11==0.16.0
+2026-01-21T16:21:43.826575866Z  + halo==0.0.31
+2026-01-21T16:21:43.826595127Z  + httpcore==1.0.9
+2026-01-21T16:21:43.826621568Z  + httpx==0.28.1
+2026-01-21T16:21:43.826636329Z  + idna==3.11
+2026-01-21T16:21:43.82666749Z  + jinja2==3.1.6
+2026-01-21T16:21:43.826680301Z  + jiter==0.12.0
+2026-01-21T16:21:43.826701712Z  + log-symbols==0.0.14
+2026-01-21T16:21:43.826724143Z  + markdown-it-py==4.0.0
+2026-01-21T16:21:43.826748084Z  + markupsafe==3.0.3
+2026-01-21T16:21:43.826806987Z  + mdurl==0.1.2
+2026-01-21T16:21:43.826834118Z  + nothinghide==1.0.0 (from file:///opt/render/project/src)
+2026-01-21T16:21:43.826846588Z  + openai==2.15.0
+2026-01-21T16:21:43.826871529Z  + pydantic==2.12.5
+2026-01-21T16:21:43.826909541Z  + pydantic-core==2.41.5
+2026-01-21T16:21:43.826916091Z  + pygments==2.19.2
+2026-01-21T16:21:43.826935112Z  + python-dotenv==1.2.1
+2026-01-21T16:21:43.826961433Z  + python-multipart==0.0.21
+2026-01-21T16:21:43.826981164Z  + rich==14.2.0
+2026-01-21T16:21:43.827009355Z  + shellingham==1.5.4
+2026-01-21T16:21:43.827024616Z  + six==1.17.0
+2026-01-21T16:21:43.827053597Z  + sniffio==1.3.1
+2026-01-21T16:21:43.827075038Z  + spinners==0.0.24
+2026-01-21T16:21:43.827091349Z  + starlette==0.50.0
+2026-01-21T16:21:43.82711351Z  + tenacity==9.1.2
+2026-01-21T16:21:43.827138641Z  + termcolor==3.3.0
+2026-01-21T16:21:43.827157402Z  + tqdm==4.67.1
+2026-01-21T16:21:43.827179023Z  + typer==0.21.1
+2026-01-21T16:21:43.827201574Z  + typing-extensions==4.15.0
+2026-01-21T16:21:43.827231525Z  + typing-inspection==0.4.2
+2026-01-21T16:21:43.827250316Z  + uvicorn==0.40.0
+2026-01-21T16:21:43.827277617Z  + yaspin==3.4.0
+2026-01-21T16:21:43.882583128Z Pruning cache at: /opt/render/.cache/.python-uv/cache
+2026-01-21T16:21:44.008587121Z Removed 3036 files (26.6MiB)
+2026-01-21T16:21:45.499128095Z ==> Uploading build...
+2026-01-21T16:22:03.159667861Z ==> Uploaded in 12.9s. Compression took 4.7s
+2026-01-21T16:22:03.277533894Z ==> Build successful 🎉
+2026-01-21T16:22:36.882984131Z ==> Setting WEB_CONCURRENCY=1 by default, based on available CPUs in the instance
+2026-01-21T16:22:36.903638158Z ==> Deploying...
+2026-01-21T16:23:07.495530375Z ==> Running 'pip install python-multipart && python main.py  '
+2026-01-21T16:23:10.903287077Z Requirement already satisfied: python-multipart in ./.venv/lib/python3.13/site-packages (0.0.21)
+2026-01-21T16:23:11.711763076Z 
+2026-01-21T16:23:11.711780786Z [notice] A new release of pip is available: 25.1.1 -> 25.3
+2026-01-21T16:23:11.711784086Z [notice] To update, run: pip install --upgrade pip
+2026-01-21T16:23:16.506378559Z Traceback (most recent call last):
+2026-01-21T16:23:16.506592975Z   File "/opt/render/project/src/main.py", line 12, in <module>
+2026-01-21T16:23:16.506599755Z     from nothinghide.web.app import app
+2026-01-21T16:23:16.506602815Z ModuleNotFoundError: No module named 'nothinghide.web'
+2026-01-21T16:23:18.934672053Z ==> Exited with status 1
+2026-01-21T16:23:18.949594921Z ==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
+2026-01-21T16:23:24.382655279Z ==> Running 'pip install python-multipart && python main.py  '
+2026-01-21T16:23:27.994287002Z Requirement already satisfied: python-multipart in ./.venv/lib/python3.13/site-packages (0.0.21)
+2026-01-21T16:23:28.897858519Z 
+2026-01-21T16:23:28.89787944Z [notice] A new release of pip is available: 25.1.1 -> 25.3
+2026-01-21T16:23:28.89788388Z [notice] To update, run: pip install --upgrade pip
+2026-01-21T16:23:34.384624842Z Traceback (most recent call last):
+2026-01-21T16:23:34.384758205Z   File "/opt/render/project/src/main.py", line 12, in <module>
+2026-01-21T16:23:34.384780316Z     from nothinghide.web.app import app
+2026-01-21T16:23:34.385610056Z ModuleNotFoundError: No module named 'nothinghide.web'
