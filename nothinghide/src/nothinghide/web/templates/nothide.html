@@ -64,12 +64,17 @@
         eventSource.addEventListener('input_classified', (e) => addEvent(e.data, 'signal'));
         eventSource.addEventListener('processing', (e) => addEvent(e.data, 'process'));
         
+        eventSource.addEventListener('forensic_result', (e) => {
+            const data = JSON.parse(e.data);
+            window.lastForensicResult = data;
+        });
+
         eventSource.addEventListener('completed', (e) => {
             addEvent(e.data, 'success');
             eventSource.close();
             btn.disabled = false;
             btn.style.opacity = '1';
-            showResult();
+            showResult(window.lastForensicResult);
         });
 
         eventSource.onerror = () => {
@@ -99,13 +104,25 @@
         list.appendChild(div);
     }
 
-    function showResult() {
+    function showResult(forensicData) {
         resultView.style.display = 'block';
-        document.getElementById('risk-badge').innerText = 'High Risk';
-        document.getElementById('risk-badge').style.background = '#ffebee';
-        document.getElementById('risk-badge').style.color = '#c62828';
-        document.getElementById('verdict-content').innerText = 'Multiple public exposures detected across known breach datasets. Your digital identity is at high risk of correlation and misuse.';
-        document.getElementById('transparency-statement').innerText = 'NothingHide analyzes only publicly accessible information. No private systems or restricted data were accessed.';
+        const badge = document.getElementById('risk-badge');
+        const content = document.getElementById('verdict-content');
+        const transparency = document.getElementById('transparency-statement');
+
+        if (forensicData) {
+            badge.innerText = forensicData.verdict;
+            badge.style.background = forensicData.color === 'red' ? '#ffebee' : '#e8f5e9';
+            badge.style.color = forensicData.color === 'red' ? '#c62828' : '#2e7d32';
+            content.innerText = `Forensic analysis complete. Confidence: ${(forensicData.confidence * 100).toFixed(1)}%. ${forensicData.verdict === 'DEEPFAKE DETECTED' ? 'This image shows high-confidence patterns of GAN generation and facial artifacting.' : 'The image does not show obvious signs of digital manipulation.'}`;
+            transparency.innerText = 'NH-Forensics uses timing heuristics and GAN noise analysis to detect digital manipulation in public media.';
+        } else {
+            badge.innerText = 'High Risk';
+            badge.style.background = '#ffebee';
+            badge.style.color = '#c62828';
+            content.innerText = 'Multiple public exposures detected across known breach datasets. Your digital identity is at high risk of correlation and misuse.';
+            transparency.innerText = 'NothingHide analyzes only publicly accessible information. No private systems or restricted data were accessed.';
+        }
     }
 </script>
 {% endblock %}
