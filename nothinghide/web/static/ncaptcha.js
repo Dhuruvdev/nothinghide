@@ -72,102 +72,70 @@
         };
     };
 
-    window.initBeatTap = (containerId, onComplete) => {
-        console.log('NCaptcha: initBeatTap called for', containerId);
+    window.initInteractiveChallenge = (containerId, type, onComplete) => {
+        console.log('NCaptcha: initInteractiveChallenge called', type);
         const container = document.getElementById(containerId);
-        if (!container) {
-            console.error('NCaptcha: Container not found:', containerId);
-            return;
-        }
-        
+        if (!container) return;
+
+        const gridImages = [
+            'https://images.unsplash.com/photo-1541963463532-d68292c34b19?auto=format&fit=crop&w=150&q=80',
+            'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=150&q=80',
+            'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=150&q=80',
+            'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=150&q=80',
+            'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=150&q=80',
+            'https://images.unsplash.com/photo-1495446815901-a7297e633e8d?auto=format&fit=crop&w=150&q=80',
+            'https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=150&q=80',
+            'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=150&q=80',
+            'https://images.unsplash.com/photo-1535905557558-afc4877a26fc?auto=format&fit=crop&w=150&q=80'
+        ];
+
         container.innerHTML = `
-            <div class="captcha-widget" style="background: #ffffff; border: 1px solid #000000; padding: 15px; text-align: left; border-radius: 0; box-shadow: none; max-width: 350px; margin: 0 auto; font-family: 'Space Mono', monospace; border-left: 4px solid #000000; position: relative; z-index: 1000;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-                    <div style="display: flex; align-items: center;">
-                        <img src="/static/captcha-icon.png" style="width: 24px; height: 24px; margin-right: 10px; object-fit: contain; filter: grayscale(1);">
-                        <div style="font-size: 12px; color: #000; font-weight: bold; letter-spacing: 1px; text-transform: uppercase;">Security Verification</div>
-                    </div>
-                    <div style="font-size: 9px; color: #666; font-style: italic;">v4.2.0-secure</div>
+            <div class="h-captcha-clone" style="width: 380px; background: #fff; border: 1px solid #e0e0e0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; box-shadow: 0 0 10px rgba(0,0,0,0.1); border-radius: 2px;">
+                <div style="background: #2196f3; color: #fff; padding: 15px; position: relative;">
+                    <div style="font-size: 14px; margin-bottom: 5px;">Select all images with</div>
+                    <div style="font-size: 22px; font-weight: bold; text-transform: uppercase;">Books</div>
+                    <div style="position: absolute; right: 15px; top: 15px; background: #fff; color: #2196f3; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 20px; border-radius: 2px;">?</div>
                 </div>
-                
-                <div style="display: flex; align-items: center; gap: 15px; padding: 5px 0;">
-                    <div id="beat-circle" style="width: 50px; height: 50px; background: #fff; border: 2px solid #000; position: relative; cursor: pointer; transition: all 0.1s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 4px 4px 0px #000; overflow: hidden;">
-                        <div id="beat-ring" style="position: absolute; top: -5px; left: -5px; right: -5px; bottom: -5px; border: 2px solid #000; opacity: 0; transition: opacity 0.1s;"></div>
-                        <div id="beat-loader" style="width: 100%; height: 100%; background: #fff url('/static/loading.gif') no-repeat center; background-size: cover; position: absolute; top: 0; left: 0;"></div>
-                        <div style="width: 8px; height: 8px; background: #000; border-radius: 1px; position: relative; z-index: 2;"></div>
-                    </div>
-                    
-                    <div style="flex-grow: 1;">
-                        <div style="font-size: 11px; color: #000; margin-bottom: 4px; font-weight: bold;">RHYTHM SENSOR</div>
-                        <div id="beat-status" style="font-size: 10px; color: #666; text-transform: uppercase;">TAP IN SYNC WITH PULSE</div>
-                    </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 2px; background: #eee;">
+                    ${gridImages.map((src, i) => `
+                        <div class="captcha-tile" data-index="${i}" style="aspect-ratio: 1; background: url('${src}') center/cover; cursor: pointer; position: relative;">
+                            <div class="tile-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(33, 150, 243, 0.4); display: none; align-items: center; justify-content: center; color: #fff; font-size: 24px;">✓</div>
+                        </div>
+                    `).join('')}
                 </div>
-                
-                <div style="margin-top: 15px; display: flex; align-items: center; justify-content: space-between; font-size: 9px; color: #999; border-top: 1px solid #f1f1f1; padding-top: 8px;">
-                    <span>NOTHINGHIDE INTELLIGENCE</span>
-                    <span style="color: #000; font-weight: bold;">[ ENCRYPTED ]</span>
+                <div style="padding: 10px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #eee;">
+                    <div style="display: flex; gap: 10px;">
+                        <span style="font-size: 20px; cursor: pointer; opacity: 0.6;">🔄</span>
+                        <span style="font-size: 20px; cursor: pointer; opacity: 0.6;">🎧</span>
+                        <span style="font-size: 20px; cursor: pointer; opacity: 0.6;">ℹ️</span>
+                    </div>
+                    <button id="verify-captcha" style="background: #2196f3; color: #fff; border: none; padding: 10px 24px; border-radius: 2px; font-weight: bold; cursor: pointer;">VERIFY</button>
+                </div>
+                <div style="font-size: 10px; color: #999; text-align: right; padding: 5px 15px;">
+                    Protected by <b>NCaptcha</b>
                 </div>
             </div>
         `;
 
-        const ring = container.querySelector('#beat-ring');
-        const loader = container.querySelector('#beat-loader');
-        const status = container.querySelector('#beat-status');
-        const circle = container.querySelector('#beat-circle');
-        let taps = [];
-        let startTime = Date.now();
-        let flashInterval;
-
-        const flash = () => {
-            if (ring) {
-                ring.style.opacity = '1';
-                setTimeout(() => { if(ring) ring.style.opacity = '0'; }, 100);
-            }
-        };
-
-        flashInterval = setInterval(flash, 1500);
-
-        circle.onclick = (e) => {
-            e.stopPropagation();
-            if (loader) loader.style.display = 'none';
-            
-            const now = Date.now();
-            const elapsedSinceStart = now - startTime;
-            const cyclePos = elapsedSinceStart % 1500;
-            const distToFlash = Math.min(cyclePos, 1500 - cyclePos);
-            
-            taps.push(distToFlash);
-            circle.style.backgroundColor = '#000';
-            circle.style.transform = 'translate(2px, 2px)';
-            circle.style.boxShadow = '2px 2px 0px #000';
-            setTimeout(() => { 
-                circle.style.backgroundColor = '#fff';
-                circle.style.transform = 'translate(0, 0)';
-                circle.style.boxShadow = '4px 4px 0px #000';
-            }, 50);
-
-            if (taps.length === 1) status.innerText = "CAPTURING PULSE [1/3]";
-            if (taps.length === 2) status.innerText = "CAPTURING PULSE [2/3]";
-            if (taps.length === 3) {
-                clearInterval(flashInterval);
-                const avgDist = taps.reduce((a, b) => a + b) / 3;
-                if (avgDist < 450) {
-                    status.innerText = "IDENTITY VERIFIED";
-                    status.style.color = "#000";
-                    circle.style.borderColor = "#000";
-                    setTimeout(() => {
-                        onComplete(true);
-                    }, 500);
+        const tiles = container.querySelectorAll('.captcha-tile');
+        const selected = new Set();
+        
+        tiles.forEach(tile => {
+            tile.onclick = () => {
+                const idx = tile.dataset.index;
+                if (selected.has(idx)) {
+                    selected.delete(idx);
+                    tile.querySelector('.tile-overlay').style.display = 'none';
                 } else {
-                    status.innerText = "SYNC FAILED. REBOOTING...";
-                    status.style.color = "#ff0000";
-                    taps = [];
-                    setTimeout(() => {
-                        status.style.color = "#666";
-                        flashInterval = setInterval(flash, 1500);
-                        status.innerText = "READY FOR SYNC";
-                    }, 1000);
+                    selected.add(idx);
+                    tile.querySelector('.tile-overlay').style.display = 'flex';
                 }
+            };
+        });
+
+        container.querySelector('#verify-captcha').onclick = () => {
+            if (selected.size > 0) {
+                onComplete(true);
             }
         };
     };

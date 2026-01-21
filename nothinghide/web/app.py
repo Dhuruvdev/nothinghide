@@ -45,6 +45,10 @@ async def check_risk(payload: SecurityPayload):
     entropy = biometrics.get("entropy", {})
     variance = entropy.get("velocity_variance", 100)
     
+    # Force challenge for demo if no movement
+    if biometrics.get("mouse_moves", 0) < 5:
+        signals.append("static_session_detected")
+
     # 2026 Detection Layer: Velocity Variance
     if variance < 2.0 and biometrics.get("mouse_moves", 0) > 15:
         signals.append("low_behavioral_entropy")
@@ -58,8 +62,9 @@ async def check_risk(payload: SecurityPayload):
     # Hybrid Risk Scoring
     score = len(signals) * 35
     risk = "LOW"
+    if score >= 35 or not signals: # Force challenge if no signals for demo
+        risk = "MEDIUM"
     if score >= 70: risk = "HIGH"
-    elif score >= 35: risk = "MEDIUM"
     
     return {
         "risk": risk,

@@ -70,8 +70,11 @@
 <style>
     @keyframes nc-spin { to { transform: rotate(360deg); } }
     @keyframes nc-slide-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    #nc-main-box:hover { border-color: #000; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    #nc-main-box:hover #nc-logo { filter: grayscale(0%); opacity: 1; }
+    #nc-main-box:hover { border-color: #2196f3; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    #nc-main-box { border-radius: 2px; border: 1px solid #dcdcdc; }
+    #nc-check { border-radius: 2px; border-color: #dcdcdc; box-shadow: none; width: 24px; height: 24px; }
+    #nc-label { font-family: Roboto, -apple-system, sans-serif; font-weight: 400; text-transform: none; font-size: 14px; letter-spacing: normal; }
+    #nc-check-mark { color: #00aa00; font-size: 18px; }
 </style>
 
 <script>
@@ -135,16 +138,16 @@
                     
                     // Force a re-init check for the challenge engine
                     const setupChallenge = () => {
-                        if (typeof window.initBeatTap === 'function') {
-                            window.initBeatTap('beat-tap-target', (success) => {
+                        if (typeof window.initInteractiveChallenge === 'function') {
+                            window.initInteractiveChallenge('beat-tap-target', 'image_grid', (success) => {
                                 if (success) completeVerification(data);
                             });
                         } else {
                             let bAttempts = 0;
                             const bInterval = setInterval(() => {
-                                if (typeof window.initBeatTap === 'function') {
+                                if (typeof window.initInteractiveChallenge === 'function') {
                                     clearInterval(bInterval);
-                                    window.initBeatTap('beat-tap-target', (success) => {
+                                    window.initInteractiveChallenge('beat-tap-target', 'image_grid', (success) => {
                                         if (success) completeVerification(data);
                                     });
                                 } else if (bAttempts > 30) {
