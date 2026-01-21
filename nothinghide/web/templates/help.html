@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Help - NothingHide{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="logo">
+        <a href="/"><img src="{{ url_for('static', path='/logo-title.png') }}" alt="NothingHide" class="logo-img"></a>
+    </div>
+    
+    <p class="tagline">Help & Documentation</p>
+    
+    <div class="help-section">
+        <h3>About NothingHide</h3>
+        <p>
+            NothingHide is a breach exposure intelligence tool that helps you check if your email 
+            or password has been compromised in data breaches. All checks use lawful, publicly 
+            available sources only.
+        </p>
+    </div>
+    
+    <div class="help-section">
+        <h3>Email Breach Check</h3>
+        <p>
+            Queries 6+ public breach databases in parallel to find if your email appears in known 
+            data breaches. Sources include:
+        </p>
+        <ul>
+            <li>LeakCheck (7B+ records)</li>
+            <li>HackCheck</li>
+            <li>XposedOrNot</li>
+            <li>XposedOrNot Analytics</li>
+            <li>EmailRep (reputation)</li>
+            <li>DeXpose</li>
+        </ul>
+    </div>
+    
+    <div class="help-section">
+        <h3>Password Check</h3>
+        <p>
+            Uses the Have I Been Pwned Pwned Passwords API with k-anonymity protocol. Your password 
+            is NEVER transmitted to any server. Here's how it works:
+        </p>
+        <ul>
+            <li>Your password is hashed using SHA-1</li>
+            <li>Only the first 5 characters of the hash are sent to the API</li>
+            <li>The API returns all hash suffixes that match</li>
+            <li>Full comparison happens locally on your device</li>
+        </ul>
+    </div>
+    
+    <div class="help-section">
+        <h3>Full Scan</h3>
+        <p>
+            Combines email breach check and password check to provide a complete identity exposure 
+            analysis with risk assessment and actionable recommendations.
+        </p>
+    </div>
+    
+    <div class="help-section">
+        <h3>Privacy & Security</h3>
+        <ul>
+            <li>No data is ever stored or logged</li>
+            <li>Password uses k-anonymity - only partial hash transmitted</li>
+            <li>All sources are publicly available and lawful</li>
+            <li>Open source and transparent</li>
+        </ul>
+    </div>
+    
+    <a href="/" class="btn-pixel">Back to Home</a>
+</div>
+{% endblock %}

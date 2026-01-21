@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}NCaptcha - Industry Standard Verification{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="logo">
+        <a href="/"><img src="{{ url_for('static', path='/logo-title.png') }}" alt="NothingHide" class="logo-img"></a>
+    </div>
+
+    <h1>NCaptcha Verification</h1>
+    <p class="tagline">Next-generation bot protection and identity verification.</p>
+
+    <div style="max-width: 320px; margin: 50px auto; background: #fff; border: 1px solid #dcdcdc; border-radius: 3px; padding: 10px; display: flex; align-items: center; justify-content: space-between; font-family: sans-serif; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div id="nc-trigger" style="width: 28px; height: 28px; border: 2px solid #c1c1c1; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: border-color 0.2s;">
+                <div id="nc-loader" style="display: none; width: 18px; height: 18px; border: 2px solid #2196f3; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                <div id="nc-done" style="display: none; color: #00aa00; font-size: 20px; font-weight: bold;">✓</div>
+            </div>
+            <div style="font-size: 14px; color: #000; font-weight: 400;">I am human</div>
+        </div>
+        <div style="text-align: center;">
+            <img src="/static/captcha-icon.png" style="height: 30px; opacity: 0.8;">
+            <div style="font-size: 8px; color: #666; font-weight: bold; margin-top: 2px;">NCaptcha</div>
+        </div>
+    </div>
+
+    <div id="challenge-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+        <div id="challenge-target"></div>
+    </div>
+
+    <div id="nc-results" style="display: none; max-width: 500px; margin: 30px auto; text-align: left; background: #f9f9f9; border: 1px solid #eee; padding: 20px;">
+        <h3 style="margin-top: 0; border-bottom: 2px solid #000; padding-bottom: 5px;">VERIFICATION ANALYSIS</h3>
+        <pre id="analysis-raw" style="font-size: 11px; white-space: pre-wrap; word-break: break-all;"></pre>
+    </div>
+</div>
+
+<style>
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #nc-trigger:hover { border-color: #2196f3; }
+</style>
+
+<script src="{{ url_for('static', path='/ncaptcha.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const trigger = document.getElementById('nc-trigger');
+        const loader = document.getElementById('nc-loader');
+        const done = document.getElementById('nc-done');
+        const modal = document.getElementById('challenge-modal');
+        const results = document.getElementById('nc-results');
+        const analysisRaw = document.getElementById('analysis-raw');
+
+        trigger.onclick = async () => {
+            if (done.style.display === 'block') return;
+
+            trigger.style.borderColor = '#2196f3';
+            loader.style.display = 'block';
+
+            const payload = window.NCaptchaCore.getPayload();
+            
+            try {
+                const res = await fetch('/security/check-risk', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (data.risk === 'LOW') {
+                    finish(data);
+                } else {
+                    loader.style.display = 'none';
+                    modal.style.display = 'flex';
+                    window.NCaptchaCore.renderChallenge('challenge-target', (success) => {
+                        if (success) {
+                            modal.style.display = 'none';
+                            finish(data);
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error(e);
+                loader.style.display = 'none';
+            }
+        };
+
+        function finish(data) {
+            loader.style.display = 'none';
+            done.style.display = 'block';
+            trigger.style.borderColor = 'transparent';
+            results.style.display = 'block';
+            analysisRaw.innerText = JSON.stringify(data, null, 2);
+        }
+        
+        modal.onclick = (e) => {
+            if (e.target === modal) modal.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}

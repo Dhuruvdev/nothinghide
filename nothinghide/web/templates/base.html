@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <title>{% block title %}NothingHide - Breach Exposure Intelligence{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}?v={{ range(1, 99999) | random }}">
+    <meta name="description" content="{% block description %}Check if your email or password has been exposed in data breaches. Free breach detection using public databases with k-anonymity protection.{% endblock %}">
+    <meta name="keywords" content="data breach, email leak, password check, haveibeenpwned, breach detection, security, privacy, k-anonymity">
+    <meta name="author" content="NothingHide">
+    <meta name="robots" content="index, follow">
+    
+    <meta property="og:title" content="NothingHide - Breach Exposure Intelligence">
+    <meta property="og:description" content="Check if your email or password has been exposed in data breaches. Free and secure breach detection.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="{{ url_for('static', path='/favicon.png') }}">
+    
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="NothingHide - Breach Exposure Intelligence">
+    <meta name="twitter:description" content="Check if your email or password has been exposed in data breaches.">
+    
+    <link rel="icon" type="image/png" href="{{ url_for('static', path='/favicon.png') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', path='/favicon.png') }}">
+    
+    <link rel="canonical" href="{% block canonical %}{% endblock %}">
+    
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+            color: #000000;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .logo { margin: 40px 0 10px 0; text-align: center; }
+        .logo-img { height: 42px; width: auto; display: inline-block; }
+        .logo a { display: inline-block; }
+        .tagline { font-size: 14px; color: #666666; margin: 5px 0 25px 0; }
+        .search-box { margin: 15px 0; }
+        .search-box input {
+            width: 90%;
+            max-width: 350px;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #333333;
+            box-sizing: border-box;
+        }
+        .btn {
+            background-color: #eeeeee;
+            border: 1px solid #666666;
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            color: #000000;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover { background-color: #dddddd; }
+        .footer {
+            background-color: #f5f5f5;
+            border-top: 1px solid #e0e0e0;
+            padding: 25px 20px;
+            margin-top: 40px;
+            text-align: center;
+        }
+        .footer-logo { margin-bottom: 12px; }
+        .footer-logo-img { height: 28px; width: auto; opacity: 0.7; }
+        .copyright { font-size: 12px; color: #666666; margin: 5px 0; }
+        .disclaimer { font-size: 11px; color: #888888; margin: 5px 0; }
+        hr.divider { border: none; border-top: 1px solid #999999; margin: 25px auto; width: 90%; }
+        .menu-list { list-style-type: disc; padding-left: 20px; margin: 20px auto; text-align: left; display: inline-block; }
+        .menu-list li { margin: 8px 0; font-size: 13px; }
+        .menu-list a { color: #0000cc; text-decoration: underline; font-weight: bold; }
+        .back-link { display: inline-block; margin: 15px 0; color: #0000cc; text-decoration: underline; font-size: 13px; }
+        .result-box { background-color: #f9f9f9; border: 1px solid #cccccc; padding: 15px; margin: 20px auto; text-align: left; max-width: 500px; }
+        .result-box h2 { margin-top: 0; font-size: 16px; color: #333333; border-bottom: 1px solid #cccccc; padding-bottom: 8px; }
+        .status-clear { color: #008800; font-weight: bold; }
+        .status-exposed { color: #cc0000; font-weight: bold; }
+        .status-warning { color: #cc6600; font-weight: bold; }
+        .error-box { background-color: #ffeeee; border: 1px solid #cc0000; padding: 12px; margin: 20px auto; max-width: 500px; color: #cc0000; font-weight: bold; }
+        .privacy-notice { background-color: #eeffee; border: 1px solid #008800; padding: 10px; margin: 12px 0; font-size: 12px; color: #006600; }
+        .recommendations { background-color: #ffffcc; border: 1px solid #cccc00; padding: 12px; margin: 12px 0; }
+        .recommendations h3 { margin-top: 0; font-size: 13px; color: #666600; }
+        .stats-table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        .stats-table td { padding: 8px; border: 1px solid #cccccc; font-size: 13px; }
+        .stats-table td:first-child { background-color: #f0f0f0; font-weight: bold; width: 40%; }
+        .help-section { text-align: left; margin: 15px auto; max-width: 500px; }
+        .help-section h3 { color: #333333; border-bottom: 1px solid #cccccc; padding-bottom: 4px; font-size: 14px; }
+        .help-section p, .help-section ul { font-size: 13px; line-height: 1.5; color: #444444; }
+        .breach-list { list-style: none; padding: 0; margin: 10px 0; }
+        .breach-list li { background-color: #ffffff; border: 1px solid #dddddd; padding: 10px; margin: 6px 0; font-size: 13px; }
+        .breach-name { font-weight: bold; color: #333333; }
+        .breach-date { color: #666666; font-size: 12px; }
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(255,255,255,0.95); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+        .loading-content { text-align: center; }
+        .loading-gif { width: 100px; height: 100px; margin-bottom: 15px; }
+        .loading-text { font-size: 14px; color: #666666; margin: 0; }
+        @media screen and (max-width: 768px) {
+            .container { padding: 15px; }
+            .logo { margin: 25px 0 10px 0; }
+            .logo-img { height: 32px; }
+            .search-box input { width: 100%; padding: 14px; font-size: 16px; }
+            .btn { display: block; width: 100%; margin: 8px 0; padding: 14px; }
+            .menu-list { padding-left: 15px; margin: 15px 10px; }
+            .menu-list li { font-size: 14px; margin: 10px 0; }
+            .result-box { margin: 15px 10px; padding: 12px; }
+            .stats-table td { padding: 8px 6px; font-size: 12px; }
+        }
+    </style>
+    <script src="{{ url_for('static', path='/ncaptcha.js') }}"></script>
+    
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "NothingHide",
+        "description": "Breach exposure intelligence - Check if your email or password has been exposed in data breaches",
+        "applicationCategory": "SecurityApplication",
+        "operatingSystem": "Web",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        }
+    }
+    </script>
+    <style>
+        /* HARD-LOCKED APP GRID SYSTEM - INLINE TO PREVENT CSS CACHE ISSUES */
+        .app-grid {
+            display: flex !important;
+            flex-wrap: wrap !important;
+            justify-content: center !important;
+            gap: 20px !important;
+            margin: 30px auto !important;
+            padding: 10px !important;
+            max-width: 600px !important;
+        }
+
+        .app-button {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 140px !important;
+            height: 140px !important;
+            background-color: #E0E0E0 !important;
+            border-top: 2px solid #FFFFFF !important;
+            border-left: 2px solid #FFFFFF !important;
+            border-bottom: 2px solid #808080 !important;
+            border-right: 2px solid #808080 !important;
+            box-shadow: 4px 4px 8px rgba(0,0,0,0.25) !important;
+            text-decoration: none !important;
+            color: #000000 !important;
+            font-weight: bold !important;
+            text-align: center !important;
+            background-image: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(0,0,0,0.05) 100%) !important;
+            box-sizing: border-box !important;
+            margin: 0 !important;
+        }
+
+        .app-button:active {
+            border-top: 2px solid #808080 !important;
+            border-left: 2px solid #808080 !important;
+            border-bottom: 2px solid #FFFFFF !important;
+            border-right: 2px solid #FFFFFF !important;
+            box-shadow: inset 3px 3px 6px rgba(0,0,0,0.35) !important;
+            transform: translate(1px, 1px) !important;
+        }
+
+        .app-icon {
+            font-size: 42px !important;
+            margin-bottom: 12px !important;
+            display: block !important;
+            line-height: 1 !important;
+            color: #000000 !important;
+            text-decoration: none !important;
+        }
+
+        .app-label {
+            font-size: 11px !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.5px !important;
+            display: block !important;
+            margin: 0 !important;
+            padding: 0 5px !important;
+            color: #000000 !important;
+            text-decoration: none !important;
+            line-height: 1.2 !important;
+        }
+
+        @media screen and (max-width: 768px) {
+            .app-grid {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 15px !important;
+                max-width: 100% !important;
+            }
+            .app-button {
+                width: 100% !important;
+                height: 140px !important;
+            }
+        }
+
+        @media screen and (max-width: 350px) {
+            .app-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        /* KILL LEGACY LISTS FORCED */
+        .menu-list, ul.menu-list, .menu-list li {
+            display: none !important;
+            height: 0 !important;
+            overflow: hidden !important;
+            visibility: hidden !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <img src="/static/loading.gif" alt="Loading..." class="loading-gif">
+            <p class="loading-text">Scanning breach databases...</p>
+        </div>
+    </div>
+
+    {% block content %}{% endblock %}
+    
+    <div class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <a href="/"><img src="{{ url_for('static', path='/logo-title.png') }}" alt="NothingHide" class="footer-logo-img"></a>
+            </div>
+            <p class="copyright">Copyright 2025 | NothingHide Security Org</p>
+            <p class="disclaimer">Official Security Intelligence Portal - All checks use lawful public sources</p>
+        </div>
+    </div>
+
+    <script>
+        function showLoading() {
+            document.getElementById('loading-overlay').style.display = 'flex';
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            var forms = document.querySelectorAll('form[data-loading="true"]');
+            forms.forEach(function(form) {
+                form.addEventListener('submit', function() {
+                    showLoading();
+                });
+            });
+        });
+    </script>
+</body>
+</html>

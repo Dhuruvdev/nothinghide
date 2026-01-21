@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}NothingHide - Breach Exposure Intelligence{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="logo">
+        <a href="/"><img src="{{ url_for('static', path='/logo-title.png') }}" alt="NothingHide" class="logo-img"></a>
+    </div>
+    
+    <div class="org-banner" style="background: #000; color: #fff; padding: 10px; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px;">
+        Official Security Intelligence Portal | NothingHide Security Org
+    </div>
+
+    <h1>Identity Intelligence</h1>
+    <p class="tagline">Comprehensive identity protection & breach intelligence.</p>
+
+    <div class="app-grid">
+        <a href="/email" class="app-button">
+            <span class="app-icon">📧</span>
+            <span class="app-label">Email Breach</span>
+        </a>
+        <a href="/password" class="app-button">
+            <span class="app-icon">🔑</span>
+            <span class="app-label">Password Check</span>
+        </a>
+        <a href="/username" class="app-button">
+            <span class="app-icon">👤</span>
+            <span class="app-label">Username OSINT</span>
+        </a>
+        <a href="/cooked" class="app-button">
+            <span class="app-icon">🍪</span>
+            <span class="app-label">Cookie Cooked</span>
+        </a>
+        <a href="/fullscan" class="app-button">
+            <span class="app-icon">🛡️</span>
+            <span class="app-label">Identity Scan</span>
+        </a>
+        <a href="/ncaptcha" class="app-button">
+            <span class="app-icon">🧩</span>
+            <span class="app-label">NCaptcha Tool</span>
+        </a>
+        <a href="/nothide" class="app-button">
+            <span class="app-icon">🕵️</span>
+            <span class="app-label">Nothide AI</span>
+        </a>
+        <a href="/help" class="app-button">
+            <span class="app-icon">📚</span>
+            <span class="app-label">Documentation</span>
+        </a>
+    </div>
+
+    <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 12px; text-align: left;">
+        <h3 style="margin-top: 0; font-size: 1.1em; color: #333;">🚀 Quick Start Guide</h3>
+        <p style="font-size: 0.9em; color: #666; line-height: 1.5;">
+            NothingHide is designed for professionals. To get the most out of the system, we recommend installing the **Cookie Cooked** protection module immediately.
+        </p>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <a href="/cooked" class="btn" style="background: #000; color: #fff; border: none; padding: 12px 20px; font-weight: bold;">Setup Protection</a>
+            <a href="/help" class="btn" style="padding: 12px 20px;">View Docs</a>
+        </div>
+    </div>
+    <div id="captcha-container" style="margin: 30px auto; max-width: 350px; min-height: 100px;"></div>
+
+    <script src="{{ url_for('static', path='/ncaptcha.js') }}?v={{ range(1, 99999) | random }}"></script>
+    <script>
+        (function() {
+            let initCount = 0;
+            function init() {
+                const container = document.getElementById('captcha-container');
+                if (!container) return;
+
+                if (typeof window.initBeatTap === 'function' && typeof window.getNCaptchaPayload === 'function') {
+                    console.log('NCaptcha: Engine confirmed. Initializing widget...');
+                    window.initBeatTap('captcha-container', (verified) => {
+                        if (verified) {
+                            console.log('NCaptcha: Identity Verified.');
+                        }
+                    });
+                } else {
+                    initCount++;
+                    if (initCount < 50) {
+                        setTimeout(init, 100);
+                    } else {
+                        console.error('NCaptcha: Critical failure - engine timeout.');
+                    }
+                }
+            }
+            // Start polling as soon as script tag is parsed
+            init();
+        })();
+    </script>
+</div>
+{% endblock %}
