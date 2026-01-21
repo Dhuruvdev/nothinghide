@@ -22,6 +22,8 @@ dependencies = [
     "colorama>=0.4.6",
 ]
 
-[tool.setuptools.packages.find]
-where = ["nothinghide/src"]
-include = ["nothinghide*"]
+[tool.setuptools]
+packages = ["nothinghide", "nothinghide.agent", "nothinghide.nothide", "nothinghide.web"]
+
+[project.scripts]
+nothinghide = "nothinghide.cli:main"

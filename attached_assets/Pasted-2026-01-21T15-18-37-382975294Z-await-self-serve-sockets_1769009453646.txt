@@ -1,0 +1,100 @@
+2026-01-21T15:18:37.382975294Z     await self._serve(sockets)
+2026-01-21T15:18:37.382977054Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/uvicorn/server.py", line 78, in _serve
+2026-01-21T15:18:37.382978785Z     config.load()
+2026-01-21T15:18:37.382980545Z     ~~~~~~~~~~~^^
+2026-01-21T15:18:37.382982255Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/uvicorn/config.py", line 439, in load
+2026-01-21T15:18:37.382984045Z     self.loaded_app = import_from_string(self.app)
+2026-01-21T15:18:37.382986445Z                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+2026-01-21T15:18:37.382989785Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/uvicorn/importer.py", line 22, in import_from_string
+2026-01-21T15:18:37.382993255Z     raise exc from None
+2026-01-21T15:18:37.382996105Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/uvicorn/importer.py", line 19, in import_from_string
+2026-01-21T15:18:37.382999085Z     module = importlib.import_module(module_str)
+2026-01-21T15:18:37.383002385Z   File "/opt/render/project/python/Python-3.13.4/lib/python3.13/importlib/__init__.py", line 88, in import_module
+2026-01-21T15:18:37.383005385Z     return _bootstrap._gcd_import(name[level:], package, level)
+2026-01-21T15:18:37.383008145Z            ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-01-21T15:18:37.383011085Z   File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+2026-01-21T15:18:37.383017605Z   File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+2026-01-21T15:18:37.383019485Z   File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+2026-01-21T15:18:37.383021275Z   File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+2026-01-21T15:18:37.383022995Z   File "<frozen importlib._bootstrap_external>", line 1026, in exec_module
+2026-01-21T15:18:37.383024725Z   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+2026-01-21T15:18:37.383026445Z   File "/opt/render/project/src/nothinghide/web/app.py", line 29, in <module>
+2026-01-21T15:18:37.383028175Z     from nothinghide.core import check_email, check_password, BreachScanner
+2026-01-21T15:18:37.383036706Z ModuleNotFoundError: No module named 'nothinghide.core'
+2026-01-21T15:18:38.680361967Z Starting NothingHide Web Server...
+2026-01-21T15:18:38.680395948Z Executing: /opt/render/project/src/.venv/bin/python -m uvicorn nothinghide.web.app:app --host 0.0.0.0 --port 5000
+2026-01-21T15:18:38.680402638Z Server exited with error: Command '['/opt/render/project/src/.venv/bin/python', '-m', 'uvicorn', 'nothinghide.web.app:app', '--host', '0.0.0.0', '--port', '5000']' returned non-zero exit status 1.
+2026-01-21T15:18:39.306180775Z ==> Exited with status 1
+2026-01-21T15:18:39.329207861Z ==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
+2026-01-21T15:18:44.574769261Z ==> Running 'pip install python-multipart && python main.py  '
+2026-01-21T15:18:52.56777524Z Requirement already satisfied: python-multipart in ./.venv/lib/python3.13/site-packages (0.0.21)
+2026-01-21T15:18:53.479138062Z 
+2026-01-21T15:18:53.479164742Z [notice] A new release of pip is available: 25.1.1 -> 25.3
+2026-01-21T15:18:53.479169612Z [notice] To update, run: pip install --upgrade pip
+2026-01-21T15:19:11.464311113Z Traceback (most recent call last):
+2026-01-21T15:19:11.467790305Z   File "<frozen runpy>", line 198, in _run_module_as_main
+2026-01-21T15:19:11.467843536Z   File "<frozen runpy>", line 88, in _run_code
+2026-01-21T15:19:11.467848756Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/uvicorn/__main__.py", line 4, in <module>
+2026-01-21T15:19:11.467854966Z     uvicorn.main()
+2026-01-21T15:19:11.467859176Z     ~~~~~~~~~~~~^^
+2026-01-21T15:19:11.467863506Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/click/core.py", line 1485, in __call__
+2026-01-21T15:19:11.467867666Z     return self.main(*args, **kwargs)
+2026-01-21T15:19:11.467872346Z            ~~~~~~~~~^^^^^^^^^^^^^^^^^
+2026-01-21T15:19:11.467911537Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/click/core.py", line 1406, in main
+2026-01-21T15:19:11.467917247Z     rv = self.invoke(ctx)
+2026-01-21T15:19:11.467921547Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/click/core.py", line 1269, in invoke
+2026-01-21T15:19:11.467926037Z     return ctx.invoke(self.callback, **ctx.params)
+2026-01-21T15:19:11.467930227Z            ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-01-21T15:19:11.467951458Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/click/core.py", line 824, in invoke
+2026-01-21T15:19:11.467956898Z     return callback(*args, **kwargs)
+2026-01-21T15:19:11.467960988Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/uvicorn/main.py", line 424, in main
+2026-01-21T15:19:11.467965148Z     run(
+2026-01-21T15:19:11.467972798Z     ~~~^
+2026-01-21T15:19:11.467976738Z         app,
+2026-01-21T15:19:11.467980588Z         ^^^^
+2026-01-21T15:19:11.467985368Z     ...<46 lines>...
+2026-01-21T15:19:11.467990618Z         h11_max_incomplete_event_size=h11_max_incomplete_event_size,
+2026-01-21T15:19:11.467996048Z         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-01-21T15:19:11.468000188Z     )
+2026-01-21T15:19:11.468004259Z     ^
+2026-01-21T15:19:11.468008568Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/uvicorn/main.py", line 594, in run
+2026-01-21T15:19:11.468012868Z     server.run()
+2026-01-21T15:19:11.468017039Z     ~~~~~~~~~~^^
+2026-01-21T15:19:11.468021429Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/uvicorn/server.py", line 67, in run
+2026-01-21T15:19:11.468026299Z     return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+2026-01-21T15:19:11.468030229Z   File "/opt/render/project/python/Python-3.13.4/lib/python3.13/asyncio/runners.py", line 195, in run
+2026-01-21T15:19:11.468034529Z     return runner.run(main)
+2026-01-21T15:19:11.468038259Z            ~~~~~~~~~~^^^^^^
+2026-01-21T15:19:11.468046249Z   File "/opt/render/project/python/Python-3.13.4/lib/python3.13/asyncio/runners.py", line 118, in run
+2026-01-21T15:19:11.468050489Z     return self._loop.run_until_complete(task)
+2026-01-21T15:19:11.468055419Z            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+2026-01-21T15:19:11.468060029Z   File "/opt/render/project/python/Python-3.13.4/lib/python3.13/asyncio/base_events.py", line 725, in run_until_complete
+2026-01-21T15:19:11.468064019Z     return future.result()
+2026-01-21T15:19:11.46808826Z            ~~~~~~~~~~~~~^^
+2026-01-21T15:19:11.46809158Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/uvicorn/server.py", line 71, in serve
+2026-01-21T15:19:11.46809425Z     await self._serve(sockets)
+2026-01-21T15:19:11.46809686Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/uvicorn/server.py", line 78, in _serve
+2026-01-21T15:19:11.46809952Z     config.load()
+2026-01-21T15:19:11.46810229Z     ~~~~~~~~~~~^^
+2026-01-21T15:19:11.46810914Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/uvicorn/config.py", line 439, in load
+2026-01-21T15:19:11.4681126Z     self.loaded_app = import_from_string(self.app)
+2026-01-21T15:19:11.46811538Z                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+2026-01-21T15:19:11.4681182Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/uvicorn/importer.py", line 22, in import_from_string
+2026-01-21T15:19:11.46812099Z     raise exc from None
+2026-01-21T15:19:11.46812658Z   File "/opt/render/project/src/.venv/lib/python3.13/site-packages/uvicorn/importer.py", line 19, in import_from_string
+2026-01-21T15:19:11.46812933Z     module = importlib.import_module(module_str)
+2026-01-21T15:19:11.46813463Z   File "/opt/render/project/python/Python-3.13.4/lib/python3.13/importlib/__init__.py", line 88, in import_module
+2026-01-21T15:19:11.46813711Z     return _bootstrap._gcd_import(name[level:], package, level)
+2026-01-21T15:19:11.46813943Z            ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-01-21T15:19:11.468173731Z   File "<frozen importlib._bootstrap>", line 1387, in _gcd_import
+2026-01-21T15:19:11.468183131Z   File "<frozen importlib._bootstrap>", line 1360, in _find_and_load
+2026-01-21T15:19:11.468218652Z   File "<frozen importlib._bootstrap>", line 1331, in _find_and_load_unlocked
+2026-01-21T15:19:11.468253332Z   File "<frozen importlib._bootstrap>", line 935, in _load_unlocked
+2026-01-21T15:19:11.468259122Z   File "<frozen importlib._bootstrap_external>", line 1026, in exec_module
+2026-01-21T15:19:11.468286693Z   File "<frozen importlib._bootstrap>", line 488, in _call_with_frames_removed
+2026-01-21T15:19:11.468324173Z   File "/opt/render/project/src/nothinghide/web/app.py", line 29, in <module>
+2026-01-21T15:19:11.468327703Z     from nothinghide.core import check_email, check_password, BreachScanner
+2026-01-21T15:19:11.468381004Z ModuleNotFoundError: No module named 'nothinghide.core'
+2026-01-21T15:19:12.869120544Z Starting NothingHide Web Server...
+2026-01-21T15:19:12.869138604Z Executing: /opt/render/project/src/.venv/bin/python -m uvicorn nothinghide.web.app:app --host 0.0.0.0 --port 5000
+2026-01-21T15:19:12.869157774Z Server exited with error: Command '['/opt/render/project/src/.venv/bin/python', '-m', 'uvicorn', 'nothinghide.web.app:app', '--host', '0.0.0.0', '--port', '5000']' returned non-zero exit status 1.
