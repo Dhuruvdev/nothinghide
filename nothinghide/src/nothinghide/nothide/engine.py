@@ -1,45 +1,34 @@
-import cv2
-import torch
-import numpy as np
-from typing import List, Dict, Any
-from datetime import datetime
+from typing import Dict, Any, Optional
+import re
+from pydantic import BaseModel
 
-class NothideOrchestrator:
-    def __init__(self):
-        self.visual_agent = VisualArtifactAgent()
-        self.face_agent = FaceIntegrityAgent()
-        
-    async def scan(self, file_path: str) -> Dict[str, Any]:
-        # Orchestration logic
-        results = {
-            "visual": await self.visual_agent.analyze(file_path),
-            "face": await self.face_agent.analyze(file_path)
-        }
-        
-        aggregator = EvidenceAggregator()
-        report = aggregator.aggregate(results)
-        
-        return report
+class SignalResult(BaseModel):
+    type: str
+    confidence: float
+    query: str
 
-class VisualArtifactAgent:
-    async def analyze(self, file_path: str) -> Dict[str, Any]:
-        # Placeholder for MobileNetV3 analysis
-        return {"artifact_score": 0.15, "confidence": "medium"}
+class NHSignal:
+    """NH-Signal: Input Classification & Validation."""
+    
+    EMAIL_PATTERN = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    USERNAME_PATTERN = r'^[a-zA-Z0-9._-]{3,32}$'
+    URL_PATTERN = r'^https?://[^\s/$.?#].[^\s]*$'
 
-class FaceIntegrityAgent:
-    async def analyze(self, file_path: str) -> Dict[str, Any]:
-        # Placeholder for MediaPipe analysis
-        return {"jitter_score": 0.05, "mouth_sync": 0.95}
-
-class EvidenceAggregator:
-    def aggregate(self, results: Dict[str, Any]) -> Dict[str, Any]:
-        score = 85 # Mock for now
-        risk = "Low"
-        explanations = ["Texture patterns appear natural", "Landmark stability within normal range"]
+    def classify(self, query: str) -> SignalResult:
+        query = query.strip()
         
-        return {
-            "authenticity_score": score,
-            "risk_level": risk,
-            "confidence": "Experimental (Pre-Beta)",
-            "explanation": explanations
-        }
+        # Check Email
+        if re.match(self.EMAIL_PATTERN, query):
+            return SignalResult(type="email", confidence=1.0, query=query)
+            
+        # Check Image URL
+        if re.match(self.URL_PATTERN, query):
+            if any(query.lower().endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.webp', '.gif']):
+                return SignalResult(type="image", confidence=0.95, query=query)
+            return SignalResult(type="url", confidence=0.8, query=query)
+            
+        # Check Username
+        if re.match(self.USERNAME_PATTERN, query):
+            return SignalResult(type="username", confidence=0.85, query=query)
+            
+        return SignalResult(type="unknown", confidence=0.0, query=query)
