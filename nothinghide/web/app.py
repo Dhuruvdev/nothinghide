@@ -93,7 +93,13 @@ async def ncaptcha_page(request: Request):
     return templates.TemplateResponse("ncaptcha_tool.html", {"request": request})
 
 app.middleware("http")(cookie_cooked_middleware)
-app.include_router(protection_router)
+
+# Ensure protection_router is handled if it exists
+try:
+    from .cookie_cooked_api import router as protection_router
+    app.include_router(protection_router)
+except ImportError:
+    pass
 
 @app.middleware("http")
 async def add_cache_headers(request: Request, call_next):
