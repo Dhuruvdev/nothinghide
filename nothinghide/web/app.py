@@ -15,6 +15,13 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
+# Nothide Engine Import
+try:
+    from nothinghide.nothide.engine import NothideOrchestrator
+    nothide_engine = NothideOrchestrator()
+except ImportError:
+    nothide_engine = None
+
 from .security.ai_risk import analyze_risk_with_ai
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -432,6 +439,28 @@ async def fullscan_check(request: Request, email: str = Form(...), password: str
         "error": error,
     })
 
+
+@app.get("/nothide", response_class=HTMLResponse)
+async def nothide_page(request: Request):
+    return templates.TemplateResponse("nothide.html", {"request": request})
+
+@app.post("/api/scan")
+async def scan_file(file: UploadFile = File(...)):
+    if not nothide_engine:
+        return JSONResponse(content={"error": "Nothide engine not initialized"}, status_code=500)
+    
+    # Save file temporarily
+    temp_path = f"/tmp/{file.filename}"
+    try:
+        content = await file.read()
+        with open(temp_path, "wb") as buffer:
+            buffer.write(content)
+        
+        result = await nothide_engine.scan(temp_path)
+        return result
+    finally:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
 
 @app.get("/help", response_class=HTMLResponse)
 async def help_page(request: Request):
