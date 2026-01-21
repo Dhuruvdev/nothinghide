@@ -77,7 +77,8 @@
     #nc-check-mark { color: #00aa00; font-size: 18px; }
 </style>
 
-<script>
+    <script src="{{ url_for('static', path='/ncaptcha.js') }}"></script>
+    <script>
     document.addEventListener('DOMContentLoaded', () => {
         const ncBox = document.getElementById('nc-main-box');
         const ncCheck = document.getElementById('nc-check');
