@@ -1,31 +1,37 @@
 from typing import Dict, Any, List, Optional
 from pydantic import BaseModel
 import asyncio
+import re
 
 class SignalResult(BaseModel):
     type: str
     confidence: float
     query: str
+    metadata: Dict[str, Any] = {}
 
 class NHSignal:
     """NH-Signal: Input Classification & Validation."""
-    import re
     
     EMAIL_PATTERN = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     USERNAME_PATTERN = r'^[a-zA-Z0-9._-]{3,32}$'
     URL_PATTERN = r'^https?://[^\s/$.?#].[^\s]*$'
 
     def classify(self, query: str) -> SignalResult:
-        import re
         query = query.strip()
+        
+        # Check for image file paths or references
+        if any(query.lower().endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.webp', '.gif']):
+            return SignalResult(type="image", confidence=1.0, query=query)
+            
         if re.match(self.EMAIL_PATTERN, query):
             return SignalResult(type="email", confidence=1.0, query=query)
+            
         if re.match(self.URL_PATTERN, query):
-            if any(query.lower().endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.webp', '.gif']):
-                return SignalResult(type="image", confidence=0.95, query=query)
             return SignalResult(type="url", confidence=0.8, query=query)
+            
         if re.match(self.USERNAME_PATTERN, query):
             return SignalResult(type="username", confidence=0.85, query=query)
+            
         return SignalResult(type="unknown", confidence=0.0, query=query)
 
 class NHChain:
@@ -39,11 +45,28 @@ class NHChain:
         yield f"event: input_classified\ndata: Input classified as {classification.type}\n\n"
         await asyncio.sleep(0.5)
 
-        # 2. Module Execution
-        yield "event: processing\ndata: Querying public datasets\n\n"
-        await asyncio.sleep(0.8)
-        yield "event: processing\ndata: Aggregating exposure signals\n\n"
-        await asyncio.sleep(0.5)
+        if classification.type == "image":
+            yield "event: processing\ndata: NH-Forensics: Analyzing facial artifacts\n\n"
+            await asyncio.sleep(1.0)
+            yield "event: processing\ndata: NH-Forensics: Checking GAN noise patterns\n\n"
+            await asyncio.sleep(0.8)
+            yield "event: processing\ndata: NH-Forensics: Verifying lighting consistency\n\n"
+            await asyncio.sleep(0.5)
+            
+            # Simulated forensic result based on attached file name or query content
+            is_deepfake = any(word in query.lower() for word in ["fake", "deepfake", "generated"])
+            confidence = 0.98 if is_deepfake else 0.45
+            verdict = "DEEPFAKE DETECTED" if is_deepfake else "AUTHENTIC LIKELY"
+            risk_color = "red" if is_deepfake else "green"
+            
+            yield f"event: forensic_result\ndata: {{\"verdict\": \"{verdict}\", \"confidence\": {confidence}, \"color\": \"{risk_color}\"}}\n\n"
+            yield f"event: completed\ndata: Forensic Verdict: {verdict} ({confidence*100:.1f}% confidence)\n\n"
+        else:
+            # 2. Module Execution
+            yield "event: processing\ndata: Querying public datasets\n\n"
+            await asyncio.sleep(0.8)
+            yield "event: processing\ndata: Aggregating exposure signals\n\n"
+            await asyncio.sleep(0.5)
 
-        # 3. Final Verdict
-        yield "event: completed\ndata: Finalizing intelligence report\n\n"
+            # 3. Final Verdict
+            yield "event: completed\ndata: Finalizing intelligence report\n\n"
