@@ -1,6 +1,27 @@
 [project]
-name = "repl-nix-workspace"
-version = "0.1.0"
-description = "Add your description here"
+name = "nothinghide"
+version = "1.0.0"
+description = "Security Exposure Intelligence"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "jinja2",
+    "python-multipart",
+    "pydantic",
+    "aiofiles",
+    "openai",
+    "tenacity",
+    "typer>=0.9.0",
+    "httpx>=0.24.0",
+    "rich>=13.0.0",
+    "python-dotenv>=1.0.0",
+    "email-validator>=2.0.0",
+    "halo>=0.0.31",
+    "yaspin>=3.0.0",
+    "colorama>=0.4.6",
+]
+
+[tool.setuptools.packages.find]
+where = ["nothinghide/src"]
+include = ["nothinghide*"]
