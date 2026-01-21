@@ -438,27 +438,17 @@ async def fullscan_check(request: Request, email: str = Form(...), password: str
     })
 
 
+from ..nothide.engine import NHChain
+from fastapi.responses import StreamingResponse
+
+@app.get("/api/scan/stream")
+async def scan_stream(query: str):
+    chain = NHChain()
+    return StreamingResponse(chain.process(query), media_type="text/event-stream")
+
 @app.get("/nothide", response_class=HTMLResponse)
 async def nothide_page(request: Request):
     return templates.TemplateResponse("nothide.html", {"request": request})
-
-@app.post("/api/scan")
-async def scan_file(file: UploadFile = File(...)):
-    if not nothide_engine:
-        return JSONResponse(content={"error": "Nothide engine not initialized"}, status_code=500)
-    
-    # Save file temporarily
-    temp_path = f"/tmp/{file.filename}"
-    try:
-        content = await file.read()
-        with open(temp_path, "wb") as buffer:
-            buffer.write(content)
-        
-        result = await nothide_engine.scan(temp_path)
-        return result
-    finally:
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
 
 @app.get("/help", response_class=HTMLResponse)
 async def help_page(request: Request):

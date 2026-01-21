@@ -12,8 +12,9 @@ class NHChain:
 
     async def process(self, query: str):
         # 1. Classification
+        classification = self.signal_processor.classify(query)
         yield "event: input_classified\ndata: Input classified as {}\n\n".format(
-            self.signal_processor.classify(query).type
+            classification.type
         )
         await asyncio.sleep(0.5)
 

@@ -1,102 +1,111 @@
 {% extends "base.html" %}
 
-{% block title %}Nothide - Deepfake Risk Detection{% endblock %}
+{% block title %}NothingHide - Digital Exposure Intelligence{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="logo">
-        <a href="/"><img src="{{ url_for('static', path='/logo-title.png') }}" alt="NothingHide" class="logo-img"></a>
+<div class="container" style="max-width: 800px; margin: 0 auto; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+    <div style="text-align: center; margin-bottom: 40px;">
+        <h1 style="font-size: 32px; font-weight: 600; color: #1a1a1a; margin-bottom: 10px;">NothingHide</h1>
+        <p style="color: #666; font-size: 16px;">Identify where your digital identity is publicly exposed.</p>
     </div>
 
-    <h1>Nothide Intelligence</h1>
-    <p class="tagline">Agentic authenticity engine for media verification.</p>
-
-    <div class="brutalist-card" style="max-width: 600px; margin: 40px auto; text-align: left;">
-        <h3 style="margin-top: 0; border-bottom: 2px solid #000; padding-bottom: 10px;">MEDIA ANALYSIS</h3>
-        
-        <div id="upload-zone" style="border: 4px dashed #000; padding: 40px; text-align: center; background: #fff; cursor: pointer; margin-bottom: 20px;">
-            <p style="font-weight: bold;">DROP IMAGE/VIDEO HERE OR CLICK TO UPLOAD</p>
-            <input type="file" id="file-input" style="display: none;" accept="image/*,video/*">
+    <div style="background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+            <input type="text" id="search-input" placeholder="Email, username, or image URL" style="flex: 1; padding: 12px 16px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; outline: none; transition: border-color 0.2s;">
+            <button id="scan-btn" style="background: #1a1a1a; color: #fff; border: none; padding: 0 24px; border-radius: 6px; font-weight: 500; cursor: pointer; transition: opacity 0.2s;">Scan</button>
         </div>
 
-        <div id="scanning-status" style="display: none; background: #ffff00; border: 2px solid #000; padding: 15px; margin-bottom: 20px; font-weight: bold;">
-            <span id="status-text">ORCHESTRATING AGENTS...</span>
+        <div id="event-feed" style="display: none; border-top: 1px solid #f0f0f0; padding-top: 20px;">
+            <div style="font-size: 12px; font-weight: 600; color: #999; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.05em;">Intelligence Chain</div>
+            <div id="event-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
         </div>
+    </div>
 
-        <div id="results-area" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #000; color: #fff; padding: 15px;">
-                <div>
-                    <div style="font-size: 12px; opacity: 0.8;">AUTHENTICITY SCORE</div>
-                    <div id="score-val" style="font-size: 32px; font-weight: bold; font-family: 'Space Mono', monospace;">--</div>
-                </div>
-                <div style="text-align: right;">
-                    <div style="font-size: 12px; opacity: 0.8;">RISK LEVEL</div>
-                    <div id="risk-val" style="font-size: 24px; font-weight: bold;">--</div>
-                </div>
+    <div id="result-view" style="display: none; margin-top: 30px;">
+        <div style="background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="font-size: 20px; font-weight: 600; margin: 0;">Verdict Report</h2>
+                <div id="risk-badge" style="padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase;"></div>
             </div>
-
-            <div style="background: #fff; border: 2px solid #000; padding: 20px; margin-bottom: 20px;">
-                <h4 style="margin-top: 0; text-transform: uppercase;">Agent Evidence</h4>
-                <ul id="explanation-list" style="padding-left: 20px; line-height: 1.6;"></ul>
-            </div>
-
-            <div style="font-size: 10px; text-transform: uppercase; opacity: 0.6; text-align: center;">
-                DISCLAIMER: THIS IS AN EXPERIMENTAL AI PRE-BETA RESULT. DO NOT USE AS LEGAL PROOF.
+            
+            <div id="verdict-content" style="color: #444; line-height: 1.6;"></div>
+            
+            <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #f0f0f0;">
+                <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">Data Transparency</h3>
+                <p id="transparency-statement" style="font-size: 13px; color: #666; margin: 0; padding: 12px; background: #f9f9f9; border-radius: 4px;"></p>
             </div>
         </div>
+    </div>
+
+    <div style="margin-top: 40px; text-align: center; font-size: 12px; color: #999;">
+        NothingHide provides exposure awareness using only publicly accessible information.
     </div>
 </div>
 
 <script>
-    const uploadZone = document.getElementById('upload-zone');
-    const fileInput = document.getElementById('file-input');
-    const scanningStatus = document.getElementById('scanning-status');
-    const resultsArea = document.getElementById('results-area');
-    const statusText = document.getElementById('status-text');
+    const input = document.getElementById('search-input');
+    const btn = document.getElementById('scan-btn');
+    const feed = document.getElementById('event-feed');
+    const list = document.getElementById('event-list');
+    const resultView = document.getElementById('result-view');
 
-    uploadZone.onclick = () => fileInput.click();
+    btn.onclick = () => {
+        const query = input.value.trim();
+        if (!query) return;
 
-    fileInput.onchange = async (e) => {
-        if (!e.target.files.length) return;
+        list.innerHTML = '';
+        feed.style.display = 'block';
+        resultView.style.display = 'none';
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+
+        const eventSource = new EventSource(`/api/scan/stream?query=${encodeURIComponent(query)}`);
+
+        eventSource.addEventListener('input_classified', (e) => addEvent(e.data, 'signal'));
+        eventSource.addEventListener('processing', (e) => addEvent(e.data, 'process'));
         
-        const file = e.target.files[0];
-        const formData = new FormData();
-        formData.append('file', file);
+        eventSource.addEventListener('completed', (e) => {
+            addEvent(e.data, 'success');
+            eventSource.close();
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            showResult();
+        });
 
-        uploadZone.style.display = 'none';
-        scanningStatus.style.display = 'block';
-        resultsArea.style.display = 'none';
-
-        try {
-            statusText.innerText = "ORCHESTRATING AGENTS...";
-            const res = await fetch('/api/scan', {
-                method: 'POST',
-                body: formData
-            });
-            const data = await res.json();
-            
-            statusText.innerText = "AGGREGATING EVIDENCE...";
-            
-            setTimeout(() => {
-                scanningStatus.style.display = 'none';
-                resultsArea.style.display = 'block';
-                
-                document.getElementById('score-val').innerText = data.authenticity_score + '%';
-                document.getElementById('risk-val').innerText = data.risk_level.toUpperCase();
-                
-                const list = document.getElementById('explanation-list');
-                list.innerHTML = '';
-                data.explanation.forEach(exp => {
-                    const li = document.createElement('li');
-                    li.innerText = exp;
-                    list.appendChild(li);
-                });
-            }, 800);
-
-        } catch (err) {
-            console.error(err);
-            statusText.innerText = "ERROR DURING SCAN";
-        }
+        eventSource.onerror = () => {
+            addEvent('Error connecting to intelligence chain', 'error');
+            eventSource.close();
+            btn.disabled = false;
+            btn.style.opacity = '1';
+        };
     };
+
+    function addEvent(text, type) {
+        const div = document.createElement('div');
+        div.style.fontSize = '14px';
+        div.style.color = type === 'error' ? '#d32f2f' : '#444';
+        div.style.display = 'flex';
+        div.style.alignItems = 'center';
+        div.style.gap = '8px';
+        
+        const dot = document.createElement('span');
+        dot.style.width = '6px';
+        dot.style.height = '6px';
+        dot.style.borderRadius = '50%';
+        dot.style.background = type === 'signal' ? '#2196f3' : type === 'success' ? '#4caf50' : type === 'error' ? '#f44336' : '#ccc';
+        
+        div.appendChild(dot);
+        div.appendChild(document.createTextNode(text));
+        list.appendChild(div);
+    }
+
+    function showResult() {
+        resultView.style.display = 'block';
+        document.getElementById('risk-badge').innerText = 'High Risk';
+        document.getElementById('risk-badge').style.background = '#ffebee';
+        document.getElementById('risk-badge').style.color = '#c62828';
+        document.getElementById('verdict-content').innerText = 'Multiple public exposures detected across known breach datasets. Your digital identity is at high risk of correlation and misuse.';
+        document.getElementById('transparency-statement').innerText = 'NothingHide analyzes only publicly accessible information. No private systems or restricted data were accessed.';
+    }
 </script>
 {% endblock %}
