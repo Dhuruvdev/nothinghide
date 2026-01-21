@@ -1,0 +1,128 @@
+Integrate an agentic, lightweight, explainable deepfake risk detection system into an existing web app, optimized for CPU-only environments (Replit).
+The system must be fast, smooth, modular, and authentic, suitable for pre-beta public use.
+🧠 SYSTEM ROLE (VERY IMPORTANT)
+You are a Senior AI Systems Architect + Backend Engineer building a pre-beta trust & authenticity engine.
+You prioritize speed, explainability, safety, and modular upgrades, not raw benchmark accuracy.
+🧩 CORE REQUIREMENTS
+1️⃣ Architecture Style
+Agentic architecture (multi-agent, decision-driven)
+NO single monolithic model
+Each agent must be independent, replaceable, and explainable
+2️⃣ Allowed Models & Libraries (Replit Safe)
+MobileNetV3 (pre-trained, CPU)
+MediaPipe (face detection + landmarks)
+OpenCV
+librosa (optional audio)
+PyTorch (inference only)
+FastAPI
+❌ No transformers
+❌ No heavy YOLO
+❌ No GPU assumptions
+❌ No training in runtime
+🧠 AGENT DEFINITIONS (MANDATORY)
+🧠 Orchestrator Agent
+Decides which agents to execute
+Skips unnecessary computation
+Handles timeouts & fallbacks
+Rules:
+If input = image → skip temporal & audio agents
+If no face detected → return “Insufficient data”
+If video > 30s → sample frames (1 fps)
+👁️ Visual Artifact Agent
+Model: MobileNetV3 (pre-trained)
+Detects:
+Over-smoothed skin
+Texture inconsistency
+Blending artifacts
+Output:
+Copy code
+Json
+{
+  "artifact_score": 0.0–1.0,
+  "confidence": "low | medium | high"
+}
+🙂 Face Integrity Agent
+Model: MediaPipe
+Detects:
+Eye blink frequency
+Landmark jitter
+Head pose instability
+Mouth–eye sync anomalies
+No ML training required.
+⏱️ Temporal Logic Agent
+(NO deep learning)
+Detects:
+Frame similarity spikes
+Motion physics breaks
+Interpolation artifacts
+🔊 Audio Consistency Agent (Optional)
+Uses librosa:
+Pitch flatness
+Silence irregularity
+Audio-video desync
+Auto-disable if:
+No audio
+System under load
+🧩 Evidence Aggregator Agent
+Combines outputs from all agents
+Uses rule-based reasoning, not averaging
+Produces structured evidence
+Example reasoning:
+“Visual artifacts + unstable landmarks + normal audio → likely face-swap”
+🧮 Risk Scoring Agent
+Dynamic weighting based on input type
+Example:
+Copy code
+Text
+Video:
+Visual 35%
+Temporal 35%
+Face 20%
+Audio 10%
+
+Image:
+Visual 60%
+Face 40%
+Output:
+Copy code
+Json
+{
+  "authenticity_score": 0–100,
+  "risk_level": "Low | Medium | High",
+  "model_confidence": "Experimental (Pre-Beta)"
+}
+🗣️ Explanation Agent (CRITICAL)
+Must convert machine results into human-readable trust explanations.
+Example output:
+Copy code
+
+Why flagged:
+• Facial texture unusually smooth
+• Eye blink frequency below natural range
+• Motion transitions inconsistent
+NO technical jargon in user output.
+🌐 API INTEGRATION (Existing Web App)
+Endpoint
+Copy code
+
+POST /api/scan
+Input
+Image or video file
+Max size: configurable
+Async processing preferred
+Output (JSON)
+Copy code
+Json
+{
+  "authenticity_score": 72,
+  "risk_level": "Medium",
+  "confidence": "Experimental",
+  "explanation": [
+    "Facial texture appears overly smooth",
+    "Eye blink frequency lower than expected"
+  ]
+}
+🖥️ UI REQUIREMENTS (Pre-Beta Safe)
+Show score + reason, not “Fake / Real”
+Always display disclaimer:
+“This is an experimental AI pre-beta result. Do not use as legal proof.”
