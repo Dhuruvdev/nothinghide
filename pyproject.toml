@@ -1,6 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build_backend = "setuptools.build_meta"
+
 [project]
-name = "repl-nix-workspace"
-version = "0.1.0"
-description = "Add your description here"
+name = "nothinghide"
+version = "1.0.0"
+description = "Security Exposure Intelligence - Check email and password breaches using lawful public sources"
+readme = "README.md"
+license = {text = "MIT"}
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.20.0",
+    "jinja2>=3.0.0",
+    "python-multipart>=0.0.5",
+    "pydantic>=2.0.0",
+    "aiofiles>=23.0.0",
+    "typer>=0.9.0",
+    "httpx>=0.24.0",
+    "rich>=13.0.0",
+    "python-dotenv>=1.0.0",
+    "email-validator>=2.0.0",
+    "halo>=0.0.31",
+    "yaspin>=3.4.0",
+    "colorama>=0.4.6",
+    "openai>=1.0.0",
+    "tenacity>=8.0.0"
+]
+
+[tool.setuptools.packages.find]
+where = ["nothinghide/src"]
+include = ["nothinghide*"]
+
+[project.scripts]
+nothinghide = "nothinghide.cli:main"
