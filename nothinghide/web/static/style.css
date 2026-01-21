@@ -230,9 +230,10 @@ hr.divider {
     flex-wrap: wrap !important;
     justify-content: center !important;
     gap: 20px !important;
-    margin-top: 30px !important;
-    padding: 10px !important;
+    margin: 40px auto !important;
+    padding: 20px !important;
     list-style: none !important;
+    max-width: 800px !important;
 }
 
 .app-button {
@@ -255,8 +256,11 @@ hr.divider {
     background-image: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(0,0,0,0.05) 100%) !important;
     box-sizing: border-box !important;
     cursor: pointer !important;
-    -webkit-appearance: none !important;
-    -moz-appearance: none !important;
+}
+
+.app-button:hover {
+    background-color: #D5D5D5 !important;
+    text-decoration: none !important;
 }
 
 .app-button:active {
@@ -276,7 +280,7 @@ hr.divider {
 }
 
 .app-label {
-    font-size: 12px !important;
+    font-size: 11px !important;
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
     display: block !important;
@@ -284,6 +288,7 @@ hr.divider {
     padding: 0 5px !important;
     color: #000000 !important;
     text-decoration: none !important;
+    line-height: 1.2 !important;
 }
 
 /* Specific overrides for mobile to force the grid layout and appearance */
