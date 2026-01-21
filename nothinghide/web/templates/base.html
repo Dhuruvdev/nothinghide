@@ -8,6 +8,7 @@
     <meta http-equiv="Expires" content="0">
     
     <title>{% block title %}NothingHide - Breach Exposure Intelligence{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}?v={{ range(1, 99999) | random }}">
     <meta name="description" content="{% block description %}Check if your email or password has been exposed in data breaches. Free breach detection using public databases with k-anonymity protection.{% endblock %}">
     <meta name="keywords" content="data breach, email leak, password check, haveibeenpwned, breach detection, security, privacy, k-anonymity">
     <meta name="author" content="NothingHide">
@@ -117,7 +118,6 @@
             .stats-table td { padding: 8px 6px; font-size: 12px; }
         }
     </style>
-    <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
     <script src="{{ url_for('static', path='/ncaptcha.js') }}"></script>
     
     <script type="application/ld+json">
@@ -137,7 +137,7 @@
     </script>
     <style>
         /* HARD-LOCKED APP GRID SYSTEM - INLINE TO PREVENT CSS CACHE ISSUES */
-        .app-grid-fixed {
+        .app-grid {
             display: flex !important;
             flex-wrap: wrap !important;
             justify-content: center !important;
@@ -147,7 +147,7 @@
             max-width: 600px !important;
         }
 
-        .app-button-fixed {
+        .app-button {
             display: flex !important;
             flex-direction: column !important;
             align-items: center !important;
@@ -169,7 +169,7 @@
             margin: 0 !important;
         }
 
-        .app-button-fixed:active {
+        .app-button:active {
             border-top: 2px solid #808080 !important;
             border-left: 2px solid #808080 !important;
             border-bottom: 2px solid #FFFFFF !important;
@@ -178,7 +178,7 @@
             transform: translate(1px, 1px) !important;
         }
 
-        .app-icon-fixed {
+        .app-icon {
             font-size: 42px !important;
             margin-bottom: 12px !important;
             display: block !important;
@@ -187,7 +187,7 @@
             text-decoration: none !important;
         }
 
-        .app-label-fixed {
+        .app-label {
             font-size: 11px !important;
             text-transform: uppercase !important;
             letter-spacing: 0.5px !important;
@@ -200,20 +200,20 @@
         }
 
         @media screen and (max-width: 768px) {
-            .app-grid-fixed {
+            .app-grid {
                 display: grid !important;
                 grid-template-columns: repeat(2, 1fr) !important;
                 gap: 15px !important;
                 max-width: 100% !important;
             }
-            .app-button-fixed {
+            .app-button {
                 width: 100% !important;
                 height: 140px !important;
             }
         }
 
         @media screen and (max-width: 350px) {
-            .app-grid-fixed {
+            .app-grid {
                 grid-template-columns: 1fr !important;
             }
         }
