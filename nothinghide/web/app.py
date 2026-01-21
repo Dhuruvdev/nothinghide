@@ -49,22 +49,20 @@ async def check_risk(payload: SecurityPayload):
     
     signals = []
     # 2026 Detection: Behavioral Entropy (Velocity Variance)
-    # Bots often have perfectly smooth or perfectly linear movements (variance ~0)
-    # Humans have natural micro-jitter (variance > 2.0)
     v = biometrics.get("variance", 0)
-    if v < 1.5 and biometrics.get("count", 0) > 10:
+    if v < 1.0 and biometrics.get("count", 0) > 10:
         signals.append("impossible_smoothness_detected")
         
     if not biometrics.get("integrity"):
         signals.append("environment_integrity_violation")
         
-    if biometrics.get("duration", 0) < 0.2:
+    if biometrics.get("duration", 0) < 0.1:
         signals.append("impossible_interaction_speed")
 
     score = len(signals) * 30
     risk = "LOW"
-    # Force challenge if any suspicion or for demo
-    if score > 0 or biometrics.get("count", 0) < 5:
+    # Adjusted for lower threshold to prevent false positives and timeouts
+    if score > 50 or (biometrics.get("count", 0) < 3 and biometrics.get("duration", 0) > 0.5):
         risk = "HIGH"
         
     return {
