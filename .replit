@@ -5,7 +5,7 @@ integrations = ["javascript_object_storage:2.0.0", "python_openrouter_ai_integra
 
 [nix]
 channel = "stable-25_05"
-packages = ["fastfetch", "freetype", "lcms2", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "tcl", "tk", "zip", "zlib"]
+packages = ["fastfetch", "freetype", "lcms2", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "tcl", "tk", "zip", "zlib", "unzip"]
 
 [workflows]
 runButton = "Project"

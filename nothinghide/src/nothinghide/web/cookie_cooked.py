@@ -18,6 +18,7 @@ class CookieCookedSystem:
     
     def __init__(self, secret_key: Optional[str] = None):
         self.secret_key = secret_key or os.environ.get("COOKED_SECRET_KEY", "cooked_secret_2025")
+        self.production_domain = "Nothinghide.in"
         self.risk_threshold_revoke = 75
         self.risk_threshold_stepup = 40
 
