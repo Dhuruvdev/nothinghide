@@ -25,7 +25,7 @@ dependencies = [
     "yaspin>=3.4.0",
     "colorama>=0.4.6",
     "openai>=1.0.0",
-    "tenacity>=8.0.0"
+    "tenacity>=8.0.0",
 ]
 
 [tool.setuptools.packages.find]
