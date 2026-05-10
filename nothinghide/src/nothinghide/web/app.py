@@ -133,8 +133,9 @@ async def unified_check(request: Request, query: str = Form(...)):
         error = None
         
         try:
+            import asyncio
             scanner = BreachScanner()
-            result = scanner.check_email(query)
+            result = await asyncio.to_thread(scanner.check_email, query)
             
             breaches = []
             if result.breaches:
@@ -245,8 +246,9 @@ async def email_check(request: Request, email: str = Form(...)):
     error = None
     
     try:
+        import asyncio
         scanner = BreachScanner()
-        result = scanner.check_email(email)
+        result = await asyncio.to_thread(scanner.check_email, email)
         
         breaches = []
         if result.breaches:
@@ -362,7 +364,7 @@ async def password_check(request: Request, password: str = Form(...)):
         if error:
             return JSONResponse(content={"error": error})
         response_data = dict(result_data) if result_data else {}
-        response_data["strength"] = result_data
+        response_data["strength"] = result_data.get("strength") if result_data else None
         return JSONResponse(content=response_data)
     
     return templates.TemplateResponse("password_result.html", {
@@ -386,8 +388,9 @@ async def fullscan_check(request: Request, email: str = Form(...), password: str
     error = None
     
     try:
+        import asyncio
         scanner = BreachScanner()
-        report = scanner.full_scan(email, password)
+        report = await asyncio.to_thread(scanner.full_scan, email, password)
         
         breaches = []
         for b in report.email_result.breaches:

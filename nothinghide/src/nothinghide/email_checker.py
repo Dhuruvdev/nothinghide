@@ -291,24 +291,30 @@ def check_email_xposedornot(
             if response.status_code == 200:
                 data = response.json()
                 
-                breaches_data = data.get("breaches") or data.get("ExposedBreaches", {}).get("breaches_details", [])
+                if isinstance(data, list):
+                    breaches_data = data
+                elif isinstance(data, dict):
+                    breaches_data = data.get("breaches") or data.get("ExposedBreaches", {}).get("breaches_details", [])
+                else:
+                    breaches_data = []
                 
                 if breaches_data:
                     breaches = []
                     
-                    if isinstance(breaches_data, list):
-                        for item in breaches_data:
-                            if isinstance(item, str):
-                                breach_info = BreachInfo(name=item, source_api="XposedOrNot")
-                            else:
-                                breach_info = BreachInfo(
-                                    name=item.get("breach", item.get("name", "Unknown")),
-                                    year=extract_year(item.get("xposed_date", "")),
-                                    date=item.get("xposed_date"),
-                                    data_classes=item.get("xposed_data", ["Unknown"]),
-                                    source_api="XposedOrNot",
-                                )
-                            breaches.append(breach_info.to_dict())
+                    for item in breaches_data:
+                        if isinstance(item, str):
+                            breach_info = BreachInfo(name=item, source_api="XposedOrNot")
+                        elif isinstance(item, dict):
+                            breach_info = BreachInfo(
+                                name=item.get("breach", item.get("name", "Unknown")),
+                                year=extract_year(item.get("xposed_date", "")),
+                                date=item.get("xposed_date"),
+                                data_classes=item.get("xposed_data", ["Unknown"]),
+                                source_api="XposedOrNot",
+                            )
+                        else:
+                            continue
+                        breaches.append(breach_info.to_dict())
                     
                     return {
                         "breached": True,
@@ -590,19 +596,27 @@ async def async_check_email_xposedornot(
             
             if response.status_code == 200:
                 data = response.json()
-                breaches_data = data.get("breaches") or data.get("ExposedBreaches", {}).get("breaches_details", [])
+                
+                if isinstance(data, list):
+                    breaches_data = data
+                elif isinstance(data, dict):
+                    breaches_data = data.get("breaches") or data.get("ExposedBreaches", {}).get("breaches_details", [])
+                else:
+                    breaches_data = []
                 
                 if breaches_data:
                     breaches = []
                     for item in breaches_data:
                         if isinstance(item, str):
                             breach_info = BreachInfo(name=item, source_api="XposedOrNot")
-                        else:
+                        elif isinstance(item, dict):
                             breach_info = BreachInfo(
                                 name=item.get("breach", item.get("name", "Unknown")),
                                 year=extract_year(item.get("xposed_date", "")),
                                 source_api="XposedOrNot",
                             )
+                        else:
+                            continue
                         breaches.append(breach_info.to_dict())
                     
                     return {

@@ -423,7 +423,12 @@ class XposedOrNotSource(DataSource):
                     data = response.json()
                     self.health.record_success(response_time)
                     
-                    breaches_data = data.get("breaches") or data.get("ExposedBreaches", {}).get("breaches_details", [])
+                    if isinstance(data, list):
+                        breaches_data = data
+                    elif isinstance(data, dict):
+                        breaches_data = data.get("breaches") or data.get("ExposedBreaches", {}).get("breaches_details", [])
+                    else:
+                        breaches_data = []
                     
                     if breaches_data:
                         breaches = []
@@ -433,7 +438,7 @@ class XposedOrNotSource(DataSource):
                                     "name": item,
                                     "source_api": self.name,
                                 })
-                            else:
+                            elif isinstance(item, dict):
                                 breaches.append({
                                     "name": item.get("breach", item.get("name", "Unknown")),
                                     "date": item.get("xposed_date"),
@@ -446,7 +451,7 @@ class XposedOrNotSource(DataSource):
                             breached=True,
                             breaches=breaches,
                             breach_count=len(breaches),
-                            raw_data=data,
+                            raw_data=data if isinstance(data, dict) else {},
                             response_time_ms=response_time,
                         )
                     
@@ -455,7 +460,7 @@ class XposedOrNotSource(DataSource):
                         breached=False,
                         breach_count=0,
                         breaches=[],
-                        raw_data=data,
+                        raw_data=data if isinstance(data, dict) else {},
                         response_time_ms=response_time,
                     )
                 

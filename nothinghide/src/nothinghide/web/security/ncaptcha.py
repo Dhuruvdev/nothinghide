@@ -23,12 +23,12 @@ class NCaptcha:
         }
         payload_json = json.dumps(payload, sort_keys=True)
         signature = hmac.new(SECRET_KEY.encode(), payload_json.encode(), hashlib.sha256).hexdigest()
-        return f"{payload_json}.{signature}"
+        return f"{payload_json}||{signature}"
 
     @staticmethod
     def verify_token(token: str) -> Optional[Dict[str, Any]]:
         try:
-            parts = token.split(".")
+            parts = token.split("||", 1)
             if len(parts) != 2:
                 return None
             payload_json, signature = parts
